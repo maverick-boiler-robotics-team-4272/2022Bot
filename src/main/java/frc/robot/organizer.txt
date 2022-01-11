@@ -1,0 +1,70 @@
+Swerve Code:
+
+    General:
+        Auto:
+
+        Teleop:
+
+        Hardware:
+
+        Paths:
+
+
+    Shooter:
+        Limelight:
+
+
+    Intake:
+
+
+    Climber:
+
+
+    Motor IDs:
+        Drive Motors:
+            Drive:
+                1, 2, 3, 4
+            Steering:
+                11, 12, 13, 14
+
+        Climb Motors:
+
+        Intake Motors:
+
+        Shooter Motors:
+
+
+    Network Tables:
+
+        Odometry:
+
+        PID Tuning:
+            -to be taken off after tuning is finalized
+
+        Paths/Auto Modes:
+
+        Cameras:
+
+    Math:
+        Swerve Module Math:
+
+        Utilities:
+            
+
+
+Coding Practices:
+
+    Commenting: Dew it
+
+    White Space:
+        -indentation
+        -spaces around operators
+        -after commas
+
+    Number Casting:
+        -if using double
+            - number.0
+        
+        -if using integer
+            - number
+    
