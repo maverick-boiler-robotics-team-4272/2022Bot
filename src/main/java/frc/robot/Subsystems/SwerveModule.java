@@ -57,7 +57,7 @@ public class SwerveModule {
         this.turningEncoder = turningEncoder;
 
         driveEncoder.setPositionConversionFactor(2 * Math.PI * WHEEL_RADIUS);
-        turningEncoder.setPositionConversionFactor(2 * Math.PI * WHEEL_RADIUS);//Set distance per pulse is what we actually need btw
+        turningEncoder.setPositionConversionFactor(2 * Math.PI * WHEEL_RADIUS);//Set distance per pulse using the encoder resolution is what we actually need to do
 
         turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
     }
