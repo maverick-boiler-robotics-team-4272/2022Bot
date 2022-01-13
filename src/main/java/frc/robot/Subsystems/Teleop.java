@@ -14,14 +14,28 @@ public class Teleop {
     private XboxController driveController = new XboxController(0);
     private XboxController opCotnroller = new XboxController(1);
 
+    public boolean fieldRelative = true;
+
     public void run(){
 
         //Drive
-        double driveX = driveController.getLeftX();
-        double driveY = driveController.getLeftY();
+        double driveX = (driveController.getLeftX() > robot.JSTICK_DEADZONE)
+                        ? driveController.getLeftX()
+                        : 0;
+        double driveY = (driveController.getLeftY() > robot.JSTICK_DEADZONE)
+                        ? driveController.getLeftY()
+                        : 0;
 
+        //Field Relative Toggle
+        if(driveController.getStartButtonPressed()){
+            fieldRelative = !fieldRelative;
+        }
+        
         //Shooter
-        robot.shooter.shoot(driveController.getRightTriggerAxis());
+        double shooterVal = (driveController.getRightTriggerAxis() > robot.TRIGGER_DEADZONE)
+                            ? driveController.getRightTriggerAxis()
+                            : 0;
+        robot.shooter.shoot(shooterVal);
 
         //Intake
         

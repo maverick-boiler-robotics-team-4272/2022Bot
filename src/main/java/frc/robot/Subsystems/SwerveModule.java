@@ -1,7 +1,7 @@
 package frc.robot.Subsystems;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
+// import com.revrobotics.RelativeEncoder;
 import frc.robot.Robot;
 
 
@@ -48,6 +48,6 @@ public class SwerveModule {
         driveEncoder.setPositionConversionFactor(2 * Math.PI * WHEEL_RADIUS);
         turningEncoder.setPositionConversionFactor(2 * Math.PI * WHEEL_RADIUS);
 
-
+        
     }
 }

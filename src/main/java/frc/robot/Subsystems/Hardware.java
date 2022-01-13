@@ -17,15 +17,16 @@ import frc.robot.Robot;
 public class Hardware {
     private Robot robot;
 
+    //Constants
     public static final double MAX_SPEED = 3.0;//Meters per second
     public static final double MAX_ANGULAR_SPEED = Math.PI;//Half rotation per second
     public static final double WHEEL_DIST = Units.feetToMeters(1);
 
     //drive motors (ids: 1, 2, 3, 4)
-    public CANSparkMax frontRightDrive = new CANSparkMax(1, MotorType.kBrushless);
-    public CANSparkMax frontLeftDrive = new CANSparkMax(2, MotorType.kBrushless);
-    public CANSparkMax backLeftDrive = new CANSparkMax(3, MotorType.kBrushless);
-    public CANSparkMax backRightDrive = new CANSparkMax(4, MotorType.kBrushless);
+    public CANSparkMax frontRightDrive = new CANSparkMax(1, MotorType.kBrushless); public RelativeEncoder frontRightDriveEnc = frontRightDrive.getEncoder();
+    public CANSparkMax frontLeftDrive = new CANSparkMax(2, MotorType.kBrushless); public RelativeEncoder frontLeftDriveEnc = frontLeftDrive.getEncoder();
+    public CANSparkMax backLeftDrive = new CANSparkMax(3, MotorType.kBrushless); public RelativeEncoder backLeftDriveEnc = backLeftDrive.getEncoder();
+    public CANSparkMax backRightDrive = new CANSparkMax(4, MotorType.kBrushless); public RelativeEncoder backRightDriveEnc = backRightDrive.getEncoder();
 
     //rotation motors (ids: 11, 12, 13, 14)
     public CANSparkMax frontRightRotation = new CANSparkMax(11, MotorType.kBrushless);
@@ -51,6 +52,9 @@ public class Hardware {
     private final SwerveModuleState backLeftModule = new SwerveModuleState();
     private final SwerveModuleState backRightModule = new SwerveModuleState();
 
+    //SwerveModule objects
+    private final SwerveModule frontLeft = new SwerveModule(frontLeftDrive, frontLeftRotation, frontLeftEncoder, turningEncoder)
+
     private final PigeonIMU pigeon = new PigeonIMU(0);//I don't know how to get a rotation2d object from a pigeon, will have to ask Danny at some point
     private final Rotation2d rotation2d = new Rotation2d();//For now this'll work to not have so many errors
 
@@ -58,13 +62,19 @@ public class Hardware {
 
     private final SwerveDriveOdometry swerveOdometry = new SwerveDriveOdometry(swerveKinematics, rotation2d);
 
-    //Shooter motor. ids 3, 4(follower)
+    //Shooter motor. ids 5, 6(follower)
     public CANSparkMax shooterMotor = new CANSparkMax(5, MotorType.kBrushless);
     public CANSparkMax shooterFollower = new CANSparkMax(6, MotorType.kBrushless);
 
-    //Intake motors
+    //Intake motors, ids 7-10(if needed)
     public CANSparkMax intakeMotor = new CANSparkMax(7, MotorType.kBrushless);
-    public CANSparkMax intakeSecond = new CANSparkMax(8, MotorType.kBrushless);
+    public CANSparkMax intakeSecond = new CANSparkMax(8, MotorType.kBrushless);//Assuming that there is in fact a second motor
+    public CANSparkMax hopperMotor = new CANSparkMax(9, MotorType.kBrushless);//Again assuming that there is going to some sort of belt or something from intake to shooter 
+
+    //Climber motors, ids 15-18. I can't imagine it taking more than 4 motors, nor can I imagine our robot having 18 motors on it
+    public CANSparkMax climberOne = new CANSparkMax(15);
+    public CANSparkMax climberTwo = new CANSParkMax(16);
+    public CANSparkMax climberThree = new CANSparkMax(17);
 
     public Hardware(Robot robot){
         this.robot = robot;

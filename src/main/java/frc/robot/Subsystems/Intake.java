@@ -7,4 +7,14 @@ public class Intake {
     public Intake(Robot robot){
         this.robot = robot;
     }
+
+    /**
+     * Runs intake motors at a value determined by trigger value
+     * 
+     * @param triggerVal
+     */
+    public void runIntake(double triggerVal){
+        if
+        intakeMotor
+    }
 }

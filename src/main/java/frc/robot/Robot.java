@@ -31,6 +31,10 @@ public class Robot extends TimedRobot {
     public SwerveModule swerveModule = new SwerveModule(this);
     public Teleop teleop = new Teleop(this);
 
+    //Deadzone constants
+    public final double TRIGGER_DEADZONE = 0.1;
+    public final double JSTICK_DEADZONE = 0.15;
+
 
     /**
      * This function is run when the robot is first started up and should be used
