@@ -41,6 +41,6 @@ public class Teleop {
         double intakeVal = (opController.getLeftTriggerAxis() > robot.TRIGGER_DEADZONE)
                             ? opController.getLeftTriggerAxis()
                             : 0;
-        robot.intake.runIntake(triggerVal);
+        robot.intake.runIntake(intakeVal);
     }
 }

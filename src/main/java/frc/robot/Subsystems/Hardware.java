@@ -1,5 +1,7 @@
 package frc.robot.Subsystems;
 
+
+
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -53,10 +55,14 @@ public class Hardware {
     private final SwerveModuleState backRightModule = new SwerveModuleState();
 
     //SwerveModule objects
-    private final SwerveModule frontLeft = new SwerveModule(frontLeftDrive, frontLeftRotation, frontLeftEncoder, turningEncoder)
+    private final SwerveModule frontRight = new SwerveModule(frontRightDrive, frontRightRotation, frontRightDriveEnc, frontRightEncoder);
+    private final SwerveModule frontLeft = new SwerveModule(frontLeftDrive, frontLeftRotation, frontLeftDriveEnc, frontLeftEncoder);
+    private final SwerveModule backLeft = new SwerveModule(backLeftDrive, backLeftRotation, backLeftDriveEnc, backLeftEncoder);
+    private final SwerveModule backRight = new SwerveModule(backRightDrive, backRightRotation, backRightDriveEnc, backRightEncoder);
 
-    private final PigeonIMU pigeon = new PigeonIMU(0);//I don't know how to get a rotation2d object from a pigeon, will have to ask Danny at some point
-    private final Rotation2d rotation2d = new Rotation2d();//For now this'll work to not have so many errors
+    public final PigeonIMU pigeon = new PigeonIMU(0);//I don't know how to get a rotation2d object from a pigeon, will have to ask Danny at some point
+    public final Rotation2d rotation2d = Rotation2d.fromDegrees(pigeon.getFusedHeading());//For now this'll work to not have so many errors
+    
 
     private final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(frontRightLocation, frontLeftLocation, backLeftLocation, backRightLocation);
 
@@ -72,15 +78,16 @@ public class Hardware {
     public CANSparkMax hopperMotor = new CANSparkMax(9, MotorType.kBrushless);//Again assuming that there is going to some sort of belt or something from intake to shooter 
 
     //Climber motors, ids 15-18. I can't imagine it taking more than 4 motors, nor can I imagine our robot having 18 motors on it
-    public CANSparkMax climberOne = new CANSparkMax(15);
-    public CANSparkMax climberTwo = new CANSParkMax(16);
-    public CANSparkMax climberThree = new CANSparkMax(17);
+    public CANSparkMax climberOne = new CANSparkMax(15, MotorType.kBrushless);
+    public CANSparkMax climberTwo = new CANSparkMax(16, MotorType.kBrushless);
+    public CANSparkMax climberThree = new CANSparkMax(17, MotorType.kBrushless);
 
     public Hardware(Robot robot){
         this.robot = robot;
         //Reset pigeon here, couldn't find the command for it
         shooterFollower.follow(shooterMotor);
         shooterFollower.setInverted(true);
+        Rotation2d.fromDegrees(pigeon.getFusedHeading());
     }
 
     /**
@@ -93,6 +100,11 @@ public class Hardware {
      */
     public void drive(double xSpeed, double ySpeed, double rotation, boolean fieldRelative){ 
         var swerveModuleStates = swerveKinematics.toSwerveModuleStates(new ChassisSpeeds(xSpeed, ySpeed, rotation));
+        swerveKinematics.toSwerveModuleStates(
+            fieldRelative
+                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotation, Rotation2d.fromDegrees(pigeon.getFusedHeading()))
+                : new ChassisSpeeds(xSpeed, ySpeed, rotation)
+        );   
         if(fieldRelative){
             swerveModuleStates = swerveKinematics.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotation, rotation2d));
         }
