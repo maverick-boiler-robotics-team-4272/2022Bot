@@ -11,16 +11,11 @@ public class Shooter {
     
 
     /**
-     * Starts the shooter wheel based on the trigger value. 
-     * Has built in deadzone
+     * Starts the shooter wheel based on the trigger value
      * @param triggerValue amount an xbox trigger is pressed
      */
     public void shoot(double triggerValue){
-        //deadzone set in function to keep teleop easier to manage
-        if(triggerValue <= robot.TRIGGER_DEADZONE){
-            triggerValue = 0;
-        }
-        double MAX_SHOOT_SPEED = 20.0;//meters per second
+        final double MAX_SHOOT_SPEED = 20.0;//meters per second
         triggerValue *= MAX_SHOOT_SPEED;//Makes the shooter speed a percent of the max speed
         robot.hardware.shooterMotor.set(triggerValue);
     }

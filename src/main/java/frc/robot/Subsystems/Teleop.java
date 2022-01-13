@@ -12,7 +12,7 @@ public class Teleop {
     }
 
     private XboxController driveController = new XboxController(0);
-    private XboxController opCotnroller = new XboxController(1);
+    private XboxController opController = new XboxController(1);
 
     public boolean fieldRelative = true;
 
@@ -30,7 +30,7 @@ public class Teleop {
         if(driveController.getStartButtonPressed()){
             fieldRelative = !fieldRelative;
         }
-        
+
         //Shooter
         double shooterVal = (driveController.getRightTriggerAxis() > robot.TRIGGER_DEADZONE)
                             ? driveController.getRightTriggerAxis()
@@ -38,6 +38,9 @@ public class Teleop {
         robot.shooter.shoot(shooterVal);
 
         //Intake
-        
+        double intakeVal = (opController.getLeftTriggerAxis() > robot.TRIGGER_DEADZONE)
+                            ? opController.getLeftTriggerAxis()
+                            : 0;
+        robot.intake.runIntake(triggerVal);
     }
 }
