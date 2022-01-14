@@ -2,6 +2,8 @@ package frc.robot.Subsystems;
 
 
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -14,6 +16,11 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.PneumaticsBase;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import frc.robot.Robot;
 
 public class Hardware {
@@ -36,6 +43,11 @@ public class Hardware {
     public CANSparkMax backLeftRotation = new CANSparkMax(13, MotorType.kBrushless);
     public CANSparkMax backRightRotation = new CANSparkMax(14, MotorType.kBrushless);
 
+        //Talon rotation motors so we can test with old swerve bot
+    public TalonSRX frontRightTalon = new TalonSRX(1);
+    public TalonSRX frontLeftTalon = new TalonSRX(2);
+    public TalonSRX backLefTalon = new TalonSRX(3);
+    public TalonSRX backRightTalon = new TalonSRX(4);
     //rotation motor encoders
     private RelativeEncoder frontRightEncoder = frontRightRotation.getEncoder();
     private RelativeEncoder frontLeftEncoder = frontLeftRotation.getEncoder();
@@ -64,9 +76,9 @@ public class Hardware {
     public final Rotation2d rotation2d = Rotation2d.fromDegrees(pigeon.getFusedHeading());//For now this'll work to not have so many errors
     
 
-    private final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(frontRightLocation, frontLeftLocation, backLeftLocation, backRightLocation);
+    public final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(frontRightLocation, frontLeftLocation, backLeftLocation, backRightLocation);
 
-    private final SwerveDriveOdometry swerveOdometry = new SwerveDriveOdometry(swerveKinematics, rotation2d);
+    public final SwerveDriveOdometry swerveOdometry = new SwerveDriveOdometry(swerveKinematics, rotation2d);
 
     //Shooter motor. ids 5, 6(follower)
     public CANSparkMax shooterMotor = new CANSparkMax(5, MotorType.kBrushless);
@@ -81,6 +93,10 @@ public class Hardware {
     public CANSparkMax climberOne = new CANSparkMax(15, MotorType.kBrushless);
     public CANSparkMax climberTwo = new CANSparkMax(16, MotorType.kBrushless);
     public CANSparkMax climberThree = new CANSparkMax(17, MotorType.kBrushless);
+
+    //Pneumatics, ids 20-25
+    public DoubleSolenoid intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 20, 21);
+    public DoubleSolenoid climberSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 22, 23);
 
     public Hardware(Robot robot){
         this.robot = robot;
@@ -99,7 +115,7 @@ public class Hardware {
      * @param fieldRelative Whether it's in field relative control mode or not
      */
     public void drive(double xSpeed, double ySpeed, double rotation, boolean fieldRelative){ 
-        var swerveModuleStates = swerveKinematics.toSwerveModuleStates(new ChassisSpeeds(xSpeed, ySpeed, rotation));
+        SwerveModuleState[] swerveModuleStates = swerveKinematics.toSwerveModuleStates(new ChassisSpeeds(xSpeed, ySpeed, rotation));
         swerveKinematics.toSwerveModuleStates(
             fieldRelative
                 ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotation, Rotation2d.fromDegrees(pigeon.getFusedHeading()))
@@ -108,10 +124,38 @@ public class Hardware {
         if(fieldRelative){
             swerveModuleStates = swerveKinematics.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotation, rotation2d));
         }
+        setSwerveModuleStates(swerveModuleStates);
+    }
+    /**
+     * 
+     * @return array of SwerveModuleState 0 is fl, 1 is fr, 2 is bl, 3 is br
+     */
+    public SwerveModuleState[] getSwerveModuleStates(){
+        SwerveModuleState[] states = new SwerveModuleState[4];
+        states[0] = frontLeft.getState();
+        states[1] = frontRight.getState();
+        states[2] = backLeft.getState();
+        states[3] = backRight.getState();
+        return states;
     }
 
+    /**
+     * 
+     * @param states an array of the swerve module states. 0 for fl, 1 for fr, 2 for bl, 3 for br 
+     */
+    public void setSwerveModuleStates(SwerveModuleState[] states){
+        frontLeft.setDesiredState(states[0]);
+        frontRight.setDesiredState(states[1]);
+        backLeft.setDesiredState(states[2]);
+        backRight.setDesiredState(states[3]);
+    }
+
+    /**
+     * 
+     * updates the odometry
+     */
     public void updateOdom(){
-        //Update odometry and stuff here, couldn't find the commands for it
+        swerveOdometry.update(Rotation2d.fromDegrees(pigeon.getFusedHeading()), getSwerveModuleStates());
     }
 
 }

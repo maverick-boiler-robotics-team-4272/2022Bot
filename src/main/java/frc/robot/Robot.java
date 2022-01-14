@@ -32,8 +32,8 @@ public class Robot extends TimedRobot {
     public Teleop teleop = new Teleop(this);
 
     //Deadzone constants
-    public final double TRIGGER_DEADZONE = 0.1;
-    public final double JSTICK_DEADZONE = 0.15;
+    public static final double TRIGGER_DEADZONE = 0.1;
+    public static final double JSTICK_DEADZONE = 0.15;
 
 
     /**

@@ -68,7 +68,10 @@ public class SwerveModule {
     public SwerveModuleState getState(){
         return new SwerveModuleState(driveEncoder.getVelocity(), Rotation2d.fromDegrees(robot.hardware.pigeon.getFusedHeading()));
     }
-
+    /**
+     * Sets the desired state of the swerve module
+     * @param desiredState
+     */
     public void setDesiredState(SwerveModuleState desiredState){
         //Optimize to avoid spinning over 90 degrees, or pi/2 radians
         SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(turningEncoder.getPosition()));

@@ -1,7 +1,7 @@
 package frc.robot.Subsystems;
 
-import java.sql.Driver;
-
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Robot;
 
@@ -10,7 +10,7 @@ public class Teleop {
     public Teleop(Robot robot){
         this.robot = robot;
     }
-
+    //Xbox controllers
     private XboxController driveController = new XboxController(0);
     private XboxController opController = new XboxController(1);
 
@@ -19,28 +19,52 @@ public class Teleop {
     public void run(){
 
         //Drive
-        double driveX = (driveController.getLeftX() > robot.JSTICK_DEADZONE)
-                        ? driveController.getLeftX()
-                        : 0;
-        double driveY = (driveController.getLeftY() > robot.JSTICK_DEADZONE)
-                        ? driveController.getLeftY()
-                        : 0;
+        double driveX = driveController.getLeftX();
+        double driveY = driveController.getLeftY();
+        double hyp = Math.sqrt(Math.pow(driveX, 2) + Math.pow(driveY, 2));
+        double angle = Math.atan2(driveY, driveX);
+        hyp = deadzoneEqautions(Robot.JSTICK_DEADZONE, hyp);
+
+        driveX = Math.cos(angle) * hyp;
+        driveY = Math.sin(angle) * hyp;
+
+        double rotX = driveController.getRightX();
+
+        rotX = deadzoneEqautions(Robot.JSTICK_DEADZONE, rotX);
+
+        robot.hardware.drive(driveX, driveY, rotX, fieldRelative);
 
         //Field Relative Toggle
         if(driveController.getStartButtonPressed()){
             fieldRelative = !fieldRelative;
         }
-
+        
         //Shooter
-        double shooterVal = (driveController.getRightTriggerAxis() > robot.TRIGGER_DEADZONE)
+        double shooterVal = (driveController.getRightTriggerAxis() > Robot.TRIGGER_DEADZONE)
                             ? driveController.getRightTriggerAxis()
                             : 0;
         robot.shooter.shoot(shooterVal);
 
         //Intake
-        double intakeVal = (opController.getLeftTriggerAxis() > robot.TRIGGER_DEADZONE)
+        double intakeVal = (opController.getLeftTriggerAxis() > Robot.TRIGGER_DEADZONE)
                             ? opController.getLeftTriggerAxis()
                             : 0;
         robot.intake.runIntake(intakeVal);
+    }
+    /**
+     * Calculates a new magnitude of input taking the dead zone into account. This stops it from jumping
+     * from 0 to the deadzone value.
+     * @param deadZoneRadius deadzone radius
+     * @param hyp magnitude of input
+     * @return
+     */
+    private static double deadzoneEqautions(double deadZoneRadius, double hyp){
+        if(hyp >= deadZoneRadius){
+            return (1/(1-deadZoneRadius)) * (hyp - deadZoneRadius);
+        }else if(hyp <= -deadZoneRadius){
+            return (1/(1-deadZoneRadius)) * (hyp + deadZoneRadius);
+        }
+
+        return 0;
     }
 }
