@@ -40,10 +40,9 @@ public class Teleop {
         }
         
         //Shooter
-        double shooterVal = (driveController.getRightTriggerAxis() > Robot.TRIGGER_DEADZONE)
-                            ? driveController.getRightTriggerAxis()
-                            : 0;
-        robot.shooter.shoot(shooterVal);
+        double shooterTop = deadzoneEqautions(Robot.TRIGGER_DEADZONE, driveController.getLeftTriggerAxis());
+        double shooterBottom = deadzoneEqautions(Robot.TRIGGER_DEADZONE, driveController.getRightTriggerAxis());
+        robot.shooter.shoot(shooterTop, shooterBottom);
 
         //Intake
         double intakeVal = (opController.getLeftTriggerAxis() > Robot.TRIGGER_DEADZONE)

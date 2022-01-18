@@ -11,6 +11,9 @@ Swerve Code:
 
 
     Shooter:
+        3 Motors:
+            2 Flywheel Motors
+            1 rotation Motor
         Limelight:
 
 

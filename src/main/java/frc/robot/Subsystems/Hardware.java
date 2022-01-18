@@ -83,13 +83,14 @@ public class Hardware {
     public final SwerveDriveOdometry swerveOdometry = new SwerveDriveOdometry(swerveKinematics, rotation2d);
 
     //Shooter motor. ids 5, 6(follower)
-    public CANSparkMax shooterMotor = new CANSparkMax(5, MotorType.kBrushless);
-    public CANSparkMax shooterFollower = new CANSparkMax(6, MotorType.kBrushless);
+    public CANSparkMax shooterTopMotor = new CANSparkMax(5, MotorType.kBrushless);
+    public CANSparkMax shooterBotomMotor = new CANSparkMax(6, MotorType.kBrushless);
+    public CANSparkMax shooterRotationMotor = new CANSparkMax(7, MotorType.kBrushless);
 
     //Intake motors, ids 7-10(if needed)
-    public CANSparkMax intakeMotor = new CANSparkMax(7, MotorType.kBrushless);
-    public CANSparkMax intakeSecond = new CANSparkMax(8, MotorType.kBrushless);//Assuming that there is in fact a second motor
-    public CANSparkMax hopperMotor = new CANSparkMax(9, MotorType.kBrushless);//Again assuming that there is going to some sort of belt or something from intake to shooter 
+    public CANSparkMax intakeMotor = new CANSparkMax(8, MotorType.kBrushless);
+    public CANSparkMax intakeSecond = new CANSparkMax(9, MotorType.kBrushless);//Assuming that there is in fact a second motor
+    public CANSparkMax hopperMotor = new CANSparkMax(10, MotorType.kBrushless);//Again assuming that there is going to some sort of belt or something from intake to shooter 
 
     //Climber motors, ids 15-18. I can't imagine it taking more than 4 motors, nor can I imagine our robot having 18 motors on it
     public CANSparkMax climberOne = new CANSparkMax(15, MotorType.kBrushless);
@@ -103,8 +104,7 @@ public class Hardware {
     public Hardware(Robot robot){
         this.robot = robot;
         //Reset pigeon here, couldn't find the command for it
-        shooterFollower.follow(shooterMotor);
-        shooterFollower.setInverted(true);
+        
         Rotation2d.fromDegrees(pigeon.getFusedHeading());
     }
 
