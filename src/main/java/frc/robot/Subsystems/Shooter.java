@@ -15,10 +15,15 @@ public class Shooter {
      * @param triggerValue amount an xbox trigger is pressed
      */
     public void shoot(double triggerValue){
-        final double MAX_SHOOT_SPEED = 20.0;//meters per second
-        triggerValue *= MAX_SHOOT_SPEED;//Makes the shooter speed a percent of the max speed
-        robot.hardware.shooterMotor.set(triggerValue);
+        robot.hardware.shooterTopMotor.set(triggerValue);
+        robot.hardware.shooterBotomMotor.set(triggerValue);
     }
+
+    public void shoot(double topMotorVal, double bottomMotorVal){
+        robot.hardware.shooterTopMotor.set(topMotorVal);
+        robot.hardware.shooterBotomMotor.set(bottomMotorVal);
+    }
+
 
     /**
      * Assuming that we have a camera this funciton will align the bot with the reflective strips on the hub
