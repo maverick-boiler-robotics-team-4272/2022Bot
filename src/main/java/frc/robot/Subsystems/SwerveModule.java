@@ -3,6 +3,7 @@ package frc.robot.Subsystems;
 
 import frc.robot.Robot;
 
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 
@@ -27,6 +28,7 @@ public class SwerveModule {
 
     private CANSparkMax driveMotor;
     private CANSparkMax turningMotor;
+    private TalonSRX talonMotor;
 
     private RelativeEncoder driveEncoder;
     private RelativeEncoder turningEncoder;
@@ -61,6 +63,26 @@ public class SwerveModule {
 
         turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
     }
+
+    /**
+     * Swerve module constructor for talons
+     * @param driveMotor CANSparkMax
+     * @param turningMotor TalonSRX
+     * @param driveEncoder RelativeEncoder
+     */
+    public SwerveModule(
+        CANSparkMax driveMotor,
+        TalonSRX turningMotor,
+        RelativeEncoder driveEncoder){
+        this.driveMotor = driveMotor;
+        this.talonMotor = turningMotor;
+        this.driveEncoder = driveEncoder;
+
+        driveEncoder.setPositionConversionFactor(2 * Math.PI * WHEEL_RADIUS);
+
+        turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
+    }
+
     /**
      * Returns swerve module state object
      * @return SwerveModuleState
@@ -85,6 +107,29 @@ public class SwerveModule {
         final double turnOutput = turningPIDController.calculate(turningEncoder.getPosition(), state.angle.getRadians());
 
         final double turnFeedforward = turningFeedforward.calculate(turningPIDController.getSetpoint().velocity);
+
+        driveMotor.setVoltage(driveOutput + driveFeedfwd);
+        turningMotor.setVoltage(turnOutput + turnFeedforward);
+    }
+
+    /**
+     * Sets the module to the desired state, this is the one to use for talons
+     * @param desired The desired SwerveModuleState
+     */
+    public void setTalonDesiredState(SwerveModuleState desired){
+        //Optimize to avoid spinning over 90 degrees, or pi/2 radians
+        SwerveModuleState state = SwerveModuleState.optimize(desired, new Rotation2d(talonMotor.getSelectedSensorPosition()));//Again, need the talon conversion rate
+
+        //Calculate drive output
+        final double driveOutput = drivePIDController.calculate(driveEncoder.getVelocity(), state.speedMetersPerSecond);
+
+        final double driveFeedfwd = driveFeedforward.calculate(state.speedMetersPerSecond);
+
+        //Calculate turning motor
+        final double turnOutput = turningPIDController.calculate(talonMotor.getSelectedSensorPosition()/*Need talon conversion rate from native to meters or
+                                something*/, state.angle.getRadians());
+
+        final double turnFeedforward = turningFeedforward.calculate(talonMotor.getSelectedSensorVelocity());
 
         driveMotor.setVoltage(driveOutput + driveFeedfwd);
         turningMotor.setVoltage(turnOutput + turnFeedforward);

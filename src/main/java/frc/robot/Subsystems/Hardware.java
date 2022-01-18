@@ -3,6 +3,7 @@ package frc.robot.Subsystems;
 
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.revrobotics.CANSparkMax;
@@ -20,6 +21,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsBase;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import frc.robot.Robot;
 
@@ -44,10 +46,11 @@ public class Hardware {
     public CANSparkMax backRightRotation = new CANSparkMax(14, MotorType.kBrushless);
 
         //Talon rotation motors so we can test with old swerve bot
-    public TalonSRX frontRightTalon = new TalonSRX(1);
-    public TalonSRX frontLeftTalon = new TalonSRX(2);
-    public TalonSRX backLefTalon = new TalonSRX(3);
-    public TalonSRX backRightTalon = new TalonSRX(4);
+        public TalonSRX frontRightTalon = new TalonSRX(1);
+        public TalonSRX frontLeftTalon = new TalonSRX(2);
+        public TalonSRX backLeftTalon = new TalonSRX(3);
+        public TalonSRX backRightTalon = new TalonSRX(4);
+
     //rotation motor encoders
     private RelativeEncoder frontRightEncoder = frontRightRotation.getEncoder();
     private RelativeEncoder frontLeftEncoder = frontLeftRotation.getEncoder();
@@ -151,11 +154,25 @@ public class Hardware {
     }
 
     /**
-     * 
      * updates the odometry
      */
     public void updateOdom(){
         swerveOdometry.update(Rotation2d.fromDegrees(pigeon.getFusedHeading()), getSwerveModuleStates());
     }
 
+    public void initTalons(){
+        initTalon(frontLeftTalon);
+        initTalon(frontRightTalon);
+        initTalon(backLeftTalon);
+        initTalon(backRightTalon);
+    }
+    public void initTalon(TalonSRX talon){
+        int startOffset = 0;
+        talon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 30);
+        Timer.delay(0.3);
+        talon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 30);
+        Timer.delay(0.3);
+
+        talon.setSelectedSensorPosition(startOffset, 0, 30);
+    }
 }
