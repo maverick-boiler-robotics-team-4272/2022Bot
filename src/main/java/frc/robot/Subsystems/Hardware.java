@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj.PneumaticsBase;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import frc.robot.Robot;
 
 public class Hardware {
@@ -161,14 +160,15 @@ public class Hardware {
     }
 
     public void initTalons(){
-        initTalon(frontLeftTalon);
-        initTalon(frontRightTalon);
-        initTalon(backLeftTalon);
-        initTalon(backRightTalon);
+        initTalon(frontLeftTalon, 0);
+        initTalon(frontRightTalon, 0);
+        initTalon(backLeftTalon, 0);
+        initTalon(backRightTalon, 0);
     }
-    public void initTalon(TalonSRX talon){
-        int startOffset = 0;
+    public void initTalon(TalonSRX talon, double offset){
+        double startOffset = 0;
         talon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 30);
+        startOffset = talon.getSelectedSensorPosition() - offset; 
         Timer.delay(0.3);
         talon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 30);
         Timer.delay(0.3);
