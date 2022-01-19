@@ -14,8 +14,6 @@ public class Intake {
      * @param triggerVal
      */
     public void runIntake(double triggerVal){
-        final double MAX_INTAKE_SPEED = 20.0;//Meters per second
-        triggerVal *= MAX_INTAKE_SPEED;
-        robot.hardware.intakeMotor.set(triggerVal);
+        robot.hardware.rakeMotor.set(triggerVal);
     }
 }
