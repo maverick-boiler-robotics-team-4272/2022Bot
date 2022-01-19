@@ -44,11 +44,11 @@ public class Hardware {
     public CANSparkMax backLeftRotation = new CANSparkMax(13, MotorType.kBrushless);
     public CANSparkMax backRightRotation = new CANSparkMax(14, MotorType.kBrushless);
 
-        //Talon rotation motors so we can test with old swerve bot
-        public TalonSRX frontRightTalon = new TalonSRX(1);
-        public TalonSRX frontLeftTalon = new TalonSRX(2);
-        public TalonSRX backLeftTalon = new TalonSRX(3);
-        public TalonSRX backRightTalon = new TalonSRX(4);
+    //Talon rotation motors so we can test with old swerve bot
+    public TalonSRX frontRightTalon = new TalonSRX(1);
+    public TalonSRX frontLeftTalon = new TalonSRX(2);
+    public TalonSRX backLeftTalon = new TalonSRX(3);
+    public TalonSRX backRightTalon = new TalonSRX(4);
 
     //rotation motor encoders
     private RelativeEncoder frontRightEncoder = frontRightRotation.getEncoder();
@@ -83,19 +83,20 @@ public class Hardware {
     public final SwerveDriveOdometry swerveOdometry = new SwerveDriveOdometry(swerveKinematics, rotation2d);
 
     //Shooter motor. ids 5, 6(follower)
-    public CANSparkMax shooterTopMotor = new CANSparkMax(5, MotorType.kBrushless);
-    public CANSparkMax shooterBotomMotor = new CANSparkMax(6, MotorType.kBrushless);
-    public CANSparkMax shooterRotationMotor = new CANSparkMax(7, MotorType.kBrushless);
+    public CANSparkMax shooterTopMotor = new CANSparkMax(15, MotorType.kBrushless);
+    public CANSparkMax shooterBotomMotor = new CANSparkMax(16, MotorType.kBrushless);
+    public CANSparkMax shooterRotationMotor = new CANSparkMax(17, MotorType.kBrushless);
 
     //Intake motors, ids 7-10(if needed)
-    public CANSparkMax intakeMotor = new CANSparkMax(8, MotorType.kBrushless);
-    public CANSparkMax intakeSecond = new CANSparkMax(9, MotorType.kBrushless);//Assuming that there is in fact a second motor
-    public CANSparkMax hopperMotor = new CANSparkMax(10, MotorType.kBrushless);//Again assuming that there is going to some sort of belt or something from intake to shooter 
+    public CANSparkMax rakeMotor = new CANSparkMax(7, MotorType.kBrushless);
+    public CANSparkMax leftFeedMotor = new CANSparkMax(8, MotorType.kBrushless);
+    public CANSparkMax rightFeedMotor = new CANSparkMax(9, MotorType.kBrushless);
+    public CANSparkMax shooterFeedMotor = new CANSparkMax(10, MotorType.kBrushless);
+
 
     //Climber motors, ids 15-18. I can't imagine it taking more than 4 motors, nor can I imagine our robot having 18 motors on it
-    public CANSparkMax climberOne = new CANSparkMax(15, MotorType.kBrushless);
-    public CANSparkMax climberTwo = new CANSparkMax(16, MotorType.kBrushless);
-    public CANSparkMax climberThree = new CANSparkMax(17, MotorType.kBrushless);
+    public CANSparkMax climberOne = new CANSparkMax(5, MotorType.kBrushless);
+    public CANSparkMax climberTwo = new CANSparkMax(6, MotorType.kBrushless);
 
     //Pneumatics, ids 20-25
     public DoubleSolenoid intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 20, 21);

@@ -11,31 +11,37 @@ Swerve Code:
 
 
     Shooter:
-        3 Motors:
-            2 Flywheel Motors
-            1 rotation Motor
         Limelight:
 
 
     Intake:
 
-
     Climber:
-
+        
 
     Motor IDs:
         Drive Motors:
+        8 motors drive train
             Drive:
                 1, 2, 3, 4
             Steering:
                 11, 12, 13, 14
 
         Climb Motors:
-
+            extension:
+                5, 6
         Intake Motors:
-
+            Rake/hopper belts:
+                7
+            side feed:
+                8, 9
+            shooter feed:
+                10
         Shooter Motors:
-
+            flywheel motors:
+                15, 16
+            rotation:
+                17
 
     Network Tables:
 
