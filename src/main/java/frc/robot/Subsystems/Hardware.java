@@ -117,15 +117,11 @@ public class Hardware {
      * @param fieldRelative Whether it's in field relative control mode or not
      */
     public void drive(double xSpeed, double ySpeed, double rotation, boolean fieldRelative){ 
-        SwerveModuleState[] swerveModuleStates = swerveKinematics.toSwerveModuleStates(new ChassisSpeeds(xSpeed, ySpeed, rotation));
-        swerveKinematics.toSwerveModuleStates(
+        SwerveModuleState[] swerveModuleStates = swerveKinematics.toSwerveModuleStates(
             fieldRelative
                 ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotation, Rotation2d.fromDegrees(pigeon.getFusedHeading()))
                 : new ChassisSpeeds(xSpeed, ySpeed, rotation)
-        );   
-        if(fieldRelative){
-            swerveModuleStates = swerveKinematics.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotation, rotation2d));
-        }
+        );
         setSwerveModuleStates(swerveModuleStates);
     }
     /**
