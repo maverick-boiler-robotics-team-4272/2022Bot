@@ -15,13 +15,20 @@ public class Shooter {
      * @param triggerValue amount an xbox trigger is pressed
      */
     public void shoot(double triggerValue){
-        robot.hardware.shooterTopMotor.set(triggerValue);
-        robot.hardware.shooterBotomMotor.set(triggerValue);
+        double percentOffSet = 0.8;
+        robot.hardware.shooterTopMotor.set(triggerValue * percentOffSet);
+        robot.hardware.shooterBottomMotor.set(triggerValue);
     }
 
+    /**
+     * Control the shooter motors seperately
+     * 
+     * @param topMotorVal value for the top motor to run at
+     * @param bottomMotorVal value for the bottom motor to run at
+     */
     public void shoot(double topMotorVal, double bottomMotorVal){
         robot.hardware.shooterTopMotor.set(topMotorVal);
-        robot.hardware.shooterBotomMotor.set(bottomMotorVal);
+        robot.hardware.shooterBottomMotor.set(bottomMotorVal);
     }
 
 

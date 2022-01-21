@@ -33,16 +33,16 @@ public class Hardware {
     public static final double WHEEL_DIST = Units.feetToMeters(1);
 
     //drive motors (ids: 1, 2, 3, 4)
-    public CANSparkMax frontRightDrive = new CANSparkMax(1, MotorType.kBrushless); public RelativeEncoder frontRightDriveEnc = frontRightDrive.getEncoder();
-    public CANSparkMax frontLeftDrive = new CANSparkMax(2, MotorType.kBrushless); public RelativeEncoder frontLeftDriveEnc = frontLeftDrive.getEncoder();
-    public CANSparkMax backLeftDrive = new CANSparkMax(3, MotorType.kBrushless); public RelativeEncoder backLeftDriveEnc = backLeftDrive.getEncoder();
-    public CANSparkMax backRightDrive = new CANSparkMax(4, MotorType.kBrushless); public RelativeEncoder backRightDriveEnc = backRightDrive.getEncoder();
+    public CANSparkMax frontRightDrive = new CANSparkMax(11, MotorType.kBrushless); public RelativeEncoder frontRightDriveEnc = frontRightDrive.getEncoder();
+    public CANSparkMax frontLeftDrive = new CANSparkMax(12, MotorType.kBrushless); public RelativeEncoder frontLeftDriveEnc = frontLeftDrive.getEncoder();
+    public CANSparkMax backLeftDrive = new CANSparkMax(13, MotorType.kBrushless); public RelativeEncoder backLeftDriveEnc = backLeftDrive.getEncoder();
+    public CANSparkMax backRightDrive = new CANSparkMax(14, MotorType.kBrushless); public RelativeEncoder backRightDriveEnc = backRightDrive.getEncoder();
 
     //rotation motors (ids: 11, 12, 13, 14)
-    public CANSparkMax frontRightRotation = new CANSparkMax(11, MotorType.kBrushless);
-    public CANSparkMax frontLeftRotation = new CANSparkMax(12, MotorType.kBrushless);
-    public CANSparkMax backLeftRotation = new CANSparkMax(13, MotorType.kBrushless);
-    public CANSparkMax backRightRotation = new CANSparkMax(14, MotorType.kBrushless);
+    public CANSparkMax frontRightRotation = new CANSparkMax(1, MotorType.kBrushless);
+    public CANSparkMax frontLeftRotation = new CANSparkMax(2, MotorType.kBrushless);
+    public CANSparkMax backLeftRotation = new CANSparkMax(3, MotorType.kBrushless);
+    public CANSparkMax backRightRotation = new CANSparkMax(4, MotorType.kBrushless);
 
     //Talon rotation motors so we can test with old swerve bot
     public TalonSRX frontRightTalon = new TalonSRX(1);
@@ -74,7 +74,7 @@ public class Hardware {
     private final SwerveModule backLeft = new SwerveModule(backLeftDrive, backLeftRotation, backLeftDriveEnc, backLeftEncoder);
     private final SwerveModule backRight = new SwerveModule(backRightDrive, backRightRotation, backRightDriveEnc, backRightEncoder);
 
-    public final PigeonIMU pigeon = new PigeonIMU(0);//I don't know how to get a rotation2d object from a pigeon, will have to ask Danny at some point
+    public final PigeonIMU pigeon = new PigeonIMU(21);//I don't know how to get a rotation2d object from a pigeon, will have to ask Danny at some point
     public final Rotation2d rotation2d = Rotation2d.fromDegrees(pigeon.getFusedHeading());//For now this'll work to not have so many errors
     
 
@@ -84,7 +84,7 @@ public class Hardware {
 
     //Shooter motor. ids 5, 6(follower)
     public CANSparkMax shooterTopMotor = new CANSparkMax(15, MotorType.kBrushless);
-    public CANSparkMax shooterBotomMotor = new CANSparkMax(16, MotorType.kBrushless);
+    public CANSparkMax shooterBottomMotor = new CANSparkMax(16, MotorType.kBrushless);
     public CANSparkMax shooterRotationMotor = new CANSparkMax(17, MotorType.kBrushless);
 
     //Intake motors, ids 7-10(if needed)
@@ -98,14 +98,15 @@ public class Hardware {
     public CANSparkMax climberOne = new CANSparkMax(5, MotorType.kBrushless);
     public CANSparkMax climberTwo = new CANSparkMax(6, MotorType.kBrushless);
 
-    //Pneumatics, ids 20-25
-    public DoubleSolenoid intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 20, 21);
-    public DoubleSolenoid climberSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 22, 23);
+    // //Pneumatics, ids 20-25
+    // public DoubleSolenoid intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 20, 21);
+    // public DoubleSolenoid climberSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 22, 23);
 
     public Hardware(Robot robot){
         this.robot = robot;
         //Reset pigeon here, couldn't find the command for it
         
+        shooterTopMotor.setInverted(true);
         Rotation2d.fromDegrees(pigeon.getFusedHeading());
     }
 
@@ -125,7 +126,9 @@ public class Hardware {
         );
         setSwerveModuleStates(swerveModuleStates);
     }
+
     /**
+     * Returns the swerve module state array
      * 
      * @return array of SwerveModuleState 0 is fl, 1 is fr, 2 is bl, 3 is br
      */
@@ -139,6 +142,7 @@ public class Hardware {
     }
 
     /**
+     * Sets each swerve module to its state determined by the states array
      * 
      * @param states an array of the swerve module states. 0 for fl, 1 for fr, 2 for bl, 3 for br 
      */
@@ -156,12 +160,21 @@ public class Hardware {
         swerveOdometry.update(Rotation2d.fromDegrees(pigeon.getFusedHeading()), getSwerveModuleStates());
     }
 
+    /**
+     * Runs each TalonSRX through the initTalon function
+     */
     public void initTalons(){
         initTalon(frontLeftTalon, 0);
         initTalon(frontRightTalon, 0);
         initTalon(backLeftTalon, 0);
         initTalon(backRightTalon, 0);
     }
+
+    /**
+     * Initates a TalonSRX with the correct encoder counts and offsets
+     * @param talon the motor being initated
+     * @param offset the offset of the encoder
+     */
     public void initTalon(TalonSRX talon, double offset){
         double startOffset = 0;
         talon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 30);
