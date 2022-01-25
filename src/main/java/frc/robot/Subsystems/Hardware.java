@@ -4,10 +4,12 @@ package frc.robot.Subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -22,6 +24,7 @@ import edu.wpi.first.wpilibj.PneumaticsBase;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 
 public class Hardware {
@@ -30,7 +33,7 @@ public class Hardware {
     //Constants
     public static final double MAX_SPEED = 3.0;//Meters per second
     public static final double MAX_ANGULAR_SPEED = Math.PI;//Half rotation per second
-    public static final double WHEEL_DIST = Units.feetToMeters(1);
+    public static final double WHEEL_DIST = Units.feetToMeters(0.5);
 
     //drive motors (ids: 1, 2, 3, 4)
     public CANSparkMax frontRightDrive = new CANSparkMax(11, MotorType.kBrushless); public RelativeEncoder frontRightDriveEnc = frontRightDrive.getEncoder();
@@ -45,10 +48,10 @@ public class Hardware {
     public CANSparkMax backRightRotation = new CANSparkMax(4, MotorType.kBrushless);
 
     //Talon rotation motors so we can test with old swerve bot
-    public TalonSRX frontRightTalon = new TalonSRX(1);
-    public TalonSRX frontLeftTalon = new TalonSRX(2);
-    public TalonSRX backLeftTalon = new TalonSRX(3);
-    public TalonSRX backRightTalon = new TalonSRX(4);
+    public WPI_TalonSRX frontRightTalon = new WPI_TalonSRX(1);
+    public WPI_TalonSRX frontLeftTalon = new WPI_TalonSRX(2);
+    public WPI_TalonSRX backLeftTalon = new WPI_TalonSRX(3);
+    public WPI_TalonSRX backRightTalon = new WPI_TalonSRX(4);
 
     //rotation motor encoders
     private RelativeEncoder frontRightEncoder = frontRightRotation.getEncoder();
@@ -57,10 +60,10 @@ public class Hardware {
     private RelativeEncoder backRightEncoder = backRightRotation.getEncoder();
 
     //Translation 2d Objects
-    private final Translation2d frontRightLocation = new Translation2d(WHEEL_DIST, WHEEL_DIST);
-    private final Translation2d frontLeftLocation = new Translation2d(-1 * WHEEL_DIST, WHEEL_DIST);
-    private final Translation2d backLeftLocation = new Translation2d(-1 * WHEEL_DIST, -1 * WHEEL_DIST);
-    private final Translation2d backRightLocation = new Translation2d(WHEEL_DIST, -1 * WHEEL_DIST);
+    private final Translation2d frontRightLocation = new Translation2d(WHEEL_DIST, -WHEEL_DIST);
+    private final Translation2d frontLeftLocation = new Translation2d( WHEEL_DIST,  WHEEL_DIST);
+    private final Translation2d backLeftLocation = new Translation2d( -WHEEL_DIST,  WHEEL_DIST);
+    private final Translation2d backRightLocation = new Translation2d(-WHEEL_DIST, -WHEEL_DIST);
 
     //SwerveModuleState objects
     private final SwerveModuleState frontRightModule = new SwerveModuleState();
@@ -69,16 +72,16 @@ public class Hardware {
     private final SwerveModuleState backRightModule = new SwerveModuleState();
 
     //SwerveModule objects
-    private final SwerveModule frontRight = new SwerveModule(frontRightDrive, frontRightRotation, frontRightDriveEnc, frontRightEncoder);
-    private final SwerveModule frontLeft = new SwerveModule(frontLeftDrive, frontLeftRotation, frontLeftDriveEnc, frontLeftEncoder);
-    private final SwerveModule backLeft = new SwerveModule(backLeftDrive, backLeftRotation, backLeftDriveEnc, backLeftEncoder);
-    private final SwerveModule backRight = new SwerveModule(backRightDrive, backRightRotation, backRightDriveEnc, backRightEncoder);
+    private final SwerveModule frontRight;
+    private final SwerveModule frontLeft;
+    private final SwerveModule backLeft;
+    private final SwerveModule backRight;
 
     public final PigeonIMU pigeon = new PigeonIMU(21);//I don't know how to get a rotation2d object from a pigeon, will have to ask Danny at some point
     public final Rotation2d rotation2d = Rotation2d.fromDegrees(pigeon.getFusedHeading());//For now this'll work to not have so many errors
     
 
-    public final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(frontRightLocation, frontLeftLocation, backLeftLocation, backRightLocation);
+    public final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
 
     public final SwerveDriveOdometry swerveOdometry = new SwerveDriveOdometry(swerveKinematics, rotation2d);
 
@@ -104,8 +107,21 @@ public class Hardware {
 
     public Hardware(Robot robot){
         this.robot = robot;
-        //Reset pigeon here, couldn't find the command for it
         
+        //Reset pigeon here, couldn't find the command for it
+        if(robot.TALON_BOT){
+            frontRight = new SwerveModule(frontRightDrive, frontRightTalon, frontRightDriveEnc);
+            frontLeft = new SwerveModule(frontLeftDrive, frontLeftTalon, frontLeftDriveEnc);
+            backLeft = new SwerveModule(backLeftDrive, backLeftTalon, backLeftDriveEnc);
+            backRight = new SwerveModule(backRightDrive, backRightTalon, backRightDriveEnc);
+            initTalons();
+        }else{
+            frontRight = new SwerveModule(frontRightDrive, frontRightRotation, frontRightDriveEnc, frontRightEncoder);
+            frontLeft = new SwerveModule(frontLeftDrive, frontLeftRotation, frontLeftDriveEnc, frontLeftEncoder);
+            backLeft = new SwerveModule(backLeftDrive, backLeftRotation, backLeftDriveEnc, backLeftEncoder);
+            backRight = new SwerveModule(backRightDrive, backRightRotation, backRightDriveEnc, backRightEncoder);
+        }
+        initSparks();
         shooterTopMotor.setInverted(true);
         Rotation2d.fromDegrees(pigeon.getFusedHeading());
     }
@@ -122,9 +138,17 @@ public class Hardware {
         SwerveModuleState[] swerveModuleStates = swerveKinematics.toSwerveModuleStates(
             fieldRelative
                 ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotation, Rotation2d.fromDegrees(pigeon.getFusedHeading()))
-                : new ChassisSpeeds(xSpeed, ySpeed, rotation)
+                : new ChassisSpeeds(ySpeed, xSpeed, rotation)
         );
         setSwerveModuleStates(swerveModuleStates);
+        SmartDashboard.putNumber("Front Left Set Point", swerveModuleStates[0].angle.getDegrees());
+        SmartDashboard.putNumber("Front Left Actual", (frontLeftTalon.getSelectedSensorPosition() / 4096.0) % 1 * 360.0);
+        SmartDashboard.putNumber("Front Right Set Point", swerveModuleStates[1].angle.getDegrees());
+        SmartDashboard.putNumber("Front Right Actual", (frontRightTalon.getSelectedSensorPosition() / 4096.0) % 1 * 360.0);
+        SmartDashboard.putNumber("Back Left Set Point", swerveModuleStates[2].angle.getDegrees());
+        SmartDashboard.putNumber("Back Left Actual", (backLeftTalon.getSelectedSensorPosition() / 4096.0) % 1 * 360.0);
+        SmartDashboard.putNumber("Back Right Set Point", swerveModuleStates[3].angle.getDegrees());
+        SmartDashboard.putNumber("Back Right Actual", (backRightTalon.getSelectedSensorPosition() / 4096.0) % 1 * 360.0);
     }
 
     /**
@@ -147,10 +171,17 @@ public class Hardware {
      * @param states an array of the swerve module states. 0 for fl, 1 for fr, 2 for bl, 3 for br 
      */
     public void setSwerveModuleStates(SwerveModuleState[] states){
-        frontLeft.setDesiredState(states[0]);
-        frontRight.setDesiredState(states[1]);
-        backLeft.setDesiredState(states[2]);
-        backRight.setDesiredState(states[3]);
+        if(robot.TALON_BOT){
+            frontLeft.setTalonDesiredState(states[0]);
+            frontRight.setTalonDesiredState(states[1]);
+            backLeft.setTalonDesiredState(states[2]);
+            backRight.setTalonDesiredState(states[3]);
+        }else{
+            frontLeft.setDesiredState(states[0]);
+            frontRight.setDesiredState(states[1]);
+            backLeft.setDesiredState(states[2]);
+            backRight.setDesiredState(states[3]);
+        }
     }
 
     /**
@@ -161,7 +192,7 @@ public class Hardware {
     }
 
     /**
-     * Runs each TalonSRX through the initTalon function
+     * Runs each WPI_TalonSRX through the initTalon function
      */
     public void initTalons(){
         initTalon(frontLeftTalon, 0);
@@ -171,18 +202,46 @@ public class Hardware {
     }
 
     /**
-     * Initates a TalonSRX with the correct encoder counts and offsets
+     * Initates a WPI_TalonSRX with the correct encoder counts and offsets
      * @param talon the motor being initated
      * @param offset the offset of the encoder
      */
-    public void initTalon(TalonSRX talon, double offset){
-        double startOffset = 0;
-        talon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 30);
-        startOffset = talon.getSelectedSensorPosition() - offset; 
-        Timer.delay(0.3);
+    public void initTalon(WPI_TalonSRX talon, double offset){
+        // double startOffset = 0;
+        // talon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 30);
+        // startOffset = (talon.getSelectedSensorPosition() - offset) % 4096; 
+        // startOffset = startOffset < 0 ? startOffset + 4096.0 : startOffset;
+        // System.out.println(startOffset);
+        // System.out.println(talon.getSelectedSensorPosition() % 4096.0);
+        // Timer.delay(0.3);
         talon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 30);
         Timer.delay(0.3);
 
-        talon.setSelectedSensorPosition(startOffset, 0, 30);
+        talon.setSelectedSensorPosition(0, 0, 0);
+    }
+
+    public void initSparks(){
+        if(!robot.TALON_BOT){
+            initSpark(frontRightRotation);
+            initSpark(frontLeftRotation);
+            initSpark(backLeftRotation);
+            initSpark(backRightRotation);
+        }
+        initSpark(frontRightDrive);
+        initSpark(frontLeftDrive);
+        initSpark(backLeftDrive);
+        initSpark(backRightDrive);
+    }
+
+    public void initSpark(CANSparkMax spark){
+        spark.setIdleMode(IdleMode.kBrake);
+    }
+
+    public double getPigeonHeading(){
+        return 0.0;
+    }
+
+    public void resetPigeonHeading(){
+
     }
 }

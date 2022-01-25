@@ -23,6 +23,7 @@ public class Robot extends TimedRobot {
     private static final String kCustomAuto = "My Auto";
     private String m_autoSelected;
     private final SendableChooser<String> m_chooser = new SendableChooser<>();
+    public final boolean TALON_BOT = true;
 
     public Hardware hardware = new Hardware(this);
     public Climber climber = new Climber(this);

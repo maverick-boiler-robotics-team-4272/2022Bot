@@ -1,8 +1,11 @@
 package frc.robot.Subsystems;
 
+import java.sql.Driver;
+
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import frc.robot.Robot;
 
 public class Teleop {
@@ -13,8 +16,9 @@ public class Teleop {
     //Xbox controllers
     private XboxController driveController = new XboxController(0);
     private XboxController opController = new XboxController(1);
-
-    public boolean fieldRelative = true;
+    private double percentTop = .8;
+    private double percentBottom = .8;
+    public boolean fieldRelative = false;
 
     /**
      * Loop that has all of our inputs to run the robot
@@ -44,16 +48,16 @@ public class Teleop {
         rotX = deadzoneEqautions(Robot.JSTICK_DEADZONE, rotX);
 
         if(driveController.getRightBumperPressed()){
-        System.out.println("initDriveX, initDriveY = " + initDriveX + ", " + initDriveY);
+        // System.out.println("initDriveX, initDriveY = " + initDriveX + ", " + initDriveY);
 
-        System.out.println("Hyp = " + hyp);
-        System.out.println("Angle = " + angle);
+        // System.out.println("Hyp = " + hyp);
+        // System.out.println("Angle = " + angle);
         
-        System.out.println("driveX, driveY = " + driveX + ", " + driveY);
+        // System.out.println("driveX, driveY = " + driveX + ", " + driveY);
             
         }
-        // robot.hardware.drive(driveX, driveY, rotX, fieldRelative);
-
+        robot.hardware.drive(driveX, driveY, rotX, fieldRelative);
+        //robot.hardware.drive(0.125, 0.0, 0.0, false);
         //Field Relative Toggle
         if(driveController.getStartButtonPressed()){
             String fieldRelativeOnOrNot;
@@ -69,11 +73,54 @@ public class Teleop {
 
         
         //Shooter
-        double shooterTop = deadzoneEqautions(Robot.TRIGGER_DEADZONE, driveController.getLeftTriggerAxis());
-        double shooterBottom = deadzoneEqautions(Robot.TRIGGER_DEADZONE, driveController.getRightTriggerAxis());
-        double shooterSpeed = deadzoneEqautions(Robot.TRIGGER_DEADZONE, driveController.getRightTriggerAxis());
-        //robot.shooter.shoot(shooterTop, shooterBottom);//This is for individually controlling the motors
-        robot.shooter.shoot(shooterSpeed);//This is for having it on one trigger and running one wheel slower than the other
+
+        //top changing
+        if(driveController.getYButtonPressed()){
+            percentTop+=0.01;
+            System.out.println("Large percent now " + (percentTop * 100.0) + "%");
+        }
+        if(driveController.getAButtonPressed()){
+            percentTop-=0.01;
+            System.out.println("Large percent now " + (percentTop * 100.0) + "%");
+        }
+        if(driveController.getXButtonPressed()){
+            percentTop+=0.05;
+            System.out.println("Large percent now " + (percentTop * 100.0) + "%");
+        }
+        if(driveController.getBButtonPressed()){
+            percentTop-=0.05;
+            System.out.println("Large percent now " + (percentTop * 100.0) + "%");
+        }
+
+        //bottom changing
+        if(driveController.getPOV() == 0){
+            percentBottom+=0.01;
+            System.out.println("Small percent now " + (percentBottom * 100.0) + "%");
+        }
+        if(driveController.getPOV() == 180){
+            percentBottom-=0.01;
+            System.out.println("Small percent now " + (percentBottom * 100.0) + "%");
+        }
+        if(driveController.getPOV() == 270){
+            percentBottom+=0.05;
+            System.out.println("Small percent now " + (percentBottom * 100.0) + "%");
+        }
+        if(driveController.getPOV() == 90){
+            percentBottom-=0.05;
+            System.out.println("Small percent now " + (percentBottom * 100.0) + "%");
+        }
+
+        if(driveController.getRightBumper()){
+            robot.shooter.shoot(percentTop, percentBottom);
+            driveController.setRumble(RumbleType.kLeftRumble, 1);
+            driveController.setRumble(RumbleType.kRightRumble, 1);
+        }
+        if(driveController.getRightBumperReleased()){
+            robot.shooter.shoot(0,0);
+            driveController.setRumble(RumbleType.kLeftRumble, 0);
+            driveController.setRumble(RumbleType.kRightRumble, 0);
+        }
+        // robot.shooter.shoot(shooterSpeed);//This is for having it on one trigger and running one wheel slower than the other
                                                 //by a set percentage
 
         //Intake
