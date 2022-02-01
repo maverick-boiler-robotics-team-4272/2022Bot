@@ -4,8 +4,11 @@ import java.sql.Driver;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 
 public class Teleop {
@@ -18,6 +21,12 @@ public class Teleop {
     private XboxController opController = new XboxController(1);
     private double percentTop = .8;
     private double percentBottom = .8;
+
+    private double flFF = 0.1;
+    private double frFF = 0.1;
+    private double brFF = 0.1;
+    private double blFF = 0.1;
+
     public boolean fieldRelative = false;
 
     /**
@@ -34,8 +43,6 @@ public class Teleop {
         if(Math.abs(driveY) <= 0.08){
             driveY = 0;
         }
-        double initDriveX = driveX;
-        double initDriveY = driveY;
         double hyp = Math.sqrt(Math.pow(driveX, 2) + Math.pow(driveY, 2));
         double angle = Math.atan2(driveY, driveX);
         hyp = deadzoneEqautions(Robot.JSTICK_DEADZONE, hyp);
@@ -56,8 +63,13 @@ public class Teleop {
         // System.out.println("driveX, driveY = " + driveX + ", " + driveY);
             
         }
-        robot.hardware.drive(driveX, driveY, rotX, fieldRelative);
-        //robot.hardware.drive(0.125, 0.0, 0.0, false);
+        
+        robot.hardware.drive(driveX * Hardware.MAX_SPEED, driveY * Hardware.MAX_SPEED, rotX * Hardware.MAX_ANGULAR_SPEED, fieldRelative);
+        // robot.hardware.drive(0, -0.1, 0, false);
+        SmartDashboard.putNumber("Front Left M/S", robot.hardware.frontLeftDrive.getEncoder().getVelocity());
+        SmartDashboard.putNumber("Front Right M/S", robot.hardware.frontRightDrive.getEncoder().getVelocity());
+        SmartDashboard.putNumber("Back Left M/S", robot.hardware.backLeftDrive.getEncoder().getVelocity());
+        SmartDashboard.putNumber("Back Right M/S", robot.hardware.backRightDrive.getEncoder().getVelocity());
         //Field Relative Toggle
         if(driveController.getStartButtonPressed()){
             String fieldRelativeOnOrNot;
@@ -77,49 +89,51 @@ public class Teleop {
         //top changing
         if(driveController.getYButtonPressed()){
             percentTop+=0.01;
-            System.out.println("Large percent now " + (percentTop * 100.0) + "%");
+            System.out.println("Large percent now " + Math.round(percentTop * 100.0) + "%");
         }
         if(driveController.getAButtonPressed()){
             percentTop-=0.01;
-            System.out.println("Large percent now " + (percentTop * 100.0) + "%");
+            System.out.println("Large percent now " + Math.round(percentTop * 100.0) + "%");
         }
         if(driveController.getXButtonPressed()){
             percentTop+=0.05;
-            System.out.println("Large percent now " + (percentTop * 100.0) + "%");
+            System.out.println("Large percent now " + Math.round(percentTop * 100.0) + "%");
         }
         if(driveController.getBButtonPressed()){
             percentTop-=0.05;
-            System.out.println("Large percent now " + (percentTop * 100.0) + "%");
+            System.out.println("Large percent now " + Math.round(percentTop * 100.0) + "%");
         }
 
         //bottom changing
         if(driveController.getPOV() == 0){
             percentBottom+=0.01;
-            System.out.println("Small percent now " + (percentBottom * 100.0) + "%");
+            System.out.println("Small percent now " + Math.round(percentBottom * 100.0) + "%");
         }
         if(driveController.getPOV() == 180){
             percentBottom-=0.01;
-            System.out.println("Small percent now " + (percentBottom * 100.0) + "%");
+            System.out.println("Small percent now " + Math.round(percentBottom * 100.0) + "%");
         }
         if(driveController.getPOV() == 270){
             percentBottom+=0.05;
-            System.out.println("Small percent now " + (percentBottom * 100.0) + "%");
+            System.out.println("Small percent now " + Math.round(percentBottom * 100.0) + "%");
         }
         if(driveController.getPOV() == 90){
             percentBottom-=0.05;
-            System.out.println("Small percent now " + (percentBottom * 100.0) + "%");
+            System.out.println("Small percent now " + Math.round(percentBottom * 100.0) + "%");
         }
 
         if(driveController.getRightBumper()){
-            robot.shooter.shoot(percentTop, percentBottom);
-            driveController.setRumble(RumbleType.kLeftRumble, 1);
-            driveController.setRumble(RumbleType.kRightRumble, 1);
+            robot.shooter.shoot(-percentTop, -percentBottom);
+            // driveController.setRumble(RumbleType.kLeftRumble, 1);
+            // driveController.setRumble(RumbleType.kRightRumble, 1);
         }
         if(driveController.getRightBumperReleased()){
             robot.shooter.shoot(0,0);
-            driveController.setRumble(RumbleType.kLeftRumble, 0);
-            driveController.setRumble(RumbleType.kRightRumble, 0);
+            // driveController.setRumble(RumbleType.kLeftRumble, 0);
+            // driveController.setRumble(RumbleType.kRightRumble, 0);
         }
+
+
         // robot.shooter.shoot(shooterSpeed);//This is for having it on one trigger and running one wheel slower than the other
                                                 //by a set percentage
 
@@ -128,6 +142,7 @@ public class Teleop {
                             ? opController.getLeftTriggerAxis()
                             : 0;
         robot.intake.runIntake(intakeVal);
+        SmartDashboard.putNumber("Pigeon Heading", robot.hardware.pigeon.getFusedHeading());
     }
 
     /**

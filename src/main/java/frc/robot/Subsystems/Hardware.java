@@ -9,9 +9,11 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -32,8 +34,35 @@ public class Hardware {
 
     //Constants
     public static final double MAX_SPEED = 3.0;//Meters per second
-    public static final double MAX_ANGULAR_SPEED = Math.PI;//Half rotation per second
+    public static final double MAX_ACC = 0.5;
+    public static final double MAX_ANGULAR_SPEED = 4 * Math.PI;//Half rotation per second
     public static final double WHEEL_DIST = Units.feetToMeters(0.5);
+    
+    private static final double FRONT_RIGHT_P = 0.0039;
+    private static final double FRONT_RIGHT_I = 0.0;
+    private static final double FRONT_RIGHT_D = 0.0;
+    private static final double FRONT_RIGHT_FF = 0.001;
+
+    private static final double FRONT_LEFT_P = 0.0038;
+    private static final double FRONT_LEFT_I = 0.0;
+    private static final double FRONT_LEFT_D = 0.0;
+    private static final double FRONT_LEFT_FF = 0.001;
+
+    private static final double BACK_RIGHT_P = 0.0038;
+    private static final double BACK_RIGHT_I = 0.0;
+    private static final double BACK_RIGHT_D = 0.0;
+    private static final double BACK_RIGHT_FF = 0.001;
+
+    private static final double BACK_LEFT_P = 0.0038;
+    private static final double BACK_LEFT_I = 0.0;
+    private static final double BACK_LEFT_D = 0.0;
+    private static final double BACK_LEFT_FF = 0.001;
+
+    //module indexes
+    private static final int FRONT_LEFT_INDEX = 2;
+    private static final int FRONT_RIGHT_INDEX = 3;
+    private static final int BACK_LEFT_INDEX = 0;
+    private static final int BACK_RIGHT_INDEX = 1;
 
     //drive motors (ids: 1, 2, 3, 4)
     public CANSparkMax frontRightDrive = new CANSparkMax(11, MotorType.kBrushless); public RelativeEncoder frontRightDriveEnc = frontRightDrive.getEncoder();
@@ -109,11 +138,11 @@ public class Hardware {
         this.robot = robot;
         
         //Reset pigeon here, couldn't find the command for it
-        if(robot.TALON_BOT){
-            frontRight = new SwerveModule(frontRightDrive, frontRightTalon, frontRightDriveEnc);
-            frontLeft = new SwerveModule(frontLeftDrive, frontLeftTalon, frontLeftDriveEnc);
-            backLeft = new SwerveModule(backLeftDrive, backLeftTalon, backLeftDriveEnc);
-            backRight = new SwerveModule(backRightDrive, backRightTalon, backRightDriveEnc);
+        if(Robot.TALON_BOT){
+            frontRight = new SwerveModule(frontRightDrive, frontRightTalon, frontRightDriveEnc, 0.0);
+            frontLeft = new SwerveModule(frontLeftDrive, frontLeftTalon, frontLeftDriveEnc, 0.0);
+            backLeft = new SwerveModule(backLeftDrive, backLeftTalon, backLeftDriveEnc, 0.0);
+            backRight = new SwerveModule(backRightDrive, backRightTalon, backRightDriveEnc, 0.0);
             initTalons();
         }else{
             frontRight = new SwerveModule(frontRightDrive, frontRightRotation, frontRightDriveEnc, frontRightEncoder);
@@ -138,17 +167,17 @@ public class Hardware {
         SwerveModuleState[] swerveModuleStates = swerveKinematics.toSwerveModuleStates(
             fieldRelative
                 ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotation, Rotation2d.fromDegrees(pigeon.getFusedHeading()))
-                : new ChassisSpeeds(ySpeed, xSpeed, rotation)
+                : new ChassisSpeeds(ySpeed,-xSpeed, rotation)
         );
         setSwerveModuleStates(swerveModuleStates);
         SmartDashboard.putNumber("Front Left Set Point", swerveModuleStates[0].angle.getDegrees());
-        SmartDashboard.putNumber("Front Left Actual", (frontLeftTalon.getSelectedSensorPosition() / 4096.0) % 1 * 360.0);
+        SmartDashboard.putNumber("Front Left Actual", (frontLeftTalon.getSelectedSensorPosition() / 4096.0) * 360.0);
         SmartDashboard.putNumber("Front Right Set Point", swerveModuleStates[1].angle.getDegrees());
-        SmartDashboard.putNumber("Front Right Actual", (frontRightTalon.getSelectedSensorPosition() / 4096.0) % 1 * 360.0);
+        SmartDashboard.putNumber("Front Right Actual", (frontRightTalon.getSelectedSensorPosition() / 4096.0) * 360.0);
         SmartDashboard.putNumber("Back Left Set Point", swerveModuleStates[2].angle.getDegrees());
-        SmartDashboard.putNumber("Back Left Actual", (backLeftTalon.getSelectedSensorPosition() / 4096.0) % 1 * 360.0);
+        SmartDashboard.putNumber("Back Left Actual", (backLeftTalon.getSelectedSensorPosition() / 4096.0) * 360.0);
         SmartDashboard.putNumber("Back Right Set Point", swerveModuleStates[3].angle.getDegrees());
-        SmartDashboard.putNumber("Back Right Actual", (backRightTalon.getSelectedSensorPosition() / 4096.0) % 1 * 360.0);
+        SmartDashboard.putNumber("Back Right Actual", (backRightTalon.getSelectedSensorPosition() / 4096.0) * 360.0);
     }
 
     /**
@@ -171,11 +200,11 @@ public class Hardware {
      * @param states an array of the swerve module states. 0 for fl, 1 for fr, 2 for bl, 3 for br 
      */
     public void setSwerveModuleStates(SwerveModuleState[] states){
-        if(robot.TALON_BOT){
-            frontLeft.setTalonDesiredState(states[0]);
-            frontRight.setTalonDesiredState(states[1]);
-            backLeft.setTalonDesiredState(states[2]);
-            backRight.setTalonDesiredState(states[3]);
+        if(Robot.TALON_BOT){
+            frontLeft.setTalonDesiredState(states[FRONT_LEFT_INDEX]);
+            frontRight.setTalonDesiredState(states[FRONT_RIGHT_INDEX]);
+            backLeft.setTalonDesiredState(states[BACK_LEFT_INDEX]);
+            backRight.setTalonDesiredState(states[BACK_RIGHT_INDEX]);
         }else{
             frontLeft.setDesiredState(states[0]);
             frontRight.setDesiredState(states[1]);
@@ -191,14 +220,22 @@ public class Hardware {
         swerveOdometry.update(Rotation2d.fromDegrees(pigeon.getFusedHeading()), getSwerveModuleStates());
     }
 
+    public void setOdometry(Pose2d currentPoint){
+        swerveOdometry.resetPosition(currentPoint, Rotation2d.fromDegrees(pigeon.getFusedHeading()));
+    }
+
+    public void resetOdometry(){
+        this.setOdometry(new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(pigeon.getFusedHeading())));
+    }
+
     /**
      * Runs each WPI_TalonSRX through the initTalon function
      */
     public void initTalons(){
-        initTalon(frontLeftTalon, 0);
-        initTalon(frontRightTalon, 0);
-        initTalon(backLeftTalon, 0);
-        initTalon(backRightTalon, 0);
+        initTalon(frontLeftTalon, frontLeft.getTalonOffset());
+        initTalon(frontRightTalon, frontRight.getTalonOffset());
+        initTalon(backLeftTalon, backLeft.getTalonOffset());
+        initTalon(backRightTalon, backRight.getTalonOffset());
     }
 
     /**
@@ -207,21 +244,16 @@ public class Hardware {
      * @param offset the offset of the encoder
      */
     public void initTalon(WPI_TalonSRX talon, double offset){
-        // double startOffset = 0;
-        // talon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 30);
-        // startOffset = (talon.getSelectedSensorPosition() - offset) % 4096; 
-        // startOffset = startOffset < 0 ? startOffset + 4096.0 : startOffset;
-        // System.out.println(startOffset);
-        // System.out.println(talon.getSelectedSensorPosition() % 4096.0);
-        // Timer.delay(0.3);
-        talon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 30);
+        talon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 30);
         Timer.delay(0.3);
-
-        talon.setSelectedSensorPosition(0, 0, 0);
+        //if the talons get offset, uncomment the lower line, hand set the modules to 0, 
+        //redeploy code, and then recomment the line, and redeploy.
+        
+        // talon.setSelectedSensorPosition(0, 0, 0);
     }
 
     public void initSparks(){
-        if(!robot.TALON_BOT){
+        if(!Robot.TALON_BOT){
             initSpark(frontRightRotation);
             initSpark(frontLeftRotation);
             initSpark(backLeftRotation);
@@ -231,6 +263,20 @@ public class Hardware {
         initSpark(frontLeftDrive);
         initSpark(backLeftDrive);
         initSpark(backRightDrive);
+        //0.0070289
+        setPIDF(frontRightDrive, Hardware.FRONT_RIGHT_P, Hardware.FRONT_RIGHT_I, Hardware.FRONT_RIGHT_D, Hardware.FRONT_RIGHT_FF);
+        setPIDF(frontLeftDrive, Hardware.FRONT_LEFT_P, Hardware.FRONT_LEFT_I, FRONT_LEFT_D, FRONT_LEFT_FF);
+        setPIDF(backRightDrive, Hardware.BACK_RIGHT_P, Hardware.BACK_RIGHT_I, Hardware.BACK_RIGHT_D, Hardware.BACK_RIGHT_FF);
+        setPIDF(backLeftDrive, Hardware.BACK_LEFT_P, Hardware.BACK_LEFT_I, Hardware.BACK_LEFT_D, Hardware.BACK_LEFT_FF);
+    }
+
+    private void setPIDF(CANSparkMax spark, double p, double i, double d, double f){
+        SparkMaxPIDController pidCon = spark.getPIDController();
+
+        pidCon.setP(p);
+        pidCon.setI(i);
+        pidCon.setD(d);
+        pidCon.setFF(f);
     }
 
     public void initSpark(CANSparkMax spark){
