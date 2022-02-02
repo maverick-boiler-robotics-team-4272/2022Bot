@@ -249,7 +249,7 @@ public class Hardware {
         //if the talons get offset, uncomment the lower line, hand set the modules to 0, 
         //redeploy code, and then recomment the line, and redeploy.
         
-        // talon.setSelectedSensorPosition(0, 0, 0);
+        talon.setSelectedSensorPosition(0, 0, 0);
     }
 
     public void initSparks(){

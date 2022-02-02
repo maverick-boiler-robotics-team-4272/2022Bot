@@ -145,7 +145,7 @@ public class SwerveModule {
         // Optimize to avoid spinning over 90 degrees, or pi/2 radians
         double current = ((talonMotor.getSelectedSensorPosition() - talonOffset) / 4096.0) * 360.0;
         SwerveModuleState state = SwerveModuleState.optimize(desired,
-                Rotation2d.fromDegrees(current % 360.0));
+                Rotation2d.fromDegrees(current));
 
 
         driveMotor.getPIDController().setReference(Units.metersToInches(state.speedMetersPerSecond)
@@ -167,6 +167,13 @@ public class SwerveModule {
         double currentHeadingRadians = getHeading().getRadians();
         double setPointHeadingRadians = rotation.getRadians();
 
+        setPointHeadingRadians = optimizeTalons(currentHeadingRadians, setPointHeadingRadians);//Doesn't work btw (2/1/22)
+        double otherHeadingRadians = (rotation.getRadians() - Math.PI);
+        // if(Math.abs(otherHeadingRadians) > Math.abs(setPointHeadingRadians)){
+        //     setPointHeadingRadians = otherHeadingRadians;
+        //     //Reverse speed, but just wanna test talons
+        // }
+
         double deltaRadians = setPointHeadingRadians - currentHeadingRadians;
         double deltaPulses = deltaRadians / ((2.0 * Math.PI) / 4096.0);
 
@@ -174,5 +181,34 @@ public class SwerveModule {
         double referencePulses = currentPulses + deltaPulses;
 
         talonMotor.set(ControlMode.MotionMagic, referencePulses);
+    }
+
+    public static double optimizeTalons(double currAngle, double desiredAngle){
+        double lowerBound;
+        double upperBound;
+        double modCurrAngle = currAngle % (Math.PI);
+
+        if(modCurrAngle >= 0){
+            lowerBound = currAngle - modCurrAngle;
+            upperBound = currAngle - (Math.PI + modCurrAngle);
+        }else{
+            upperBound = currAngle - modCurrAngle;
+            lowerBound = currAngle - (360 + modCurrAngle);
+        }
+
+        while(desiredAngle < lowerBound){
+            desiredAngle += (2 * Math.PI);
+        }
+        while(desiredAngle > upperBound){
+            desiredAngle -= (2 * Math.PI);
+        }
+
+        if(desiredAngle - currAngle > Math.PI){
+            desiredAngle -= (2 * Math.PI);
+        }
+        if(desiredAngle - currAngle < Math.PI){
+            desiredAngle += (2 * Math.PI);
+        }
+        return desiredAngle;
     }
 }
