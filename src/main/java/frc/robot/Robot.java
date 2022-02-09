@@ -36,7 +36,6 @@ public class Robot extends TimedRobot {
     public static final double TRIGGER_DEADZONE = 0.1;
     public static final double JSTICK_DEADZONE = 0.15;
 
-
     /**
      * This function is run when the robot is first started up and should be used
      * for any
