@@ -1,37 +1,112 @@
 package frc.robot.Subsystems;
 
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import java.sql.Driver;
+
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.lib.Math.Vector2;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 
 public class Teleop {
-    //xbox controllers for driving and operating
-    private XboxController driveController = new XboxController(0);
-    private XboxController operatorController = new XboxController(1);
-    
-    //swerve drive drive train
-
-    private Translation2d frontLeftTranslation = new Translation2d(0, 0);
-    private Translation2d frontRightTranslation = new Translation2d(0, 0);
-    private Translation2d backLeftTranslation = new Translation2d(0, 0);
-    private Translation2d backRightTranslation = new Translation2d(0, 0);
-
-    private SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(frontLeftTranslation, frontRightTranslation, backLeftTranslation, backRightTranslation);
-
-
     private Robot robot;
-
     public Teleop(Robot robot){
         this.robot = robot;
     }
+    //Xbox controllers
+    private XboxController driveController = new XboxController(0);
+    private XboxController opController = new XboxController(1);
+    private double percentTop = .8;
+    private double percentBottom = .8;
 
-    public void init(){
+    private double flFF = 0.1;
+    private double frFF = 0.1;
+    private double brFF = 0.1;
+    private double blFF = 0.1;
+
+    public boolean fieldRelative = false;
+
+    /**
+     * Loop that has all of our inputs to run the robot
+     */
+    public void run(){
+        //Drive
+        double driveX = driveController.getLeftX();
+        double driveY = driveController.getLeftY();
+        if(Math.abs(driveX) <= 0.08){
+            driveX = 0;
+        }
+        if(Math.abs(driveY) <= 0.08){
+            driveY = 0;
+        }
+        double hyp = Math.sqrt(Math.pow(driveX, 2) + Math.pow(driveY, 2));
+        double angle = Math.atan2(driveY, driveX);
+        hyp = deadzoneEqautions(Robot.JSTICK_DEADZONE, hyp);
+
+        driveX = Math.cos(angle) * hyp;
+        driveY = Math.sin(angle) * hyp;
+
+        double rotX = driveController.getRightX();
+
+        rotX = deadzoneEqautions(Robot.JSTICK_DEADZONE, rotX);
+
+        if(driveController.getRightBumperPressed()){
+        // System.out.println("initDriveX, initDriveY = " + initDriveX + ", " + initDriveY);
+
+        // System.out.println("Hyp = " + hyp);
+        // System.out.println("Angle = " + angle);
+        
+        // System.out.println("driveX, driveY = " + driveX + ", " + driveY);
+            
+        }
+        
+        robot.hardware.drive(driveX * Hardware.MAX_SPEED, driveY * Hardware.MAX_SPEED, rotX * Hardware.MAX_ANGULAR_SPEED, fieldRelative);
+        // robot.hardware.drive(0, -0.1, 0, false);
+        //Field Relative Toggle
+        if(driveController.getStartButtonPressed()){
+            String fieldRelativeOnOrNot;
+            fieldRelative = !fieldRelative;
+            if(fieldRelative){
+                fieldRelativeOnOrNot = "On";
+            }else{
+                fieldRelativeOnOrNot = "Off";
+            }
+            System.out.println("Field relative is: " + fieldRelativeOnOrNot);
+
+        }
+
+        if(driveController.getBButtonPressed()){
+            robot.hardware.resetPigeonHeading();
+        }
+        
+        //Intake
+        double intakeVal = (opController.getLeftTriggerAxis() > Robot.TRIGGER_DEADZONE)
+                            ? opController.getLeftTriggerAxis()
+                            : 0;
+        robot.intake.runIntake(intakeVal);
+        SmartDashboard.putNumber("Pigeon Heading", robot.hardware.pigeon.getFusedHeading());
 
     }
 
-    public void run(){
-        Vector2 translation = new Vector2(driveController.getLeftX(), driveController.getLeftY());
+    /**
+     * Calculates a new magnitude of input taking the dead zone into account. This stops it from jumping
+     * from 0 to the deadzone value.
+     * 
+     * @param deadZoneRadius deadzone radius
+     * @param hyp magnitude of input
+     * @return
+     */
+    private static double deadzoneEqautions(double deadZoneRadius, double hyp){
+        if(hyp >= deadZoneRadius){
+            return (1/(1-deadZoneRadius)) * (hyp - deadZoneRadius);
+        }else if(hyp <= -deadZoneRadius){
+            return (1/(1-deadZoneRadius)) * (hyp + deadZoneRadius);
+        }
+
+        return 0;
     }
 }
