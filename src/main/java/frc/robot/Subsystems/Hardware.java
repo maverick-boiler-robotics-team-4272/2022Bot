@@ -59,10 +59,10 @@ public class Hardware {
     private static final double BACK_LEFT_FF = 0.001;
 
     //module indexes
-    private static final int FRONT_LEFT_INDEX = 2;
-    private static final int FRONT_RIGHT_INDEX = 3;
-    private static final int BACK_LEFT_INDEX = 0;
-    private static final int BACK_RIGHT_INDEX = 1;
+    private static final int FRONT_LEFT_INDEX = 0;
+    private static final int FRONT_RIGHT_INDEX = 1;
+    private static final int BACK_LEFT_INDEX = 2;
+    private static final int BACK_RIGHT_INDEX = 3;
 
     //drive motors (ids: 1, 2, 3, 4)
     public CANSparkMax frontRightDrive = new CANSparkMax(11, MotorType.kBrushless); public RelativeEncoder frontRightDriveEnc = frontRightDrive.getEncoder();
@@ -106,11 +106,11 @@ public class Hardware {
     private final SwerveModule backLeft;
     private final SwerveModule backRight;
 
-    public final PigeonIMU pigeon = new PigeonIMU(21);//I don't know how to get a rotation2d object from a pigeon, will have to ask Danny at some point
+    public final PigeonIMU pigeon = new PigeonIMU(21);//I don't know how to get a rotation2d object from a pigeon, will have to ask Dannie at some point
     public final Rotation2d rotation2d = Rotation2d.fromDegrees(pigeon.getFusedHeading());//For now this'll work to not have so many errors
     
 
-    public final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
+    public final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(backLeftLocation, backRightLocation, frontLeftLocation, frontRightLocation);
 
     public final SwerveDriveOdometry swerveOdometry = new SwerveDriveOdometry(swerveKinematics, rotation2d);
 
@@ -139,10 +139,10 @@ public class Hardware {
         
         //Reset pigeon here, couldn't find the command for it
         if(Robot.TALON_BOT){
-            frontRight = new SwerveModule(frontRightDrive, frontRightTalon, frontRightDriveEnc, 0.0);
-            frontLeft = new SwerveModule(frontLeftDrive, frontLeftTalon, frontLeftDriveEnc, 0.0);
-            backLeft = new SwerveModule(backLeftDrive, backLeftTalon, backLeftDriveEnc, 0.0);
-            backRight = new SwerveModule(backRightDrive, backRightTalon, backRightDriveEnc, 0.0);
+            frontRight = new SwerveModule(frontRightDrive, frontRightTalon, frontRightDriveEnc, 0.0, FRONT_RIGHT_INDEX);
+            frontLeft = new SwerveModule(frontLeftDrive, frontLeftTalon, frontLeftDriveEnc, 0.0, FRONT_LEFT_INDEX);
+            backLeft = new SwerveModule(backLeftDrive, backLeftTalon, backLeftDriveEnc, 0.0, BACK_LEFT_INDEX);
+            backRight = new SwerveModule(backRightDrive, backRightTalon, backRightDriveEnc, 0.0, BACK_RIGHT_INDEX);
             initTalons();
         }else{
             frontRight = new SwerveModule(frontRightDrive, frontRightRotation, frontRightDriveEnc, frontRightEncoder);
@@ -151,6 +151,7 @@ public class Hardware {
             backRight = new SwerveModule(backRightDrive, backRightRotation, backRightDriveEnc, backRightEncoder);
         }
         initSparks();
+        this.pigeon.setFusedHeading(0);
         shooterTopMotor.setInverted(true);
         Rotation2d.fromDegrees(pigeon.getFusedHeading());
     }
@@ -166,8 +167,8 @@ public class Hardware {
     public void drive(double xSpeed, double ySpeed, double rotation, boolean fieldRelative){ 
         SwerveModuleState[] swerveModuleStates = swerveKinematics.toSwerveModuleStates(
             fieldRelative
-                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotation, Rotation2d.fromDegrees(pigeon.getFusedHeading()))
-                : new ChassisSpeeds(ySpeed,-xSpeed, rotation)
+                ? ChassisSpeeds.fromFieldRelativeSpeeds(ySpeed, -xSpeed, rotation, Rotation2d.fromDegrees(-pigeon.getFusedHeading()))
+                : new ChassisSpeeds(ySpeed, -xSpeed, rotation)
         );
         setSwerveModuleStates(swerveModuleStates);
         SmartDashboard.putNumber("Front Left Set Point", swerveModuleStates[0].angle.getDegrees());
@@ -249,7 +250,7 @@ public class Hardware {
         //if the talons get offset, uncomment the lower line, hand set the modules to 0, 
         //redeploy code, and then recomment the line, and redeploy.
         
-        talon.setSelectedSensorPosition(0, 0, 0);
+        // talon.setSelectedSensorPosition(0, 0, 0);
     }
 
     public void initSparks(){
@@ -284,10 +285,10 @@ public class Hardware {
     }
 
     public double getPigeonHeading(){
-        return 0.0;
+        return this.pigeon.getFusedHeading();
     }
 
     public void resetPigeonHeading(){
-
+        this.pigeon.setFusedHeading(0.0);
     }
 }

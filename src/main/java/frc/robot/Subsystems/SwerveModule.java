@@ -8,6 +8,8 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.ControlType;
 
+import org.ejml.dense.row.mult.SubmatrixOps_FDRM;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -42,6 +44,8 @@ public class SwerveModule {
     private final ProfiledPIDController turningPIDController = new ProfiledPIDController(1, 0, 0,
             new TrapezoidProfile.Constraints(MAX_ANGULAR_VELOCITY, MAX_ANGULAR_ACC));
 
+    private final int moduleId;
+
     private final SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(0.1387, 0.067812);
     private final SimpleMotorFeedforward turningFeedforward = new SimpleMotorFeedforward(1, 1);
 
@@ -62,6 +66,7 @@ public class SwerveModule {
         this.driveEncoder = driveEncoder;
         this.turningMotor = turningMotor;
         this.turningEncoder = turningEncoder;
+        this.moduleId = 0;
 
         driveEncoder.setPositionConversionFactor(2 * Math.PI * WHEEL_RADIUS);
         turningEncoder.setPositionConversionFactor(2 * Math.PI * WHEEL_RADIUS);// Set distance per pulse using the
@@ -81,11 +86,13 @@ public class SwerveModule {
             CANSparkMax driveMotor,
             WPI_TalonSRX turningMotor,
             RelativeEncoder driveEncoder,
-            double talonOffset) {
+            double talonOffset,
+            int moduleId) {
         this.driveMotor = driveMotor;
         this.talonMotor = turningMotor;
         this.driveEncoder = driveEncoder;
         this.talonOffset = talonOffset;
+        this.moduleId = moduleId;
         driveEncoder.setVelocityConversionFactor(2 * Math.PI * Units.inchesToMeters(SwerveModule.WHEEL_RADIUS)
                 / SwerveModule.GEAR_RATIO / SwerveModule.SECONDS_PER_MINUTE);
 
@@ -144,36 +151,31 @@ public class SwerveModule {
     public void setTalonDesiredState(SwerveModuleState desired) {
         // Optimize to avoid spinning over 90 degrees, or pi/2 radians
         double current = ((talonMotor.getSelectedSensorPosition() - talonOffset) / 4096.0) * 360.0;
-        SwerveModuleState state = SwerveModuleState.optimize(desired,
+        SwerveModuleState state = SwerveModule.optimize(desired,
                 Rotation2d.fromDegrees(current));
 
-
+        SmartDashboard.putNumber("Module " + this.moduleId + " Optimized Position", state.angle.getDegrees());
         driveMotor.getPIDController().setReference(Units.metersToInches(state.speedMetersPerSecond)
                 * 60.0 / (3.0 * Math.PI) / 5.25, CANSparkMax.ControlType.kVelocity);
 
-        setHeading(state.angle);
+        setHeading(state);
     }
 
     public Rotation2d getHeading() {
         if (Robot.TALON_BOT) {
             double heading = (this.talonMotor.getSelectedSensorPosition() / 4096.0) * 360.0;
-            return Rotation2d.fromDegrees(heading < 0.0 ? heading + 360.0 : heading);
+            return Rotation2d.fromDegrees(heading);
         } else {
             return new Rotation2d(0.0);
         }
     }
 
-    public void setHeading(Rotation2d rotation) {
+    public void setHeading(SwerveModuleState state) {
+        if(state.speedMetersPerSecond == 0.0) return;
         double currentHeadingRadians = getHeading().getRadians();
-        double setPointHeadingRadians = rotation.getRadians();
+        double setPointHeadingRadians = state.angle.getRadians();
 
-        setPointHeadingRadians = optimizeTalons(currentHeadingRadians, setPointHeadingRadians);//Doesn't work btw (2/1/22)
-        double otherHeadingRadians = (rotation.getRadians() - Math.PI);
-        // if(Math.abs(otherHeadingRadians) > Math.abs(setPointHeadingRadians)){
-        //     setPointHeadingRadians = otherHeadingRadians;
-        //     //Reverse speed, but just wanna test talons
-        // }
-
+        // System.out.printf("Module %d: Set Points Equal?: %b\n", this.moduleId, (Math.abs(optimizedSetPoint - setPointHeadingRadians) < 1e-4));
         double deltaRadians = setPointHeadingRadians - currentHeadingRadians;
         double deltaPulses = deltaRadians / ((2.0 * Math.PI) / 4096.0);
 
@@ -183,32 +185,47 @@ public class SwerveModule {
         talonMotor.set(ControlMode.MotionMagic, referencePulses);
     }
 
-    public static double optimizeTalons(double currAngle, double desiredAngle){
-        double lowerBound;
-        double upperBound;
-        double modCurrAngle = currAngle % (Math.PI);
+    public static SwerveModuleState optimize(SwerveModuleState desiredState, Rotation2d currentAngle) {
+        boolean inverted = false;
 
-        if(modCurrAngle >= 0){
-            lowerBound = currAngle - modCurrAngle;
-            upperBound = currAngle - (Math.PI + modCurrAngle);
+        double desiredDegrees = desiredState.angle.getDegrees() % 360.0;
+        if(desiredDegrees < 0.0){
+            desiredDegrees += 360.0;
+        }
+
+        double currentDegrees = currentAngle.getDegrees();
+        double currentMod = currentDegrees % 360.0;
+        if(currentMod < 0.0){
+            currentMod += 360.0;
+        }
+
+        if(Math.abs(currentMod - desiredDegrees) > 90.0 && Math.abs(currentMod - desiredDegrees) <= 270.0){
+            inverted = true;
+            desiredDegrees -= 180.0;
+        }
+
+        double deltaAngle = desiredDegrees - currentMod;
+        if(deltaAngle < 0.0){
+            deltaAngle += 360.0;
+        }
+
+        double counterClockWiseAngle = deltaAngle;
+        double clockWiseAngle = deltaAngle - 360.0;
+
+        if(Math.abs(counterClockWiseAngle) < Math.abs(clockWiseAngle)){
+            desiredDegrees = counterClockWiseAngle;
         }else{
-            upperBound = currAngle - modCurrAngle;
-            lowerBound = currAngle - (360 + modCurrAngle);
+            desiredDegrees = clockWiseAngle;
         }
 
-        while(desiredAngle < lowerBound){
-            desiredAngle += (2 * Math.PI);
-        }
-        while(desiredAngle > upperBound){
-            desiredAngle -= (2 * Math.PI);
+        double magnitude = desiredState.speedMetersPerSecond;
+
+        if(inverted){
+            magnitude *= -1.0;
         }
 
-        if(desiredAngle - currAngle > Math.PI){
-            desiredAngle -= (2 * Math.PI);
-        }
-        if(desiredAngle - currAngle < Math.PI){
-            desiredAngle += (2 * Math.PI);
-        }
-        return desiredAngle;
+        desiredDegrees += currentDegrees;
+
+        return new SwerveModuleState(magnitude, Rotation2d.fromDegrees(desiredDegrees));
     }
 }
