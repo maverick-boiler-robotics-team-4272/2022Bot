@@ -4,10 +4,11 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Subsystems.Hardware;
+import frc.robot.Subsystems.*;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -23,10 +24,17 @@ public class Robot extends TimedRobot {
     private static final String kCustomAuto = "My Auto";
     private String m_autoSelected;
     private final SendableChooser<String> m_chooser = new SendableChooser<>();
+    public static final boolean TALON_BOT = true;
 
-    //hardware/driving stuff
-    private Hardware hardware = new Hardware(this);
+    public Hardware hardware = new Hardware(this);
+    public Climber climber = new Climber(this);
+    public Intake intake = new Intake(this);
+    public Shooter shooter = new Shooter(this);
+    public Teleop teleop = new Teleop(this);
 
+    //Deadzone constants
+    public static final double TRIGGER_DEADZONE = 0.1;
+    public static final double JSTICK_DEADZONE = 0.15;
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -38,9 +46,7 @@ public class Robot extends TimedRobot {
         m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
         m_chooser.addOption("My Auto", kCustomAuto);
         SmartDashboard.putData("Auto choices", m_chooser);
-
-
-        hardware.init();
+        SmartDashboard.putNumber("Pigeon Heading", hardware.pigeon.getFusedHeading());
     }
 
     /**
@@ -104,6 +110,7 @@ public class Robot extends TimedRobot {
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
+        teleop.run();
     }
 
     /** This function is called once when the robot is disabled. */
