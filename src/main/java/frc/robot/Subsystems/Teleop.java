@@ -88,7 +88,7 @@ public class Teleop {
                             ? opController.getLeftTriggerAxis()
                             : 0;
         robot.intake.runIntake(intakeVal);
-        SmartDashboard.putNumber("Pigeon Heading", robot.hardware.pigeon.getFusedHeading());
+        SmartDashboard.putNumber("Pigeon Heading", robot.hardware.pigeon.getYaw());
 
     }
 

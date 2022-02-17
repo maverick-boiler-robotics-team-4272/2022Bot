@@ -50,7 +50,7 @@ public class DriveTrain {
             backLeftModule = new SwerveModule(robot.hardware.backLeftDrive, robot.hardware.backLeftRotation, robot.hardware.backLeftDriveEnc, robot.hardware.backLeftEncoder);
             backRightModule = new SwerveModule(robot.hardware.backRightDrive, robot.hardware.backRightRotation, robot.hardware.backRightDriveEnc, robot.hardware.backRightEncoder);
         }
-        swerveOdometry = new SwerveDriveOdometry(swerveKinematics, Rotation2d.fromDegrees(robot.hardware.pigeon.getFusedHeading()));
+        swerveOdometry = new SwerveDriveOdometry(swerveKinematics, Rotation2d.fromDegrees(robot.hardware.pigeon.getYaw()));
     }
 
     /**
@@ -64,7 +64,7 @@ public class DriveTrain {
     public void drive(double xSpeed, double ySpeed, double rotation, boolean fieldRelative){ 
         SwerveModuleState[] swerveModuleStates = swerveKinematics.toSwerveModuleStates(
             fieldRelative
-                ? ChassisSpeeds.fromFieldRelativeSpeeds(ySpeed, -xSpeed, rotation, Rotation2d.fromDegrees(-robot.hardware.pigeon.getFusedHeading()))
+                ? ChassisSpeeds.fromFieldRelativeSpeeds(ySpeed, -xSpeed, rotation, Rotation2d.fromDegrees(-robot.hardware.pigeon.getYaw()))
                 : new ChassisSpeeds(ySpeed, -xSpeed, rotation)
         );
         setSwerveModuleStates(swerveModuleStates);
@@ -107,15 +107,15 @@ public class DriveTrain {
      * updates the odometry
      */
     public void updateOdom(){
-        swerveOdometry.update(Rotation2d.fromDegrees(robot.hardware.pigeon.getFusedHeading()), getSwerveModuleStates());
+        swerveOdometry.update(Rotation2d.fromDegrees(robot.hardware.pigeon.getYaw()), getSwerveModuleStates());
     }
 
     public void setOdometry(Pose2d currentPoint){
-        swerveOdometry.resetPosition(currentPoint, Rotation2d.fromDegrees(robot.hardware.pigeon.getFusedHeading()));
+        swerveOdometry.resetPosition(currentPoint, Rotation2d.fromDegrees(robot.hardware.pigeon.getYaw()));
     }
 
     public void resetOdometry(){
-        this.setOdometry(new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(robot.hardware.pigeon.getFusedHeading())));
+        this.setOdometry(new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(robot.hardware.pigeon.getYaw())));
     }
 
 }

@@ -6,6 +6,8 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.sensors.BasePigeon;
+import com.ctre.phoenix.sensors.Pigeon2;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -87,8 +89,7 @@ public class Hardware {
     public RelativeEncoder backLeftEncoder = backLeftRotation.getEncoder();
     public RelativeEncoder backRightEncoder = backRightRotation.getEncoder();
 
-    public final PigeonIMU pigeon = new PigeonIMU(25);//I don't know how to get a rotation2d object from a pigeon, will have to ask Dannie at some point
-
+    public final BasePigeon pigeon;//I don't know how to get a rotation2d object from a pigeon, will have to ask Dannie at some point
     //Shooter motor. ids 5, 6(follower)
     public CANSparkMax shooterTopMotor = new CANSparkMax(15, MotorType.kBrushless);
     public CANSparkMax shooterBottomMotor = new CANSparkMax(16, MotorType.kBrushless);
@@ -113,9 +114,13 @@ public class Hardware {
         this.robot = robot;
         
         //Reset pigeon here, couldn't find the command for it
-        
+        if(Robot.TALON_BOT){
+            pigeon = new PigeonIMU(25);
+        }else{
+            pigeon = new Pigeon2(25);
+        }
         initSparks();
-        this.pigeon.setFusedHeading(0);
+        this.pigeon.setYaw(0);
         shooterTopMotor.setInverted(true);
     }
 
@@ -175,10 +180,10 @@ public class Hardware {
     }
 
     public double getPigeonHeading(){
-        return this.pigeon.getFusedHeading();
+        return this.pigeon.getYaw();
     }
 
     public void resetPigeonHeading(){
-        this.pigeon.setFusedHeading(0.0);
+        this.pigeon.setYaw(0.0);
     }
 }
