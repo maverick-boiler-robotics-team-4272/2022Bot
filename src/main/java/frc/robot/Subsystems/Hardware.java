@@ -31,7 +31,7 @@ import frc.robot.Robot;
 
 public class Hardware {
     private Robot robot;
-
+    
     //Constants
     public static final double MAX_SPEED = 3.0;//Meters per second
     public static final double MAX_ACC = 0.5;
@@ -58,17 +58,16 @@ public class Hardware {
     private static final double BACK_LEFT_D = 0.0;
     private static final double BACK_LEFT_FF = 0.001;
 
-    //module indexes
-    private static final int FRONT_LEFT_INDEX = 0;
-    private static final int FRONT_RIGHT_INDEX = 1;
-    private static final int BACK_LEFT_INDEX = 2;
-    private static final int BACK_RIGHT_INDEX = 3;
-
     //drive motors (ids: 1, 2, 3, 4)
-    public CANSparkMax frontRightDrive = new CANSparkMax(11, MotorType.kBrushless); public RelativeEncoder frontRightDriveEnc = frontRightDrive.getEncoder();
-    public CANSparkMax frontLeftDrive = new CANSparkMax(12, MotorType.kBrushless); public RelativeEncoder frontLeftDriveEnc = frontLeftDrive.getEncoder();
-    public CANSparkMax backLeftDrive = new CANSparkMax(13, MotorType.kBrushless); public RelativeEncoder backLeftDriveEnc = backLeftDrive.getEncoder();
-    public CANSparkMax backRightDrive = new CANSparkMax(14, MotorType.kBrushless); public RelativeEncoder backRightDriveEnc = backRightDrive.getEncoder();
+    public CANSparkMax frontRightDrive = new CANSparkMax(11, MotorType.kBrushless);
+    public CANSparkMax frontLeftDrive = new CANSparkMax(12, MotorType.kBrushless);
+    public CANSparkMax backLeftDrive = new CANSparkMax(13, MotorType.kBrushless);
+    public CANSparkMax backRightDrive = new CANSparkMax(14, MotorType.kBrushless);
+    
+    public RelativeEncoder frontRightDriveEnc = frontRightDrive.getEncoder();
+    public RelativeEncoder frontLeftDriveEnc = frontLeftDrive.getEncoder();
+    public RelativeEncoder backLeftDriveEnc = backLeftDrive.getEncoder();
+    public RelativeEncoder backRightDriveEnc = backRightDrive.getEncoder();
 
     //rotation motors (ids: 11, 12, 13, 14)
     public CANSparkMax frontRightRotation = new CANSparkMax(1, MotorType.kBrushless);
@@ -83,36 +82,12 @@ public class Hardware {
     public WPI_TalonSRX backRightTalon = new WPI_TalonSRX(4);
 
     //rotation motor encoders
-    private RelativeEncoder frontRightEncoder = frontRightRotation.getEncoder();
-    private RelativeEncoder frontLeftEncoder = frontLeftRotation.getEncoder();
-    private RelativeEncoder backLeftEncoder = backLeftRotation.getEncoder();
-    private RelativeEncoder backRightEncoder = backRightRotation.getEncoder();
+    public RelativeEncoder frontRightEncoder = frontRightRotation.getEncoder();
+    public RelativeEncoder frontLeftEncoder = frontLeftRotation.getEncoder();
+    public RelativeEncoder backLeftEncoder = backLeftRotation.getEncoder();
+    public RelativeEncoder backRightEncoder = backRightRotation.getEncoder();
 
-    //Translation 2d Objects
-    private final Translation2d frontRightLocation = new Translation2d(WHEEL_DIST, -WHEEL_DIST);
-    private final Translation2d frontLeftLocation = new Translation2d( WHEEL_DIST,  WHEEL_DIST);
-    private final Translation2d backLeftLocation = new Translation2d( -WHEEL_DIST,  WHEEL_DIST);
-    private final Translation2d backRightLocation = new Translation2d(-WHEEL_DIST, -WHEEL_DIST);
-
-    //SwerveModuleState objects
-    private final SwerveModuleState frontRightModule = new SwerveModuleState();
-    private final SwerveModuleState frontLeftModule = new SwerveModuleState();
-    private final SwerveModuleState backLeftModule = new SwerveModuleState();
-    private final SwerveModuleState backRightModule = new SwerveModuleState();
-
-    //SwerveModule objects
-    private final SwerveModule frontRight;
-    private final SwerveModule frontLeft;
-    private final SwerveModule backLeft;
-    private final SwerveModule backRight;
-
-    public final PigeonIMU pigeon = new PigeonIMU(21);//I don't know how to get a rotation2d object from a pigeon, will have to ask Dannie at some point
-    public final Rotation2d rotation2d = Rotation2d.fromDegrees(pigeon.getFusedHeading());//For now this'll work to not have so many errors
-    
-
-    public final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(backLeftLocation, backRightLocation, frontLeftLocation, frontRightLocation);
-
-    public final SwerveDriveOdometry swerveOdometry = new SwerveDriveOdometry(swerveKinematics, rotation2d);
+    public final PigeonIMU pigeon = new PigeonIMU(25);//I don't know how to get a rotation2d object from a pigeon, will have to ask Dannie at some point
 
     //Shooter motor. ids 5, 6(follower)
     public CANSparkMax shooterTopMotor = new CANSparkMax(15, MotorType.kBrushless);
@@ -138,105 +113,20 @@ public class Hardware {
         this.robot = robot;
         
         //Reset pigeon here, couldn't find the command for it
-        if(Robot.TALON_BOT){
-            frontRight = new SwerveModule(frontRightDrive, frontRightTalon, frontRightDriveEnc, 0.0, FRONT_RIGHT_INDEX);
-            frontLeft = new SwerveModule(frontLeftDrive, frontLeftTalon, frontLeftDriveEnc, 0.0, FRONT_LEFT_INDEX);
-            backLeft = new SwerveModule(backLeftDrive, backLeftTalon, backLeftDriveEnc, 0.0, BACK_LEFT_INDEX);
-            backRight = new SwerveModule(backRightDrive, backRightTalon, backRightDriveEnc, 0.0, BACK_RIGHT_INDEX);
-            initTalons();
-        }else{
-            frontRight = new SwerveModule(frontRightDrive, frontRightRotation, frontRightDriveEnc, frontRightEncoder);
-            frontLeft = new SwerveModule(frontLeftDrive, frontLeftRotation, frontLeftDriveEnc, frontLeftEncoder);
-            backLeft = new SwerveModule(backLeftDrive, backLeftRotation, backLeftDriveEnc, backLeftEncoder);
-            backRight = new SwerveModule(backRightDrive, backRightRotation, backRightDriveEnc, backRightEncoder);
-        }
+        
         initSparks();
         this.pigeon.setFusedHeading(0);
         shooterTopMotor.setInverted(true);
-        Rotation2d.fromDegrees(pigeon.getFusedHeading());
-    }
-
-    /**
-     * Method for driving the roboto
-     * 
-     * @param xSpeed Speed in x direction
-     * @param ySpeed Speed in y direction
-     * @param rotation Angular speed
-     * @param fieldRelative Whether it's in field relative control mode or not
-     */
-    public void drive(double xSpeed, double ySpeed, double rotation, boolean fieldRelative){ 
-        SwerveModuleState[] swerveModuleStates = swerveKinematics.toSwerveModuleStates(
-            fieldRelative
-                ? ChassisSpeeds.fromFieldRelativeSpeeds(ySpeed, -xSpeed, rotation, Rotation2d.fromDegrees(-pigeon.getFusedHeading()))
-                : new ChassisSpeeds(ySpeed, -xSpeed, rotation)
-        );
-        setSwerveModuleStates(swerveModuleStates);
-        SmartDashboard.putNumber("Front Left Set Point", swerveModuleStates[0].angle.getDegrees());
-        SmartDashboard.putNumber("Front Left Actual", (frontLeftTalon.getSelectedSensorPosition() / 4096.0) * 360.0);
-        SmartDashboard.putNumber("Front Right Set Point", swerveModuleStates[1].angle.getDegrees());
-        SmartDashboard.putNumber("Front Right Actual", (frontRightTalon.getSelectedSensorPosition() / 4096.0) * 360.0);
-        SmartDashboard.putNumber("Back Left Set Point", swerveModuleStates[2].angle.getDegrees());
-        SmartDashboard.putNumber("Back Left Actual", (backLeftTalon.getSelectedSensorPosition() / 4096.0) * 360.0);
-        SmartDashboard.putNumber("Back Right Set Point", swerveModuleStates[3].angle.getDegrees());
-        SmartDashboard.putNumber("Back Right Actual", (backRightTalon.getSelectedSensorPosition() / 4096.0) * 360.0);
-    }
-
-    /**
-     * Returns the swerve module state array
-     * 
-     * @return array of SwerveModuleState 0 is fl, 1 is fr, 2 is bl, 3 is br
-     */
-    public SwerveModuleState[] getSwerveModuleStates(){
-        SwerveModuleState[] states = new SwerveModuleState[4];
-        states[0] = frontLeft.getState();
-        states[1] = frontRight.getState();
-        states[2] = backLeft.getState();
-        states[3] = backRight.getState();
-        return states;
-    }
-
-    /**
-     * Sets each swerve module to its state determined by the states array
-     * 
-     * @param states an array of the swerve module states. 0 for fl, 1 for fr, 2 for bl, 3 for br 
-     */
-    public void setSwerveModuleStates(SwerveModuleState[] states){
-        if(Robot.TALON_BOT){
-            frontLeft.setTalonDesiredState(states[FRONT_LEFT_INDEX]);
-            frontRight.setTalonDesiredState(states[FRONT_RIGHT_INDEX]);
-            backLeft.setTalonDesiredState(states[BACK_LEFT_INDEX]);
-            backRight.setTalonDesiredState(states[BACK_RIGHT_INDEX]);
-        }else{
-            frontLeft.setDesiredState(states[0]);
-            frontRight.setDesiredState(states[1]);
-            backLeft.setDesiredState(states[2]);
-            backRight.setDesiredState(states[3]);
-        }
-    }
-
-    /**
-     * updates the odometry
-     */
-    public void updateOdom(){
-        swerveOdometry.update(Rotation2d.fromDegrees(pigeon.getFusedHeading()), getSwerveModuleStates());
-    }
-
-    public void setOdometry(Pose2d currentPoint){
-        swerveOdometry.resetPosition(currentPoint, Rotation2d.fromDegrees(pigeon.getFusedHeading()));
-    }
-
-    public void resetOdometry(){
-        this.setOdometry(new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(pigeon.getFusedHeading())));
     }
 
     /**
      * Runs each WPI_TalonSRX through the initTalon function
      */
     public void initTalons(){
-        initTalon(frontLeftTalon, frontLeft.getTalonOffset());
-        initTalon(frontRightTalon, frontRight.getTalonOffset());
-        initTalon(backLeftTalon, backLeft.getTalonOffset());
-        initTalon(backRightTalon, backRight.getTalonOffset());
+        initTalon(frontLeftTalon, 0.0);
+        initTalon(frontRightTalon, 0.0);
+        initTalon(backLeftTalon, 0.0);
+        initTalon(backRightTalon, 0.0);
     }
 
     /**

@@ -64,7 +64,7 @@ public class Teleop {
             
         }
         
-        robot.hardware.drive(driveX * Hardware.MAX_SPEED, driveY * Hardware.MAX_SPEED, rotX * Hardware.MAX_ANGULAR_SPEED, fieldRelative);
+        robot.driveTrain.drive(driveX * Hardware.MAX_SPEED, driveY * Hardware.MAX_SPEED, rotX * Hardware.MAX_ANGULAR_SPEED, fieldRelative);
         // robot.hardware.drive(0, -0.1, 0, false);
         //Field Relative Toggle
         if(driveController.getStartButtonPressed()){

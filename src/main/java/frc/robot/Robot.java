@@ -27,6 +27,7 @@ public class Robot extends TimedRobot {
     public static final boolean TALON_BOT = true;
 
     public Hardware hardware = new Hardware(this);
+    public DriveTrain driveTrain = new DriveTrain(this);
     public Climber climber = new Climber(this);
     public Intake intake = new Intake(this);
     public Shooter shooter = new Shooter(this);

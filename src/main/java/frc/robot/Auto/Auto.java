@@ -36,6 +36,6 @@ public class Auto {
                 path = 0;
         }
 
-        Pose2d currentOdomPos = robot.hardware.swerveOdometry.getPoseMeters();
+        Pose2d currentOdomPos = robot.driveTrain.swerveOdometry.getPoseMeters();
     }
 }
