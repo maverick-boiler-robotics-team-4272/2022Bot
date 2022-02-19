@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -20,13 +21,21 @@ import frc.robot.Subsystems.*;
  * project.
  */
 public class Robot extends TimedRobot {
+
+    //Constants
+    public static final double MAX_SPEED = 3.0;//Meters per second
+    public static final double MAX_ACC = 0.5;
+    public static final double MAX_ANGULAR_SPEED = 4 * Math.PI;//Half rotation per second
+    public static final double MAX_ANGULAR_ACC = Math.PI;
+    public static final double WHEEL_DIST = Units.feetToMeters(0.5);
+
     private static final String kDefaultAuto = "Default";
     private static final String kCustomAuto = "My Auto";
     private String m_autoSelected;
     private final SendableChooser<String> m_chooser = new SendableChooser<>();
     public static final boolean TALON_BOT = true;
 
-    public Hardware hardware = new Hardware(this);
+    public DriveTrain driveTrain = new DriveTrain(this);
     public Climber climber = new Climber(this);
     public Intake intake = new Intake(this);
     public Shooter shooter = new Shooter(this);
@@ -46,7 +55,7 @@ public class Robot extends TimedRobot {
         m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
         m_chooser.addOption("My Auto", kCustomAuto);
         SmartDashboard.putData("Auto choices", m_chooser);
-        SmartDashboard.putNumber("Pigeon Heading", hardware.pigeon.getFusedHeading());
+        SmartDashboard.putNumber("Pigeon Heading", driveTrain.pigeon.getYaw());
     }
 
     /**

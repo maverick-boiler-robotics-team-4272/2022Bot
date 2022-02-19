@@ -64,7 +64,7 @@ public class Teleop {
             
         }
         
-        robot.hardware.drive(driveX * Hardware.MAX_SPEED, driveY * Hardware.MAX_SPEED, rotX * Hardware.MAX_ANGULAR_SPEED, fieldRelative);
+        robot.driveTrain.drive(driveX * Robot.MAX_SPEED, driveY * Robot.MAX_SPEED, rotX * Robot.MAX_ANGULAR_SPEED, fieldRelative);
         // robot.hardware.drive(0, -0.1, 0, false);
         //Field Relative Toggle
         if(driveController.getStartButtonPressed()){
@@ -80,7 +80,7 @@ public class Teleop {
         }
 
         if(driveController.getBButtonPressed()){
-            robot.hardware.resetPigeonHeading();
+            robot.driveTrain.resetPigeonHeading();
         }
         
         //Intake
@@ -88,7 +88,6 @@ public class Teleop {
                             ? opController.getLeftTriggerAxis()
                             : 0;
         robot.intake.runIntake(intakeVal);
-        SmartDashboard.putNumber("Pigeon Heading", robot.hardware.pigeon.getFusedHeading());
 
     }
 

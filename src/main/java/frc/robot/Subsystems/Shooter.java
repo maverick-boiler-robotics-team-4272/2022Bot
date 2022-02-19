@@ -1,11 +1,22 @@
 package frc.robot.Subsystems;
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 import frc.robot.Robot;
 
 public class Shooter {
     private Robot robot;
+
+    //Shooter motor. ids 5, 6(follower)
+    private CANSparkMax shooterTopMotor = new CANSparkMax(15, MotorType.kBrushless);
+    private CANSparkMax shooterBottomMotor = new CANSparkMax(16, MotorType.kBrushless);
+    private CANSparkMax shooterRotationMotor = new CANSparkMax(17, MotorType.kBrushless);
+
+
     public Shooter(Robot robot){
         this.robot = robot;
+        this.shooterTopMotor.setInverted(true);
     }
 
     
@@ -16,8 +27,8 @@ public class Shooter {
      */
     public void shoot(double triggerValue){
         double percentOffSet = 0.8;
-        robot.hardware.shooterTopMotor.set(triggerValue * percentOffSet);
-        robot.hardware.shooterBottomMotor.set(triggerValue);
+        this.shooterTopMotor.set(triggerValue * percentOffSet);
+        this.shooterBottomMotor.set(triggerValue);
     }
 
     /**
@@ -27,8 +38,8 @@ public class Shooter {
      * @param bottomMotorVal value for the bottom motor to run at
      */
     public void shoot(double topMotorVal, double bottomMotorVal){
-        robot.hardware.shooterTopMotor.set(topMotorVal);
-        robot.hardware.shooterBottomMotor.set(bottomMotorVal);
+        this.shooterTopMotor.set(topMotorVal);
+        this.shooterBottomMotor.set(bottomMotorVal);
     }
 
 
