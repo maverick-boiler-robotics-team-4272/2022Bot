@@ -9,6 +9,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Auto.Auto;
+import frc.robot.Auto.Auto.Paths;
 import frc.robot.Subsystems.*;
 
 /**
@@ -23,8 +25,8 @@ import frc.robot.Subsystems.*;
 public class Robot extends TimedRobot {
 
     //Constants
-    public static final double MAX_SPEED = 3.0;//Meters per second
-    public static final double MAX_ACC = 0.5;
+    public static final double MAX_SPEED = 4.0;//Meters per second
+    public static final double MAX_ACC = 1;
     public static final double MAX_ANGULAR_SPEED = 4 * Math.PI;//Half rotation per second
     public static final double MAX_ANGULAR_ACC = Math.PI;
     public static final double WHEEL_DIST = Units.feetToMeters(0.5);
@@ -32,7 +34,7 @@ public class Robot extends TimedRobot {
     private static final String kDefaultAuto = "Default";
     private static final String kCustomAuto = "My Auto";
     private String m_autoSelected;
-    private final SendableChooser<String> m_chooser = new SendableChooser<>();
+    private final SendableChooser<Paths> AUTO_CHOOSER = new SendableChooser<>();
     public static final boolean TALON_BOT = true;
 
     public DriveTrain driveTrain = new DriveTrain(this);
@@ -40,6 +42,7 @@ public class Robot extends TimedRobot {
     public Intake intake = new Intake(this);
     public Shooter shooter = new Shooter(this);
     public Teleop teleop = new Teleop(this);
+    public Auto auto = new Auto(this);
 
     //Deadzone constants
     public static final double TRIGGER_DEADZONE = 0.1;
@@ -52,10 +55,24 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotInit() {
-        m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-        m_chooser.addOption("My Auto", kCustomAuto);
-        SmartDashboard.putData("Auto choices", m_chooser);
+        Paths[] paths = Paths.values();
+        for(int pathInd = 0; pathInd < paths.length; pathInd++){
+            AUTO_CHOOSER.addOption(paths[pathInd].name(), paths[pathInd]);
+        }
+        SmartDashboard.putData("Auto choices", AUTO_CHOOSER);
         SmartDashboard.putNumber("Pigeon Heading", driveTrain.pigeon.getYaw());
+
+        SmartDashboard.putNumber("xP", 2.0);
+        SmartDashboard.putNumber("xI", 0.01);
+        SmartDashboard.putNumber("xD", 0.0);
+
+        SmartDashboard.putNumber("yP", 2.0);
+        SmartDashboard.putNumber("yI", 0.01);
+        SmartDashboard.putNumber("yD", 0.0);
+
+        SmartDashboard.putNumber("tP", 4.5);
+        SmartDashboard.putNumber("tI", 0.0);
+        SmartDashboard.putNumber("tD", 0.0);
     }
 
     /**
@@ -71,6 +88,7 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotPeriodic() {
+
     }
 
     /**
@@ -92,23 +110,19 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void autonomousInit() {
-        m_autoSelected = m_chooser.getSelected();
-        // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-        System.out.println("Auto selected: " + m_autoSelected);
+        auto.setPath(AUTO_CHOOSER.getSelected());
+        auto.initPath();
+
+        auto.xPid.setPID(SmartDashboard.getNumber("xP", 1), SmartDashboard.getNumber("xI", 0), SmartDashboard.getNumber("xD", 0));
+        auto.yPid.setPID(SmartDashboard.getNumber("yP", 1), SmartDashboard.getNumber("yI", 0), SmartDashboard.getNumber("yD", 0));
+        auto.thetaPid.setPID(SmartDashboard.getNumber("tP", 1), SmartDashboard.getNumber("tI", 0), SmartDashboard.getNumber("tD", 0));
+
     }
 
     /** This function is called periodically during autonomous. */
     @Override
     public void autonomousPeriodic() {
-        switch (m_autoSelected) {
-            case kCustomAuto:
-                // Put custom auto code here
-                break;
-            case kDefaultAuto:
-            default:
-                // Put default auto code here
-                break;
-        }
+        auto.run();
     }
 
     /** This function is called once when teleop is enabled. */

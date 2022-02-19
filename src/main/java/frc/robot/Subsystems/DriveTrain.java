@@ -20,6 +20,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Robot;
+import frc.robot.Auto.SwerveOdometry;
 
 public class DriveTrain {
     private Robot robot;
@@ -95,7 +96,7 @@ public class DriveTrain {
 
     private final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(backLeftLocation, backRightLocation, frontLeftLocation, frontRightLocation);
 
-    private final SwerveDriveOdometry swerveOdometry;
+    private final SwerveOdometry swerveOdometry;
 
     
 
@@ -120,7 +121,7 @@ public class DriveTrain {
             backLeftModule = new SwerveModule(this.backLeftDrive, this.backLeftRotation, this.backLeftDriveEnc, this.backLeftEncoder);
             backRightModule = new SwerveModule(this.backRightDrive, this.backRightRotation, this.backRightDriveEnc, this.backRightEncoder);
         }
-        swerveOdometry = new SwerveDriveOdometry(swerveKinematics, Rotation2d.fromDegrees(this.pigeon.getYaw()));
+        swerveOdometry = new SwerveOdometry(swerveKinematics, getPigeonHeading());
     }
 
     /**
@@ -178,25 +179,33 @@ public class DriveTrain {
      * updates the odometry
      */
     public void updateOdometry(){
-        swerveOdometry.update(Rotation2d.fromDegrees(this.pigeon.getYaw()), getSwerveModuleStates());
+        swerveOdometry.update(getPigeonHeading(), getSwerveModuleStates());
     }
 
     /**
      * Sets the current position and rotation of the odometry
      */
     public void setOdometry(Pose2d currentPoint){
-        swerveOdometry.resetPosition(currentPoint, Rotation2d.fromDegrees(this.pigeon.getYaw()));
+        swerveOdometry.resetPosition(currentPoint, getPigeonHeading());
     }
 
     /**
      * Resets odometry to be the origin (x: 0, y: 0, rotation: 0)
      */
     public void resetOdometry(){
-        this.setOdometry(new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(this.pigeon.getYaw())));
+        this.setOdometry(new Pose2d(0.0, 0.0, getPigeonHeading()));
     }
 
     public Pose2d getOdometryPoseMeters(){
         return swerveOdometry.getPoseMeters();
+    }
+
+    public Rotation2d getPigeonHeading(){
+        return Rotation2d.fromDegrees(this.pigeon.getYaw());
+    }
+
+    public void setHeading(Rotation2d newHeading){
+        this.setOdometry(new Pose2d(getOdometryPoseMeters().getX(), getOdometryPoseMeters().getY(), newHeading));
     }
 
     /**
@@ -220,7 +229,7 @@ public class DriveTrain {
         //if the talons get offset, uncomment the lower line, hand set the modules to 0, 
         //redeploy code, and then recomment the line, and redeploy.
         
-        talon.setSelectedSensorPosition(0, 0, 0);
+        // talon.setSelectedSensorPosition(0, 0, 0);
     }
 
     /**
@@ -266,13 +275,6 @@ public class DriveTrain {
      */
     public void initSpark(CANSparkMax spark){
         spark.setIdleMode(IdleMode.kBrake);
-    }
-
-    /**
-     * Gets the current yaw angle of the robot
-     */
-    public double getPigeonHeading(){
-        return this.pigeon.getYaw();
     }
 
     /**

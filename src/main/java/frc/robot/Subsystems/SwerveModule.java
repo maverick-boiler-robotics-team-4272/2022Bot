@@ -26,7 +26,7 @@ public class SwerveModule {
 
     private static final double ENCODER_RESOLUTION = 4096;
 
-    private static final double MAX_SPEED = 3.0;// Meters per second
+    private static final double MAX_SPEED = 5.0;// Meters per second
     private static final double MAX_ANGULAR_VELOCITY = Math.PI;
     private static final double MAX_ANGULAR_ACC = Math.PI * 2;// Meters per second squared
 
@@ -110,7 +110,7 @@ public class SwerveModule {
      */
     public SwerveModuleState getState() {
         if (Robot.TALON_BOT) {
-            return new SwerveModuleState(driveEncoder.getVelocity(), Rotation2d
+            return new SwerveModuleState(-driveEncoder.getVelocity(), Rotation2d
                     .fromDegrees(((talonMotor.getSelectedSensorPosition() - talonOffset) / 4096.0) % 1 * 360.0));
         } else {
             return new SwerveModuleState(driveEncoder.getVelocity(),
@@ -154,7 +154,6 @@ public class SwerveModule {
         SwerveModuleState state = SwerveModule.optimize(desired,
                 Rotation2d.fromDegrees(current));
 
-        SmartDashboard.putNumber("Module " + this.moduleId + " Optimized Position", state.angle.getDegrees());
         driveMotor.getPIDController().setReference(Units.metersToInches(state.speedMetersPerSecond)
                 * 60.0 / (3.0 * Math.PI) / 5.25, CANSparkMax.ControlType.kVelocity);
 
