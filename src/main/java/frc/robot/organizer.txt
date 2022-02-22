@@ -23,9 +23,9 @@ Swerve Code:
         Drive Motors:
         8 motors drive train
             Drive:
-                11, 12, 13, 14
-            Steering:
                 1, 2, 3, 4
+            Steering:
+                11, 12, 13, 14
 
         Climb Motors:
             extension:

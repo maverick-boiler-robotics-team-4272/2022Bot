@@ -38,9 +38,9 @@ public class Auto {
     private double startTime;
 
     // Controller
-    public PIDController xPid = new PIDController(1, 0, 0);
-    public PIDController yPid = new PIDController(1, 0, 0);
-    public ProfiledPIDController thetaPid = new ProfiledPIDController(1, 0, 0,
+    public PIDController xPid = new PIDController(2.0, 0.01, 0);
+    public PIDController yPid = new PIDController(2.0, 0.01, 0);
+    public ProfiledPIDController thetaPid = new ProfiledPIDController(4.5, 0, 0,
     new TrapezoidProfile.Constraints(Robot.MAX_ANGULAR_SPEED, Robot.MAX_ANGULAR_ACC));
     private SwerveAutoController controller = new SwerveAutoController(
             xPid,

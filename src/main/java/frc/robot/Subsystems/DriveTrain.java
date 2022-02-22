@@ -25,31 +25,31 @@ import frc.robot.Auto.SwerveOdometry;
 public class DriveTrain {
     private Robot robot;
 
-    private static final double FRONT_RIGHT_P = 0.0039;
-    private static final double FRONT_RIGHT_I = 0.0;
-    private static final double FRONT_RIGHT_D = 0.0;
-    private static final double FRONT_RIGHT_FF = 0.001;
+    private static final double TALON_FRONT_RIGHT_P = 0.0039;
+    private static final double TALON_FRONT_RIGHT_I = 0.0;
+    private static final double TALON_FRONT_RIGHT_D = 0.0;
+    private static final double TALON_FRONT_RIGHT_FF = 0.001;
 
-    private static final double FRONT_LEFT_P = 0.0038;
-    private static final double FRONT_LEFT_I = 0.0;
-    private static final double FRONT_LEFT_D = 0.0;
-    private static final double FRONT_LEFT_FF = 0.001;
+    private static final double TALON_FRONT_LEFT_P = 0.0038;
+    private static final double TALON_FRONT_LEFT_I = 0.0;
+    private static final double TALON_FRONT_LEFT_D = 0.0;
+    private static final double TALON_FRONT_LEFT_FF = 0.001;
 
-    private static final double BACK_RIGHT_P = 0.0038;
-    private static final double BACK_RIGHT_I = 0.0;
-    private static final double BACK_RIGHT_D = 0.0;
-    private static final double BACK_RIGHT_FF = 0.001;
+    private static final double TALON_BACK_RIGHT_P = 0.0038;
+    private static final double TALON_BACK_RIGHT_I = 0.0;
+    private static final double TALON_BACK_RIGHT_D = 0.0;
+    private static final double TALON_BACK_RIGHT_FF = 0.001;
 
-    private static final double BACK_LEFT_P = 0.0038;
-    private static final double BACK_LEFT_I = 0.0;
-    private static final double BACK_LEFT_D = 0.0;
-    private static final double BACK_LEFT_FF = 0.001;
+    private static final double TALON_BACK_LEFT_P = 0.0038;
+    private static final double TALON_BACK_LEFT_I = 0.0;
+    private static final double TALON_BACK_LEFT_D = 0.0;
+    private static final double TALON_BACK_LEFT_FF = 0.001;
 
     //drive motors (ids: 11, 12, 13, 14)
-    private CANSparkMax frontRightDrive = new CANSparkMax(11, MotorType.kBrushless);
-    private CANSparkMax frontLeftDrive = new CANSparkMax(12, MotorType.kBrushless);
-    private CANSparkMax backLeftDrive = new CANSparkMax(13, MotorType.kBrushless);
-    private CANSparkMax backRightDrive = new CANSparkMax(14, MotorType.kBrushless);
+    private CANSparkMax frontRightDrive = new CANSparkMax(2, MotorType.kBrushless);
+    private CANSparkMax frontLeftDrive = new CANSparkMax(1, MotorType.kBrushless);
+    private CANSparkMax backLeftDrive = new CANSparkMax(3, MotorType.kBrushless);
+    private CANSparkMax backRightDrive = new CANSparkMax(4, MotorType.kBrushless);
     
     private RelativeEncoder frontRightDriveEnc = frontRightDrive.getEncoder();
     private RelativeEncoder frontLeftDriveEnc = frontLeftDrive.getEncoder();
@@ -57,10 +57,10 @@ public class DriveTrain {
     private RelativeEncoder backRightDriveEnc = backRightDrive.getEncoder();
 
     //rotation motors (ids: 1, 2, 3, 4)
-    private CANSparkMax frontRightRotation = new CANSparkMax(1, MotorType.kBrushless);
-    private CANSparkMax frontLeftRotation = new CANSparkMax(2, MotorType.kBrushless);
-    private CANSparkMax backLeftRotation = new CANSparkMax(3, MotorType.kBrushless);
-    private CANSparkMax backRightRotation = new CANSparkMax(4, MotorType.kBrushless);
+    private CANSparkMax frontRightRotation = new CANSparkMax(12, MotorType.kBrushless);
+    private CANSparkMax frontLeftRotation = new CANSparkMax(11, MotorType.kBrushless);
+    private CANSparkMax backLeftRotation = new CANSparkMax(13, MotorType.kBrushless);
+    private CANSparkMax backRightRotation = new CANSparkMax(14, MotorType.kBrushless);
 
     //Talon rotation motors so we can test with old swerve bot
     private WPI_TalonSRX frontRightTalon = new WPI_TalonSRX(1);
@@ -116,10 +116,10 @@ public class DriveTrain {
             backRightModule = new SwerveModule(this.backRightDrive, this.backRightTalon, this.backRightDriveEnc, 0.0, BACK_RIGHT_INDEX);
             this.initTalons();
         }else{
-            frontRightModule = new SwerveModule(this.frontRightDrive, this.frontRightRotation, this.frontRightDriveEnc, this.frontRightEncoder);
-            frontLeftModule = new SwerveModule(this.frontLeftDrive, this.frontLeftRotation, this.frontLeftDriveEnc, this.frontLeftEncoder);
-            backLeftModule = new SwerveModule(this.backLeftDrive, this.backLeftRotation, this.backLeftDriveEnc, this.backLeftEncoder);
-            backRightModule = new SwerveModule(this.backRightDrive, this.backRightRotation, this.backRightDriveEnc, this.backRightEncoder);
+            frontRightModule = new SwerveModule(this.frontRightDrive, this.frontRightRotation, this.frontRightDriveEnc, this.frontRightEncoder, 0);
+            frontLeftModule = new SwerveModule(this.frontLeftDrive, this.frontLeftRotation, this.frontLeftDriveEnc, this.frontLeftEncoder, 1);
+            backLeftModule = new SwerveModule(this.backLeftDrive, this.backLeftRotation, this.backLeftDriveEnc, this.backLeftEncoder, 2);
+            backRightModule = new SwerveModule(this.backRightDrive, this.backRightRotation, this.backRightDriveEnc, this.backRightEncoder, 3);
         }
         swerveOdometry = new SwerveOdometry(swerveKinematics, getPigeonHeading());
     }
@@ -237,20 +237,34 @@ public class DriveTrain {
      */
     public void initSparks(){
         if(!Robot.TALON_BOT){
-            initSpark(frontRightRotation);
-            initSpark(frontLeftRotation);
-            initSpark(backLeftRotation);
-            initSpark(backRightRotation);
-        }
-        initSpark(frontRightDrive);
-        initSpark(frontLeftDrive);
-        initSpark(backLeftDrive);
-        initSpark(backRightDrive);
+            initSpark(frontRightDrive, false);
+            initSpark(frontLeftDrive, false);
+            initSpark(backLeftDrive, false);
+            initSpark(backRightDrive, false);
+            setPIDF(frontRightDrive, DriveTrain.TALON_FRONT_RIGHT_P, DriveTrain.TALON_FRONT_RIGHT_I, DriveTrain.TALON_FRONT_RIGHT_D, DriveTrain.TALON_FRONT_RIGHT_FF);
+            setPIDF(frontLeftDrive, DriveTrain.TALON_FRONT_LEFT_P, DriveTrain.TALON_FRONT_LEFT_I, DriveTrain.TALON_FRONT_LEFT_D, DriveTrain.TALON_FRONT_LEFT_FF);
+            setPIDF(backRightDrive, DriveTrain.TALON_BACK_RIGHT_P, DriveTrain.TALON_BACK_RIGHT_I, DriveTrain.TALON_BACK_RIGHT_D, DriveTrain.TALON_BACK_RIGHT_FF);
+            setPIDF(backLeftDrive, DriveTrain.TALON_BACK_LEFT_P, DriveTrain.TALON_BACK_LEFT_I, DriveTrain.TALON_BACK_LEFT_D, DriveTrain.TALON_BACK_LEFT_FF);
 
-        setPIDF(frontRightDrive, DriveTrain.FRONT_RIGHT_P, DriveTrain.FRONT_RIGHT_I, DriveTrain.FRONT_RIGHT_D, DriveTrain.FRONT_RIGHT_FF);
-        setPIDF(frontLeftDrive, DriveTrain.FRONT_LEFT_P, DriveTrain.FRONT_LEFT_I, DriveTrain.FRONT_LEFT_D, DriveTrain.FRONT_LEFT_FF);
-        setPIDF(backRightDrive, DriveTrain.BACK_RIGHT_P, DriveTrain.BACK_RIGHT_I, DriveTrain.BACK_RIGHT_D, DriveTrain.BACK_RIGHT_FF);
-        setPIDF(backLeftDrive, DriveTrain.BACK_LEFT_P, DriveTrain.BACK_LEFT_I, DriveTrain.BACK_LEFT_D, DriveTrain.BACK_LEFT_FF);
+            initSpark(frontRightRotation, false);
+            initSpark(frontLeftRotation, false);
+            initSpark(backLeftRotation, true);
+            initSpark(backRightRotation, true);
+            setPIDF(frontRightRotation, 0.01, 0.0001, 0.0, 0);
+            setPIDF(frontLeftRotation, 0.01, 0.0001, 0.0, 0);
+            setPIDF(backLeftRotation, 0.01, 0.0001, 0.0, 0);
+            setPIDF(backRightRotation, 0.01, 0.0001, 0.0, 0);
+        }else{
+            initSpark(frontRightDrive, false);
+            initSpark(frontLeftDrive, false);
+            initSpark(backLeftDrive, false);
+            initSpark(backRightDrive, false);
+    
+            setPIDF(frontRightDrive, DriveTrain.TALON_FRONT_RIGHT_P, DriveTrain.TALON_FRONT_RIGHT_I, DriveTrain.TALON_FRONT_RIGHT_D, DriveTrain.TALON_FRONT_RIGHT_FF);
+            setPIDF(frontLeftDrive, DriveTrain.TALON_FRONT_LEFT_P, DriveTrain.TALON_FRONT_LEFT_I, DriveTrain.TALON_FRONT_LEFT_D, DriveTrain.TALON_FRONT_LEFT_FF);
+            setPIDF(backRightDrive, DriveTrain.TALON_BACK_RIGHT_P, DriveTrain.TALON_BACK_RIGHT_I, DriveTrain.TALON_BACK_RIGHT_D, DriveTrain.TALON_BACK_RIGHT_FF);
+            setPIDF(backLeftDrive, DriveTrain.TALON_BACK_LEFT_P, DriveTrain.TALON_BACK_LEFT_I, DriveTrain.TALON_BACK_LEFT_D, DriveTrain.TALON_BACK_LEFT_FF);    
+        }
     }
 
     /**
@@ -273,8 +287,10 @@ public class DriveTrain {
     /**
      * Initializes a single spark max
      */
-    public void initSpark(CANSparkMax spark){
+    public void initSpark(CANSparkMax spark, boolean inv){
         spark.setIdleMode(IdleMode.kBrake);
+
+        spark.getEncoder().setPosition(inv ? 180.0 : 0.0);
     }
 
     /**

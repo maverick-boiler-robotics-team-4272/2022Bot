@@ -35,7 +35,7 @@ public class Robot extends TimedRobot {
     private static final String kCustomAuto = "My Auto";
     private String m_autoSelected;
     private final SendableChooser<Paths> AUTO_CHOOSER = new SendableChooser<>();
-    public static final boolean TALON_BOT = true;
+    public static final boolean TALON_BOT = false;
 
     public DriveTrain driveTrain = new DriveTrain(this);
     public Climber climber = new Climber(this);
@@ -61,18 +61,6 @@ public class Robot extends TimedRobot {
         }
         SmartDashboard.putData("Auto choices", AUTO_CHOOSER);
         SmartDashboard.putNumber("Pigeon Heading", driveTrain.pigeon.getYaw());
-
-        SmartDashboard.putNumber("xP", 2.0);
-        SmartDashboard.putNumber("xI", 0.01);
-        SmartDashboard.putNumber("xD", 0.0);
-
-        SmartDashboard.putNumber("yP", 2.0);
-        SmartDashboard.putNumber("yI", 0.01);
-        SmartDashboard.putNumber("yD", 0.0);
-
-        SmartDashboard.putNumber("tP", 4.5);
-        SmartDashboard.putNumber("tI", 0.0);
-        SmartDashboard.putNumber("tD", 0.0);
     }
 
     /**
@@ -112,11 +100,6 @@ public class Robot extends TimedRobot {
     public void autonomousInit() {
         auto.setPath(AUTO_CHOOSER.getSelected());
         auto.initPath();
-
-        auto.xPid.setPID(SmartDashboard.getNumber("xP", 1), SmartDashboard.getNumber("xI", 0), SmartDashboard.getNumber("xD", 0));
-        auto.yPid.setPID(SmartDashboard.getNumber("yP", 1), SmartDashboard.getNumber("yI", 0), SmartDashboard.getNumber("yD", 0));
-        auto.thetaPid.setPID(SmartDashboard.getNumber("tP", 1), SmartDashboard.getNumber("tI", 0), SmartDashboard.getNumber("tD", 0));
-
     }
 
     /** This function is called periodically during autonomous. */
