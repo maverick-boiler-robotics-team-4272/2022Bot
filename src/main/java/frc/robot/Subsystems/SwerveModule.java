@@ -4,6 +4,7 @@ import frc.robot.Robot;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.sensors.CANCoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.ControlType;
@@ -39,7 +40,8 @@ public class SwerveModule {
     private CANSparkMax driveMotor;
     private CANSparkMax turningMotor;
     private WPI_TalonSRX talonMotor;
-    private double talonOffset;
+    private double offset;
+    private CANCoder canCoder;
 
     private RelativeEncoder driveEncoder;
     private RelativeEncoder turningEncoder;
@@ -59,18 +61,20 @@ public class SwerveModule {
             CANSparkMax turningMotor,
             RelativeEncoder driveEncoder,
             RelativeEncoder turningEncoder,
+            double offset,
+            CANCoder canCoder,
             int moduleId) {
         this.driveMotor = driveMotor;
         this.driveEncoder = driveEncoder;
         this.turningMotor = turningMotor;
         this.turningEncoder = turningEncoder;
+        this.offset = offset;
+        this.canCoder = canCoder;
         this.moduleId = moduleId;
 
         driveEncoder.setVelocityConversionFactor(SwerveModule.RAD_PER_ROT * Units.inchesToMeters(SwerveModule.NEO_WHEEL_RADIUS)
         / SwerveModule.NEO_DRIVE_GEAR_RATIO / SwerveModule.SECONDS_PER_MINUTE);
-        turningEncoder.setPositionConversionFactor(360.0 / SwerveModule.NEO_STEER_GEAR_RATIO);// Set distance per pulse using the
-                                                                               // encoder resolution is what we actually
-                                                                               // need to do
+        turningEncoder.setPositionConversionFactor(360.0 / SwerveModule.NEO_STEER_GEAR_RATIO);
     }
 
     /**
@@ -84,19 +88,19 @@ public class SwerveModule {
             CANSparkMax driveMotor,
             WPI_TalonSRX turningMotor,
             RelativeEncoder driveEncoder,
-            double talonOffset,
+            double offset,
             int moduleId) {
         this.driveMotor = driveMotor;
         this.talonMotor = turningMotor;
         this.driveEncoder = driveEncoder;
-        this.talonOffset = talonOffset;
+        this.offset = offset;
         this.moduleId = moduleId;
         driveEncoder.setVelocityConversionFactor(SwerveModule.RAD_PER_ROT * Units.inchesToMeters(SwerveModule.TALON_WHEEL_RADIUS)
         / SwerveModule.TALON_GEAR_RATIO / SwerveModule.SECONDS_PER_MINUTE);
     }
 
-    public double getTalonOffset() {
-        return talonOffset;
+    public double getOffset() {
+        return offset;
     }
 
     /**
@@ -107,10 +111,10 @@ public class SwerveModule {
     public SwerveModuleState getState() {
         if (Robot.TALON_BOT) {
             return new SwerveModuleState(-driveEncoder.getVelocity(), Rotation2d
-                    .fromDegrees(((talonMotor.getSelectedSensorPosition() - talonOffset) / 4096.0) % 1 * 360.0));
+                    .fromDegrees(getHeading().getDegrees() % 1.0));
         } else {
             return new SwerveModuleState(driveEncoder.getVelocity(),
-                    Rotation2d.fromDegrees(turningEncoder.getPosition() * 360.0));
+                    getHeading());
         }
     }
 
@@ -122,12 +126,13 @@ public class SwerveModule {
     public void setDesiredState(SwerveModuleState desiredState) {
         // Optimize to avoid spinning over 90 degrees, or pi/2 radians
         SwerveModuleState state = SwerveModule.optimize(desiredState,
-                Rotation2d.fromDegrees(turningEncoder.getPosition()));
-        SmartDashboard.putNumber("Module " + this.moduleId + " optimized rotation", turningEncoder.getPosition());
-
+                getHeading());
         driveMotor.getPIDController().setReference(Units.metersToInches(state.speedMetersPerSecond)
-         * SwerveModule.SECONDS_PER_MINUTE / (2 * SwerveModule.NEO_WHEEL_RADIUS * Math.PI) / SwerveModule.NEO_DRIVE_GEAR_RATIO, ControlType.kVelocity);
-        turningMotor.getPIDController().setReference(state.angle.getDegrees(), ControlType.kPosition);
+        * SwerveModule.SECONDS_PER_MINUTE / (2 * SwerveModule.NEO_WHEEL_RADIUS * Math.PI) / SwerveModule.NEO_DRIVE_GEAR_RATIO, ControlType.kVelocity);   
+
+        if(state.speedMetersPerSecond != 0.0){
+            turningMotor.getPIDController().setReference(state.angle.getDegrees(), ControlType.kPosition);
+        }
     }
 
     /**
@@ -137,9 +142,8 @@ public class SwerveModule {
      */
     public void setTalonDesiredState(SwerveModuleState desired) {
         // Optimize to avoid spinning over 90 degrees, or pi/2 radians
-        double current = ((talonMotor.getSelectedSensorPosition() - talonOffset) / 4096.0) * 360.0;
         SwerveModuleState state = SwerveModule.optimize(desired,
-                Rotation2d.fromDegrees(current));
+                getHeading());
 
         driveMotor.getPIDController().setReference(Units.metersToInches(state.speedMetersPerSecond)
          * SwerveModule.SECONDS_PER_MINUTE / (2 * SwerveModule.TALON_WHEEL_RADIUS * Math.PI) / SwerveModule.TALON_GEAR_RATIO, CANSparkMax.ControlType.kVelocity);
@@ -149,10 +153,10 @@ public class SwerveModule {
 
     public Rotation2d getHeading() {
         if (Robot.TALON_BOT) {
-            double heading = (this.talonMotor.getSelectedSensorPosition() / 4096.0) * 360.0;
+            double heading = (talonMotor.getSelectedSensorPosition() / 4096.0) * 360.0;
             return Rotation2d.fromDegrees(heading);
         } else {
-            return new Rotation2d(0.0);
+            return Rotation2d.fromDegrees(turningEncoder.getPosition());
         }
     }
 

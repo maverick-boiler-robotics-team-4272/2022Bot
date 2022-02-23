@@ -1,21 +1,35 @@
 package frc.robot.Subsystems;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Robot;
 
 public class Shooter {
     private Robot robot;
+    
+    //nested array has values [shooter speed, hood angle]
+    private double[][] shooterSetpoints = {
+        {0, 0},
+        {0.25, 0.25},
+        {0.5, 0.333},
+        {0.75, 0.666}
+    };
 
+    private double hoodAmt;
+    private double shooterAmt;
     //Shooter motor. ids 5, 6(follower)
-    private CANSparkMax shooterTopMotor = new CANSparkMax(15, MotorType.kBrushless);
-    private CANSparkMax shooterBottomMotor = new CANSparkMax(16, MotorType.kBrushless);
-    private CANSparkMax shooterRotationMotor = new CANSparkMax(17, MotorType.kBrushless);
+    private CANSparkMax shooterTopMotor = new CANSparkMax(5, MotorType.kBrushless);
+    private CANSparkMax shooterBottomMotor = new CANSparkMax(15, MotorType.kBrushless);
+    private CANSparkMax shooterRotationMotor = new CANSparkMax(10, MotorType.kBrushless);
 
 
     public Shooter(Robot robot){
         this.robot = robot;
+        this.shooterRotationMotor.getPIDController().setP(1.0);
+        this.shooterRotationMotor.getEncoder().setPosition(0.0);
         this.shooterTopMotor.setInverted(true);
     }
 
@@ -31,6 +45,9 @@ public class Shooter {
         this.shooterBottomMotor.set(triggerValue);
     }
 
+    public double getShooterAmount(){
+        return shooterAmt;
+    }
     /**
      * Control the shooter motors seperately
      * 
@@ -42,6 +59,12 @@ public class Shooter {
         this.shooterBottomMotor.set(bottomMotorVal);
     }
 
+    public void setShooter(int pov){
+        int index = pov / 90;
+        shooterAmt = shooterSetpoints[index][0];
+        hoodAmt = shooterSetpoints[index][1];
+        shooterRotationMotor.set(hoodAmt);
+    }
 
     /**
      * Assuming that we have a camera this funciton will align the bot with the reflective strips on the hub

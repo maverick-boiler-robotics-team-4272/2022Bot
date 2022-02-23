@@ -88,7 +88,18 @@ public class Teleop {
                             ? opController.getLeftTriggerAxis()
                             : 0;
         robot.intake.runIntake(intakeVal);
+        int pov = driveController.getPOV();
+        if(pov >= 0){
+            robot.shooter.setShooter(pov);
+        }else{
 
+        }
+
+        if(driveController.getLeftTriggerAxis() > Robot.TRIGGER_DEADZONE){
+            robot.shooter.shoot(robot.shooter.getShooterAmount());
+        }else{
+            robot.shooter.shoot(0.0);
+        }
     }
 
     /**
