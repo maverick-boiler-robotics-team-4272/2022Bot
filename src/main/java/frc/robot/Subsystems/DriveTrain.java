@@ -91,6 +91,11 @@ public class DriveTrain {
     private static final int BACK_LEFT_INDEX = 2;
     private static final int BACK_RIGHT_INDEX = 3;
 
+    private static final int FRONT_LEFT_FORWARD = 310;
+    private static final int FRONT_RIGHT_FORWARD = 2;
+    private static final int BACK_LEFT_FORWARD = 30;
+    private static final int BACK_RIGHT_FORWARD = 237;
+
     private final SwerveModule frontLeftModule;
     private final SwerveModule frontRightModule;
     private final SwerveModule backLeftModule;
@@ -124,20 +129,11 @@ public class DriveTrain {
             backRightModule = new SwerveModule(this.backRightDrive, this.backRightTalon, this.backRightDriveEnc, 0.0, BACK_RIGHT_INDEX);
             this.initTalons();
         }else{
-            this.frontRightCANCoder.setPositionToAbsolute();
-            this.frontLeftCANCoder.setPositionToAbsolute();
-            this.backRightCANCoder.setPositionToAbsolute();
-            this.backLeftCANCoder.setPositionToAbsolute();
-            SmartDashboard.putNumber("Front Right Tuning", this.frontRightCANCoder.getPosition());
-            SmartDashboard.putNumber("Front Left Tuning", this.frontLeftCANCoder.getPosition());
-            SmartDashboard.putNumber("Back Right Tuning", this.backRightCANCoder.getPosition());
-            SmartDashboard.putNumber("Back Left Tuning", this.backLeftCANCoder.getPosition());
-            this.frontRightDrive.setInverted(false);
-            this.frontLeftDrive.setInverted(false);
-            frontRightModule = new SwerveModule(this.frontRightDrive, this.frontRightRotation, this.frontRightDriveEnc, this.frontRightEncoder, 0.0, this.frontRightCANCoder, 0);
-            frontLeftModule = new SwerveModule(this.frontLeftDrive, this.frontLeftRotation, this.frontLeftDriveEnc, this.frontLeftEncoder, 312.0, this.frontLeftCANCoder, 1);
-            backLeftModule = new SwerveModule(this.backLeftDrive, this.backLeftRotation, this.backLeftDriveEnc, this.backLeftEncoder, 31.0, this.backLeftCANCoder, 2);
-            backRightModule = new SwerveModule(this.backRightDrive, this.backRightRotation, this.backRightDriveEnc, this.backRightEncoder, 240.0, this.backRightCANCoder, 3);
+            putCANCodersToSmartDashboard();
+            frontRightModule = new SwerveModule(this.frontRightDrive, this.frontRightRotation, this.frontRightDriveEnc, this.frontRightEncoder, DriveTrain.FRONT_RIGHT_FORWARD, this.frontRightCANCoder, 0);
+            frontLeftModule = new SwerveModule(this.frontLeftDrive, this.frontLeftRotation, this.frontLeftDriveEnc, this.frontLeftEncoder, DriveTrain.FRONT_LEFT_FORWARD, this.frontLeftCANCoder, 1);
+            backLeftModule = new SwerveModule(this.backLeftDrive, this.backLeftRotation, this.backLeftDriveEnc, this.backLeftEncoder, DriveTrain.BACK_LEFT_FORWARD, this.backLeftCANCoder, 2);
+            backRightModule = new SwerveModule(this.backRightDrive, this.backRightRotation, this.backRightDriveEnc, this.backRightEncoder, DriveTrain.BACK_RIGHT_FORWARD, this.backRightCANCoder, 3);
         }
         initSparks();
         swerveOdometry = new SwerveOdometry(swerveKinematics, getPigeonHeading());
@@ -159,6 +155,13 @@ public class DriveTrain {
         );
         this.updateOdometry();
         setSwerveModuleStates(swerveModuleStates);
+    }
+
+    public void putCANCodersToSmartDashboard(){
+        SmartDashboard.putNumber("Front Right Tuning", this.frontRightCANCoder.getPosition());
+        SmartDashboard.putNumber("Front Left Tuning", this.frontLeftCANCoder.getPosition());
+        SmartDashboard.putNumber("Back Right Tuning", this.backRightCANCoder.getPosition());
+        SmartDashboard.putNumber("Back Left Tuning", this.backLeftCANCoder.getPosition());
     }
 
     /**
@@ -265,10 +268,11 @@ public class DriveTrain {
             setPIDF(backRightDrive, DriveTrain.TALON_BACK_RIGHT_P, DriveTrain.TALON_BACK_RIGHT_I, DriveTrain.TALON_BACK_RIGHT_D, DriveTrain.TALON_BACK_RIGHT_FF);
             setPIDF(backLeftDrive, DriveTrain.TALON_BACK_LEFT_P, DriveTrain.TALON_BACK_LEFT_I, DriveTrain.TALON_BACK_LEFT_D, DriveTrain.TALON_BACK_LEFT_FF);
 
-            initSpark(frontRightRotation, frontRightCANCoder.getPosition() - frontRightModule.getOffset());
-            initSpark(frontLeftRotation, frontLeftCANCoder.getPosition() - frontLeftModule.getOffset());
-            initSpark(backLeftRotation, backLeftCANCoder.getPosition() - backLeftModule.getOffset());
-            initSpark(backRightRotation, backRightCANCoder.getPosition() - backRightModule.getOffset());
+            initSpark(frontRightRotation, frontRightCANCoder.getPosition() % 360.0 - frontRightModule.getOffset());
+            initSpark(frontLeftRotation, frontLeftCANCoder.getPosition() % 360.0 - frontLeftModule.getOffset());
+            initSpark(backLeftRotation, backLeftCANCoder.getPosition() % 360.0 - backLeftModule.getOffset());
+            initSpark(backRightRotation, backRightCANCoder.getPosition() % 360.0 - backRightModule.getOffset());
+
             setPIDF(frontRightRotation, 0.01, 0.0001, 0.0, 0);
             setPIDF(frontLeftRotation, 0.01, 0.0001, 0.0, 0);
             setPIDF(backLeftRotation, 0.01, 0.0001, 0.0, 0);
@@ -306,9 +310,11 @@ public class DriveTrain {
     /**
      * Initializes a single spark max
      */
-    public void initSpark(CANSparkMax spark, double setPoint){
+    public void initSpark(CANSparkMax spark, double error){
         spark.setIdleMode(IdleMode.kBrake);
 
+        // error = error < 0.0 ? error + 360.0 : error;
+        // spark.getEncoder().setPosition(error);
         spark.getEncoder().setPosition(0.0);
     }
 

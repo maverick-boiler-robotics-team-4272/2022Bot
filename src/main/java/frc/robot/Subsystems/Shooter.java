@@ -18,6 +18,9 @@ public class Shooter {
         {0.75, 0.666}
     };
 
+    private static final double HOOD_MOTOR_GEAR_RATIO = 1.0 / 12.0;
+    private static final double RACK_AND_PINION_RATIO = HOOD_MOTOR_GEAR_RATIO / 2.5;
+
     private double hoodAmt;
     private double shooterAmt;
     //Shooter motor. ids 5, 6(follower)
@@ -28,7 +31,8 @@ public class Shooter {
 
     public Shooter(Robot robot){
         this.robot = robot;
-        this.shooterRotationMotor.getPIDController().setP(1.0);
+        this.shooterRotationMotor.getEncoder().setPositionConversionFactor(RACK_AND_PINION_RATIO);
+        this.shooterRotationMotor.getPIDController().setP(1.0);  
         this.shooterRotationMotor.getEncoder().setPosition(0.0);
         this.shooterTopMotor.setInverted(true);
     }
@@ -63,7 +67,7 @@ public class Shooter {
         int index = pov / 90;
         shooterAmt = shooterSetpoints[index][0];
         hoodAmt = shooterSetpoints[index][1];
-        shooterRotationMotor.set(hoodAmt);
+        shooterRotationMotor.getPIDController().setReference(hoodAmt, ControlType.kSmartMotion);
     }
 
     /**
