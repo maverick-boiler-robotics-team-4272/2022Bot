@@ -48,6 +48,46 @@ public class DriveTrain {
     private static final double TALON_BACK_LEFT_D = 0.0;
     private static final double TALON_BACK_LEFT_FF = 0.001;
 
+    private static final double STEER_FRONT_RIGHT_P = 0.01;
+    private static final double STEER_FRONT_RIGHT_I = 0.0001;
+    private static final double STEER_FRONT_RIGHT_D = 0.0;
+    private static final double STEER_FRONT_RIGHT_FF = 0.0;
+
+    private static final double STEER_FRONT_LEFT_P = 0.01;
+    private static final double STEER_FRONT_LEFT_I = 0.0001;
+    private static final double STEER_FRONT_LEFT_D = 0.0;
+    private static final double STEER_FRONT_LEFT_FF = 0.0;
+
+    private static final double STEER_BACK_RIGHT_P = 0.01;
+    private static final double STEER_BACK_RIGHT_I = 0.0001;
+    private static final double STEER_BACK_RIGHT_D = 0.0;
+    private static final double STEER_BACK_RIGHT_FF = 0.0;
+
+    private static final double STEER_BACK_LEFT_P = 0.01;
+    private static final double STEER_BACK_LEFT_I = 0.0001;
+    private static final double STEER_BACK_LEFT_D = 0.0;
+    private static final double STEER_BACK_LEFT_FF = 0.0;
+
+    private static final double DRIVE_FRONT_RIGHT_P = 0.0039;
+    private static final double DRIVE_FRONT_RIGHT_I = 0.0;
+    private static final double DRIVE_FRONT_RIGHT_D = 0.0;
+    private static final double DRIVE_FRONT_RIGHT_FF = 0.001;
+
+    private static final double DRIVE_FRONT_LEFT_P = 0.0038;
+    private static final double DRIVE_FRONT_LEFT_I = 0.0;
+    private static final double DRIVE_FRONT_LEFT_D = 0.0;
+    private static final double DRIVE_FRONT_LEFT_FF = 0.001;
+
+    private static final double DRIVE_BACK_RIGHT_P = 0.0038;
+    private static final double DRIVE_BACK_RIGHT_I = 0.0;
+    private static final double DRIVE_BACK_RIGHT_D = 0.0;
+    private static final double DRIVE_BACK_RIGHT_FF = 0.001;
+
+    private static final double DRIVE_BACK_LEFT_P = 0.0038;
+    private static final double DRIVE_BACK_LEFT_I = 0.0;
+    private static final double DRIVE_BACK_LEFT_D = 0.0;
+    private static final double DRIVE_BACK_LEFT_FF = 0.001;
+
     //drive motors (ids: 11, 12, 13, 14)
     private CANSparkMax frontRightDrive = new CANSparkMax(2, MotorType.kBrushless);
     private CANSparkMax frontLeftDrive = new CANSparkMax(1, MotorType.kBrushless);
@@ -259,24 +299,25 @@ public class DriveTrain {
      */
     public void initSparks(){
         if(!Robot.TALON_BOT){
+            //drive motors don't need offsets
             initSpark(frontRightDrive, 0.0);
             initSpark(frontLeftDrive, 0.0);
             initSpark(backLeftDrive, 0.0);
             initSpark(backRightDrive, 0.0);
-            setPIDF(frontRightDrive, DriveTrain.TALON_FRONT_RIGHT_P, DriveTrain.TALON_FRONT_RIGHT_I, DriveTrain.TALON_FRONT_RIGHT_D, DriveTrain.TALON_FRONT_RIGHT_FF);
-            setPIDF(frontLeftDrive, DriveTrain.TALON_FRONT_LEFT_P, DriveTrain.TALON_FRONT_LEFT_I, DriveTrain.TALON_FRONT_LEFT_D, DriveTrain.TALON_FRONT_LEFT_FF);
-            setPIDF(backRightDrive, DriveTrain.TALON_BACK_RIGHT_P, DriveTrain.TALON_BACK_RIGHT_I, DriveTrain.TALON_BACK_RIGHT_D, DriveTrain.TALON_BACK_RIGHT_FF);
-            setPIDF(backLeftDrive, DriveTrain.TALON_BACK_LEFT_P, DriveTrain.TALON_BACK_LEFT_I, DriveTrain.TALON_BACK_LEFT_D, DriveTrain.TALON_BACK_LEFT_FF);
+            setPIDF(frontRightDrive, DriveTrain.DRIVE_FRONT_RIGHT_P, DriveTrain.DRIVE_FRONT_RIGHT_I, DriveTrain.DRIVE_FRONT_RIGHT_D, DriveTrain.DRIVE_FRONT_RIGHT_FF);
+            setPIDF(frontLeftDrive, DriveTrain.DRIVE_FRONT_LEFT_P, DriveTrain.DRIVE_FRONT_LEFT_I, DriveTrain.DRIVE_FRONT_LEFT_D, DriveTrain.DRIVE_FRONT_LEFT_FF);
+            setPIDF(backRightDrive, DriveTrain.DRIVE_BACK_RIGHT_P, DriveTrain.DRIVE_BACK_RIGHT_I, DriveTrain.DRIVE_BACK_RIGHT_D, DriveTrain.DRIVE_BACK_RIGHT_FF);
+            setPIDF(backLeftDrive, DriveTrain.DRIVE_BACK_LEFT_P, DriveTrain.DRIVE_BACK_LEFT_I, DriveTrain.DRIVE_BACK_LEFT_D, DriveTrain.DRIVE_BACK_LEFT_FF);
 
-            initSpark(frontRightRotation, frontRightCANCoder.getPosition() % 360.0 - frontRightModule.getOffset());
-            initSpark(frontLeftRotation, frontLeftCANCoder.getPosition() % 360.0 - frontLeftModule.getOffset());
-            initSpark(backLeftRotation, backLeftCANCoder.getPosition() % 360.0 - backLeftModule.getOffset());
-            initSpark(backRightRotation, backRightCANCoder.getPosition() % 360.0 - backRightModule.getOffset());
-
-            setPIDF(frontRightRotation, 0.01, 0.0001, 0.0, 0);
-            setPIDF(frontLeftRotation, 0.01, 0.0001, 0.0, 0);
-            setPIDF(backLeftRotation, 0.01, 0.0001, 0.0, 0);
-            setPIDF(backRightRotation, 0.01, 0.0001, 0.0, 0);
+            //negating CANCoder reading to make the encoder read CCW negative so it matches the NEO
+            initSpark(frontRightRotation, -frontRightCANCoder.getPosition() % 360.0 - frontRightModule.getOffset());
+            initSpark(frontLeftRotation, -frontLeftCANCoder.getPosition() % 360.0 - frontLeftModule.getOffset());
+            initSpark(backLeftRotation, -backLeftCANCoder.getPosition() % 360.0 - backLeftModule.getOffset());
+            initSpark(backRightRotation, -backRightCANCoder.getPosition() % 360.0 - backRightModule.getOffset());
+            setPIDF(frontRightRotation, DriveTrain.STEER_FRONT_RIGHT_P, DriveTrain.STEER_FRONT_RIGHT_I, DriveTrain.STEER_FRONT_RIGHT_D, DriveTrain.STEER_FRONT_RIGHT_FF);
+            setPIDF(frontLeftRotation, DriveTrain.STEER_FRONT_LEFT_P, DriveTrain.STEER_FRONT_LEFT_I, DriveTrain.STEER_FRONT_LEFT_D, DriveTrain.STEER_FRONT_LEFT_FF);
+            setPIDF(backLeftRotation, DriveTrain.STEER_BACK_LEFT_P, DriveTrain.STEER_BACK_LEFT_I, DriveTrain.STEER_BACK_LEFT_D, DriveTrain.STEER_BACK_LEFT_FF);
+            setPIDF(backRightRotation, DriveTrain.STEER_BACK_RIGHT_P, DriveTrain.STEER_BACK_RIGHT_I, DriveTrain.STEER_BACK_RIGHT_D, DriveTrain.STEER_BACK_RIGHT_FF);
         }else{
             initSpark(frontRightDrive, 0.0);
             initSpark(frontLeftDrive, 0.0);

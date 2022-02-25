@@ -1,10 +1,12 @@
 package frc.robot.Subsystems;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 
 public class Shooter {
@@ -32,7 +34,16 @@ public class Shooter {
     public Shooter(Robot robot){
         this.robot = robot;
         this.shooterRotationMotor.getEncoder().setPositionConversionFactor(RACK_AND_PINION_RATIO);
-        this.shooterRotationMotor.getPIDController().setP(1.0);  
+        SmartDashboard.putNumber("RPM", 60.0);
+        SmartDashboard.putNumber("Rotation Motor P", 0.0001);
+        SmartDashboard.putNumber("Rotation Motor I", 0.000001);
+        SmartDashboard.putNumber("Rotation Motor D", 20.0);
+        SmartDashboard.putNumber("Rotation Motor FF", 0.0);
+        SparkMaxPIDController shooterPIDController = this.shooterBottomMotor.getPIDController();
+        shooterPIDController.setP(1.0);
+        shooterPIDController.setI(0.0);
+        shooterPIDController.setD(0.0);
+        shooterPIDController.setFF(0.0);
         this.shooterRotationMotor.getEncoder().setPosition(0.0);
         this.shooterTopMotor.setInverted(true);
     }
@@ -63,11 +74,26 @@ public class Shooter {
         this.shooterBottomMotor.set(bottomMotorVal);
     }
 
+    public void resetPID(){
+        SparkMaxPIDController controller = shooterRotationMotor.getPIDController();
+        controller.setP(SmartDashboard.getNumber("Rotation Motor P", 1.0));
+        controller.setI(SmartDashboard.getNumber("Rotation Motor I", 0.0));
+        controller.setD(SmartDashboard.getNumber("Rotation Motor D", 0.0));
+        controller.setFF(SmartDashboard.getNumber("Rotation Motor FF", 0.0));
+        
+    }
+
+    public double getHoodPosition(){
+        return shooterRotationMotor.getEncoder().getPosition();
+    }
+
     public void setShooter(int pov){
         int index = pov / 90;
         shooterAmt = shooterSetpoints[index][0];
         hoodAmt = shooterSetpoints[index][1];
+        SmartDashboard.putNumber("Hood Set Position", hoodAmt);
         shooterRotationMotor.getPIDController().setReference(hoodAmt, ControlType.kSmartMotion);
+        // shooterRotationMotor.getPIDController().setReference(-SmartDashboard.getNumber("RPM", 60.0), ControlType.kVelocity);
     }
 
     /**

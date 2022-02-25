@@ -31,9 +31,6 @@ public class Robot extends TimedRobot {
     public static final double MAX_ANGULAR_ACC = Math.PI;
     public static final double WHEEL_DIST = Units.feetToMeters(0.5);
 
-    private static final String kDefaultAuto = "Default";
-    private static final String kCustomAuto = "My Auto";
-    private String m_autoSelected;
     private final SendableChooser<Paths> AUTO_CHOOSER = new SendableChooser<>();
     public static final boolean TALON_BOT = false;
 
