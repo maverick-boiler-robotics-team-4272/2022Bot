@@ -13,6 +13,7 @@ import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -20,6 +21,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
@@ -123,6 +127,8 @@ public class DriveTrain {
     private CANCoder backLeftCANCoder = new CANCoder(23);
     private CANCoder backRightCANCoder = new CANCoder(24);
 
+    private PIDController aimController = new PIDController(1.0, 0.0, 0.0);
+
     public final BasePigeon pigeon;
 
     //module indexes
@@ -198,10 +204,10 @@ public class DriveTrain {
     }
 
     public void putCANCodersToSmartDashboard(){
-        SmartDashboard.putNumber("Front Right Tuning", this.frontRightCANCoder.getPosition());
-        SmartDashboard.putNumber("Front Left Tuning", this.frontLeftCANCoder.getPosition());
-        SmartDashboard.putNumber("Back Right Tuning", this.backRightCANCoder.getPosition());
-        SmartDashboard.putNumber("Back Left Tuning", this.backLeftCANCoder.getPosition());
+        SmartDashboard.putNumber("Front Right Tuning", this.frontRightCANCoder.getAbsolutePosition());
+        SmartDashboard.putNumber("Front Left Tuning", this.frontLeftCANCoder.getAbsolutePosition());
+        SmartDashboard.putNumber("Back Right Tuning", this.backRightCANCoder.getAbsolutePosition());
+        SmartDashboard.putNumber("Back Left Tuning", this.backLeftCANCoder.getAbsolutePosition());
     }
 
     /**
@@ -364,5 +370,10 @@ public class DriveTrain {
      */
     public void resetPigeonHeading(){
         this.pigeon.setYaw(0.0);
+    }
+
+    public double aimAtHub(){
+        double tx = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0.0);
+        return aimController.calculate(tx, 0.0);
     }
 }

@@ -45,14 +45,18 @@ public class Teleop {
         }
         double hyp = Math.sqrt(Math.pow(driveX, 2) + Math.pow(driveY, 2));
         double angle = Math.atan2(driveY, driveX);
-        hyp = deadzoneEqautions(Robot.JSTICK_DEADZONE, hyp);
+        hyp = deadzoneEquations(Robot.JSTICK_DEADZONE, hyp);
 
         driveX = Math.cos(angle) * hyp;
         driveY = Math.sin(angle) * hyp;
 
-        double rotX = driveController.getRightX();
-
-        rotX = deadzoneEqautions(Robot.JSTICK_DEADZONE, rotX);
+        double rotX;
+        if(driveController.getLeftBumper()){
+            rotX = robot.driveTrain.aimAtHub();
+        }else{
+            rotX = driveController.getRightX();
+            rotX = deadzoneEquations(Robot.JSTICK_DEADZONE, rotX);
+        }
 
         if(driveController.getRightBumperPressed()){
         // System.out.println("initDriveX, initDriveY = " + initDriveX + ", " + initDriveY);
@@ -65,7 +69,7 @@ public class Teleop {
         }
         
         robot.driveTrain.drive(driveX * Robot.MAX_SPEED, driveY * Robot.MAX_SPEED, rotX * Robot.MAX_ANGULAR_SPEED, fieldRelative);
-        // robot.hardware.drive(0, -0.1, 0, false);
+
         //Field Relative Toggle
         if(driveController.getStartButtonPressed()){
             String fieldRelativeOnOrNot;
@@ -82,25 +86,33 @@ public class Teleop {
         if(driveController.getBButtonPressed()){
             robot.driveTrain.resetPigeonHeading();
         }
+
+        if(opController.getAButtonPressed()){
+            robot.shooter.resetMotor();
+        }
         
         //Intake
-        double intakeVal = (opController.getLeftTriggerAxis() > Robot.TRIGGER_DEADZONE)
-                            ? opController.getLeftTriggerAxis()
-                            : 0;
-        robot.intake.runIntake(intakeVal);
+        if(opController.getRightTriggerAxis() > Robot.TRIGGER_DEADZONE){
+            robot.intake.runIntake(0.6);
+        }else if(opController.getLeftTriggerAxis() > Robot.TRIGGER_DEADZONE){
+            robot.intake.runIntake(-0.6);
+        }else{
+            robot.intake.runIntake(0.0);
+        }
 
 
         int pov = driveController.getPOV();
         if(pov >= 0){
             robot.shooter.setShooter(pov);
         }
+        robot.shooter.setMotor();
 
         if(driveController.getLeftTriggerAxis() > Robot.TRIGGER_DEADZONE){
             robot.shooter.shoot(robot.shooter.getShooterAmount());
         }else{
             robot.shooter.shoot(0.0);
         }
-        SmartDashboard.putNumber("Hood Actual Position", robot.shooter.getHoodPosition());
+
         if(driveController.getYButtonPressed()){
             robot.shooter.resetPID();
         }
@@ -114,7 +126,7 @@ public class Teleop {
      * @param hyp magnitude of input
      * @return
      */
-    private static double deadzoneEqautions(double deadZoneRadius, double hyp){
+    private static double deadzoneEquations(double deadZoneRadius, double hyp){
         if(hyp >= deadZoneRadius){
             return (1/(1-deadZoneRadius)) * (hyp - deadZoneRadius);
         }else if(hyp <= -deadZoneRadius){
