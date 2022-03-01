@@ -15,10 +15,10 @@ public class Shooter {
     
     //nested array has values [shooter speed, hood angle]
     private double[][] shooterSetpoints = {
-        {0, 0},
-        {0.25, -10},
-        {0.5, -15},
-        {0.75, -20}
+        {1330.0, -15.0},//0.25
+        {2060.0, -3.5},//0.38
+        {2340.0, -15.5},//0.43
+        {2600.0, -23}//0.48
     };
 
     private static final double HOOD_MOTOR_GEAR_RATIO = 1.0 / 12.0;
@@ -27,14 +27,14 @@ public class Shooter {
     private double hoodAmt;
     private double shooterAmt;
     //Shooter motor. ids 5, 6(follower)
-    private CANSparkMax shooterTopMotor = new CANSparkMax(5, MotorType.kBrushless);
-    private CANSparkMax shooterBottomMotor = new CANSparkMax(15, MotorType.kBrushless);
-    private CANSparkMax shooterRotationMotor = new CANSparkMax(10, MotorType.kBrushless);
+    private CANSparkMax shooterMotor = new CANSparkMax(5, MotorType.kBrushless);
+    private CANSparkMax shooterFollowerMotor = new CANSparkMax(15, MotorType.kBrushless);
+    private CANSparkMax hoodMotor = new CANSparkMax(10, MotorType.kBrushless);
 
 
     public Shooter(Robot robot){
         this.robot = robot;
-        this.shooterRotationMotor.getEncoder().setPositionConversionFactor(1);
+        this.hoodMotor.getEncoder().setPositionConversionFactor(1);
         SmartDashboard.putNumber("RPM", 60.0);
         SmartDashboard.putNumber("Rotation Motor P", 0.0000001);
         SmartDashboard.putNumber("Rotation Motor I", 0.0);
@@ -42,75 +42,97 @@ public class Shooter {
         SmartDashboard.putNumber("Rotation Motor F", 0.0001);
         SmartDashboard.putNumber("Rotation Motor ACC", 40000.0);
         SmartDashboard.putNumber("Rotation Motor MAX VEL", 40000.0);
-        SparkMaxPIDController shooterPIDController = this.shooterRotationMotor.getPIDController();
-        shooterPIDController.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
-        shooterPIDController.setP(0.0000001);
-        shooterPIDController.setI(0.0);
-        shooterPIDController.setD(0.0);
-        shooterPIDController.setFF(0.0001);
-        shooterPIDController.setSmartMotionMaxAccel(40000.0, 0);
-        shooterPIDController.setSmartMotionMaxVelocity(40000.0, 0);
-        shooterPIDController.setSmartMotionMinOutputVelocity(0.0, 0);
-        shooterPIDController.setSmartMotionAllowedClosedLoopError(0.0, 0);
-        this.shooterRotationMotor.getEncoder().setPosition(0.0);
-        this.shooterTopMotor.setInverted(true);
+        SparkMaxPIDController hoodPIDController = this.hoodMotor.getPIDController();
+        hoodPIDController.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
+        hoodPIDController.setP(0.0000001);
+        hoodPIDController.setI(0.0);
+        hoodPIDController.setD(0.0);
+        hoodPIDController.setFF(0.0001);
+        hoodPIDController.setSmartMotionMaxAccel(40000.0, 0);
+        hoodPIDController.setSmartMotionMaxVelocity(40000.0, 0);
+        hoodPIDController.setSmartMotionMinOutputVelocity(0.0, 0);
+        hoodPIDController.setSmartMotionAllowedClosedLoopError(0.0, 0);
+        this.hoodMotor.getEncoder().setPosition(0.0);
+        this.shooterMotor.setInverted(true);
+        shooterFollowerMotor.follow(shooterMotor, true);
     }
 
     public void resetMotor(){
-        shooterRotationMotor.getEncoder().setPosition(0.0);
+        hoodMotor.getEncoder().setPosition(0.0);
     }
 
     public void resetPID(){
-        SparkMaxPIDController controller = shooterRotationMotor.getPIDController();
-        controller.setP(SmartDashboard.getNumber("Rotation Motor P", 0.0001));
-        controller.setI(SmartDashboard.getNumber("Rotation Motor I", 0.0));
-        controller.setD(SmartDashboard.getNumber("Rotation Motor D", 0.0));
-        controller.setFF(SmartDashboard.getNumber("Rotation Motor F", 0.001));
-        controller.setSmartMotionMaxAccel(SmartDashboard.getNumber("Rotation Motor ACC", 100.0), 0);
-        controller.setSmartMotionMaxVelocity(SmartDashboard.getNumber("Rotation Motor MAX VEL", 300.0), 0);
+        SparkMaxPIDController hoodPIDController = hoodMotor.getPIDController();
+        hoodPIDController.setP(SmartDashboard.getNumber("Rotation Motor P", 0.0001));
+        hoodPIDController.setI(SmartDashboard.getNumber("Rotation Motor I", 0.0));
+        hoodPIDController.setD(SmartDashboard.getNumber("Rotation Motor D", 0.0));
+        hoodPIDController.setFF(SmartDashboard.getNumber("Rotation Motor F", 0.001));
+        hoodPIDController.setSmartMotionMaxAccel(SmartDashboard.getNumber("Rotation Motor ACC", 100.0), 0);
+        hoodPIDController.setSmartMotionMaxVelocity(SmartDashboard.getNumber("Rotation Motor MAX VEL", 300.0), 0);
+
+        SparkMaxPIDController shooterPIDController = shooterMotor.getPIDController();
+        shooterPIDController.setP(SmartDashboard.getNumber("Shooter Motor P", 0.0001));
+        shooterPIDController.setI(SmartDashboard.getNumber("Shooter Motor I", 0.0));
+        shooterPIDController.setD(SmartDashboard.getNumber("Shooter Motor D", 0.0));
+        shooterPIDController.setFF(SmartDashboard.getNumber("Shooter Motor F", 0.001));
     }
 
     /**
      * Starts the shooter wheel based on the trigger value
      * @param triggerValue amount an xbox trigger is pressed
      */
-    public void shoot(double triggerValue){
-        double percentOffSet = 0.8;
-        this.shooterTopMotor.set(triggerValue * percentOffSet);
-        this.shooterBottomMotor.set(triggerValue);
+    public void shoot(){
+        //this.shooterTopMotor.set(shooterAmt);
+        this.shooterMotor.getPIDController().setReference(shooterAmt, ControlType.kVelocity);
+        //this.shooterBottomMotor.set(triggerValue);
+    }
+
+    public void stopShooter(){
+        this.shooterMotor.set(0);
     }
 
     public double getShooterAmount(){
         return shooterAmt;
     }
-    /**
-     * Control the shooter motors seperately
-     * 
-     * @param topMotorVal value for the top motor to run at
-     * @param bottomMotorVal value for the bottom motor to run at
-     */
-    public void shoot(double topMotorVal, double bottomMotorVal){
-        this.shooterTopMotor.set(-topMotorVal);
-        this.shooterBottomMotor.set(-bottomMotorVal);
-    }
-
+    
     public void putHoodDataToDashboard(){
-        SmartDashboard.putNumber("Hood Position", shooterRotationMotor.getEncoder().getPosition());
-        SmartDashboard.putNumber("Hood Velocity", shooterRotationMotor.getEncoder().getVelocity());
+        SmartDashboard.putNumber("Hood Position", hoodMotor.getEncoder().getPosition());
+        SmartDashboard.putNumber("Hood Velocity", hoodMotor.getEncoder().getVelocity());
+        SmartDashboard.putNumber("Shooter Velocity", shooterMotor.getEncoder().getVelocity());
+
+    }
+    public void putShooterDataToDashboard(){
+        SmartDashboard.putNumber("Hood Setpoint", 0.0);
+        SmartDashboard.putNumber("Shooter Percent", 0.0);
     }
 
     public void setShooter(int pov){
         int index = pov / 90;
+        //putShooterDataToDashboard();
         shooterAmt = shooterSetpoints[index][0];
         hoodAmt = shooterSetpoints[index][1];
-        SmartDashboard.putNumber("Hood Set Position", hoodAmt);
         setMotor();
         // shooterRotationMotor.getPIDController().setReference(-SmartDashboard.getNumber("RPM", 60.0), ControlType.kVelocity);
     }
 
-    public void setMotor(){
-        shooterRotationMotor.getPIDController().setReference(hoodAmt, ControlType.kPosition);
+    public void updateShooter() {
+        shooterAmt = SmartDashboard.getNumber("Shooter Velocity Set", 0.0);
+        hoodAmt = SmartDashboard.getNumber("Hood Setpoint", 0.0);
     }
+
+    public void setMotor(){
+        hoodMotor.getPIDController().setReference(hoodAmt, ControlType.kSmartMotion);
+    }
+
+    public void setHood(){
+        hoodMotor.getPIDController().setReference(hoodAmt, ControlType.kSmartMotion);
+    }
+
+    public void tuneShoot(){
+        this.shooterMotor.set(SmartDashboard.getNumber("Shooter Percent", 0.0));
+        //this.shooterBottomMotor.set(SmartDashboard.getNumber("Shooter Percent", 0.0));
+    }
+    
 
     /**
      * Assuming that we have a camera this funciton will align the bot with the reflective strips on the hub

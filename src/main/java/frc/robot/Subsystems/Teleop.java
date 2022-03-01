@@ -13,13 +13,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 
 public class Teleop {
+
     private Robot robot;
     public Teleop(Robot robot){
         this.robot = robot;
     }
+
     //Xbox controllers
     private XboxController driveController = new XboxController(0);
-    private XboxController opController = new XboxController(1);
+    public XboxController opController = new XboxController(1);
     private double percentTop = .8;
     private double percentBottom = .8;
 
@@ -28,13 +30,14 @@ public class Teleop {
     private double brFF = 0.1;
     private double blFF = 0.1;
 
-    public boolean fieldRelative = false;
+    public boolean fieldRelative = true;
 
     /**
      * Loop that has all of our inputs to run the robot
      */
     public void run(){
-        //Drive
+
+        ////////////////////////// Drive ///////////////////////////
         double driveX = driveController.getLeftX();
         double driveY = driveController.getLeftY();
         if(Math.abs(driveX) <= 0.08){
@@ -57,20 +60,10 @@ public class Teleop {
             rotX = driveController.getRightX();
             rotX = deadzoneEquations(Robot.JSTICK_DEADZONE, rotX);
         }
-
-        if(driveController.getRightBumperPressed()){
-        // System.out.println("initDriveX, initDriveY = " + initDriveX + ", " + initDriveY);
-
-        // System.out.println("Hyp = " + hyp);
-        // System.out.println("Angle = " + angle);
-        
-        // System.out.println("driveX, driveY = " + driveX + ", " + driveY);
-            
-        }
         
         robot.driveTrain.drive(driveX * Robot.MAX_SPEED, driveY * Robot.MAX_SPEED, rotX * Robot.MAX_ANGULAR_SPEED, fieldRelative);
 
-        //Field Relative Toggle
+        ////////////////////// Field Relative Toggle /////////////////////////////
         if(driveController.getStartButtonPressed()){
             String fieldRelativeOnOrNot;
             fieldRelative = !fieldRelative;
@@ -91,16 +84,13 @@ public class Teleop {
             robot.shooter.resetMotor();
         }
         
-        //Intake
-        if(opController.getRightTriggerAxis() > Robot.TRIGGER_DEADZONE){
-            robot.intake.runIntake(0.6);
-        }else if(opController.getLeftTriggerAxis() > Robot.TRIGGER_DEADZONE){
-            robot.intake.runIntake(-0.6);
-        }else{
-            robot.intake.runIntake(0.0);
+        ///////////////////////// Intake ////////////////////
+        robot.intake.runIntake(Teleop.deadzoneEquations(Robot.TRIGGER_DEADZONE, opController.getRightTriggerAxis()));
+        if(opController.getRightTriggerAxis() < Robot.TRIGGER_DEADZONE && opController.getLeftTriggerAxis() > Robot.TRIGGER_DEADZONE){
+            robot.intake.runIntake(-Teleop.deadzoneEquations(Robot.TRIGGER_DEADZONE, opController.getLeftTriggerAxis()));
         }
 
-
+        ////////////////// Hood/Shooter //////////////////////////
         int pov = driveController.getPOV();
         if(pov >= 0){
             robot.shooter.setShooter(pov);
@@ -108,14 +98,46 @@ public class Teleop {
         robot.shooter.setMotor();
 
         if(driveController.getLeftTriggerAxis() > Robot.TRIGGER_DEADZONE){
-            robot.shooter.shoot(robot.shooter.getShooterAmount());
+            robot.shooter.shoot();
+            robot.shooter.setHood();
+            //robot.shooter.setShooter(pov);
         }else{
-            robot.shooter.shoot(0.0);
+            robot.shooter.stopShooter();
+        }
+
+        if(driveController.getRightBumper()){
+            robot.intake.shooterFeedMotor.set(-0.8);
         }
 
         if(driveController.getYButtonPressed()){
             robot.shooter.resetPID();
         }
+
+        if(driveController.getBackButtonPressed()){
+            robot.shooter.updateShooter();
+        }
+
+        ////////////////////// Climber //////////////////
+        robot.climber.runClimbers(-(Teleop.deadzoneEquations(Robot.JSTICK_DEADZONE, opController.getLeftY())), Teleop.deadzoneEquations(Robot.JSTICK_DEADZONE, opController.getRightY()));
+        
+        //////////////////// Pneumatics //////////////////
+        if(opController.getYButtonPressed()){
+            System.out.println("Op Y Button");
+            robot.pneumatics.toggleClimber();
+        }
+
+        if(opController.getBButtonPressed()){
+            System.out.println("Op B Button");
+
+            robot.pneumatics.toggleIntake();
+        }
+
+        if(opController.getXButtonPressed()){
+            System.out.println("Op X Button");
+
+            robot.pneumatics.toggleClimbSafety();
+        }
+
     }
 
     /**

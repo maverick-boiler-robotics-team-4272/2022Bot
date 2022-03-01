@@ -137,10 +137,10 @@ public class DriveTrain {
     private static final int BACK_LEFT_INDEX = 2;
     private static final int BACK_RIGHT_INDEX = 3;
 
-    private static final int FRONT_LEFT_FORWARD = 310;
-    private static final int FRONT_RIGHT_FORWARD = 2;
-    private static final int BACK_LEFT_FORWARD = 30;
-    private static final int BACK_RIGHT_FORWARD = 237;
+    private static final int FRONT_LEFT_FORWARD = 311;
+    private static final int FRONT_RIGHT_FORWARD = 182;
+    private static final int BACK_LEFT_FORWARD = 209;
+    private static final int BACK_RIGHT_FORWARD = 59;
 
     private final SwerveModule frontLeftModule;
     private final SwerveModule frontRightModule;
@@ -248,6 +248,7 @@ public class DriveTrain {
      */
     public void updateOdometry(){
         swerveOdometry.update(getPigeonHeading(), getSwerveModuleStates());
+        SmartDashboard.putString("Robot Pose", swerveOdometry.getPoseMeters().toString());
     }
 
     /**
@@ -307,19 +308,19 @@ public class DriveTrain {
         if(!Robot.TALON_BOT){
             //drive motors don't need offsets
             initSpark(frontRightDrive, 0.0);
-            initSpark(frontLeftDrive, 0.0);
-            initSpark(backLeftDrive, 0.0);
-            initSpark(backRightDrive, 0.0);
+            initSpark(frontLeftDrive, 0.0, false);
+            initSpark(backLeftDrive, 0.0, true);
+            initSpark(backRightDrive, 0.0, true);
             setPIDF(frontRightDrive, DriveTrain.DRIVE_FRONT_RIGHT_P, DriveTrain.DRIVE_FRONT_RIGHT_I, DriveTrain.DRIVE_FRONT_RIGHT_D, DriveTrain.DRIVE_FRONT_RIGHT_FF);
             setPIDF(frontLeftDrive, DriveTrain.DRIVE_FRONT_LEFT_P, DriveTrain.DRIVE_FRONT_LEFT_I, DriveTrain.DRIVE_FRONT_LEFT_D, DriveTrain.DRIVE_FRONT_LEFT_FF);
             setPIDF(backRightDrive, DriveTrain.DRIVE_BACK_RIGHT_P, DriveTrain.DRIVE_BACK_RIGHT_I, DriveTrain.DRIVE_BACK_RIGHT_D, DriveTrain.DRIVE_BACK_RIGHT_FF);
             setPIDF(backLeftDrive, DriveTrain.DRIVE_BACK_LEFT_P, DriveTrain.DRIVE_BACK_LEFT_I, DriveTrain.DRIVE_BACK_LEFT_D, DriveTrain.DRIVE_BACK_LEFT_FF);
 
             //negating CANCoder reading to make the encoder read CCW negative so it matches the NEO
-            initSpark(frontRightRotation, -frontRightCANCoder.getPosition() % 360.0 - frontRightModule.getOffset());
-            initSpark(frontLeftRotation, -frontLeftCANCoder.getPosition() % 360.0 - frontLeftModule.getOffset());
-            initSpark(backLeftRotation, -backLeftCANCoder.getPosition() % 360.0 - backLeftModule.getOffset());
-            initSpark(backRightRotation, -backRightCANCoder.getPosition() % 360.0 - backRightModule.getOffset());
+            initSpark(frontRightRotation, -(frontRightCANCoder.getAbsolutePosition() % 360.0 - frontRightModule.getOffset()), false);
+            initSpark(frontLeftRotation, (frontLeftCANCoder.getAbsolutePosition() % 360.0 - frontLeftModule.getOffset()), false);
+            initSpark(backLeftRotation, -(backLeftCANCoder.getAbsolutePosition() % 360.0 - backLeftModule.getOffset()));
+            initSpark(backRightRotation, -(backRightCANCoder.getAbsolutePosition() % 360.0 - backRightModule.getOffset()));
             setPIDF(frontRightRotation, DriveTrain.STEER_FRONT_RIGHT_P, DriveTrain.STEER_FRONT_RIGHT_I, DriveTrain.STEER_FRONT_RIGHT_D, DriveTrain.STEER_FRONT_RIGHT_FF);
             setPIDF(frontLeftRotation, DriveTrain.STEER_FRONT_LEFT_P, DriveTrain.STEER_FRONT_LEFT_I, DriveTrain.STEER_FRONT_LEFT_D, DriveTrain.STEER_FRONT_LEFT_FF);
             setPIDF(backLeftRotation, DriveTrain.STEER_BACK_LEFT_P, DriveTrain.STEER_BACK_LEFT_I, DriveTrain.STEER_BACK_LEFT_D, DriveTrain.STEER_BACK_LEFT_FF);
@@ -360,9 +361,31 @@ public class DriveTrain {
     public void initSpark(CANSparkMax spark, double error){
         spark.setIdleMode(IdleMode.kBrake);
 
-        // error = error < 0.0 ? error + 360.0 : error;
-        // spark.getEncoder().setPosition(error);
-        spark.getEncoder().setPosition(0.0);
+        error = error < 0.0 ? error + 360.0 : error;
+        spark.getEncoder().setPosition(error);
+        //spark.getEncoder().setPosition(0.0);
+    }
+    /**
+     * Initializes a single spark max
+     */
+    public void initSpark(CANSparkMax spark, double error, boolean inverted){
+        spark.setIdleMode(IdleMode.kBrake);
+        spark.setInverted(inverted);
+
+        error = error < 0.0 ? error + 360.0 : error;
+        spark.getEncoder().setPosition(error);
+        //spark.getEncoder().setPosition(0.0);
+    }
+
+    public void resetModuleRotation(){
+        frontLeftModule.setOffset(0);
+        frontLeftModule.resetRotation();
+        frontRightModule.setOffset(0);
+        frontRightModule.resetRotation();
+        backLeftModule.setOffset(0);
+        backLeftModule.resetRotation();
+        backRightModule.setOffset(0);
+        backRightModule.resetRotation();
     }
 
     /**

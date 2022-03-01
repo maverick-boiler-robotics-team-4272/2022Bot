@@ -40,6 +40,7 @@ public class Robot extends TimedRobot {
     public Shooter shooter = new Shooter(this);
     public Teleop teleop = new Teleop(this);
     public Auto auto = new Auto(this);
+    public Pneumatics pneumatics = new Pneumatics();
 
     //Deadzone constants
     public static final double TRIGGER_DEADZONE = 0.1;
@@ -53,11 +54,13 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
         Paths[] paths = Paths.values();
+        SmartDashboard.putNumber("Wheel Distance", Robot.WHEEL_DIST);
         for(int pathInd = 0; pathInd < paths.length; pathInd++){
             AUTO_CHOOSER.addOption(paths[pathInd].name(), paths[pathInd]);
         }
         SmartDashboard.putData("Auto choices", AUTO_CHOOSER);
         SmartDashboard.putNumber("Pigeon Heading", driveTrain.pigeon.getYaw());
+        shooter.putShooterDataToDashboard();
     }
 
     /**

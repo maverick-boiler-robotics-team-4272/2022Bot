@@ -103,6 +103,15 @@ public class SwerveModule {
         return offset;
     }
 
+    public void setOffset(double offset)
+    {
+        this.offset = offset;
+    }
+
+    public void resetRotation(){
+        this.turningEncoder.setPosition(0);
+    }
+
     /**
      * Returns swerve module state object
      * 
@@ -113,7 +122,7 @@ public class SwerveModule {
             return new SwerveModuleState(-driveEncoder.getVelocity(), Rotation2d
                     .fromDegrees(getHeading().getDegrees() % 1.0));
         } else {
-            return new SwerveModuleState(driveEncoder.getVelocity(),
+            return new SwerveModuleState(-driveEncoder.getVelocity(),
                     getHeading());
         }
     }
