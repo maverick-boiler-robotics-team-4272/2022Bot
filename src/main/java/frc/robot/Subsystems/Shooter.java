@@ -108,10 +108,9 @@ public class Shooter {
         if(shooterMotor.getEncoder().getVelocity() >= shooterAmt - (shooterAmt * Constants.SHOOTER_DEADZONE) &&
             shooterMotor.getEncoder().getVelocity() <= shooterAmt + (shooterAmt * Constants.SHOOTER_DEADZONE) &&
             shooterAmt > 500){
-
-                robot.intake.feedShooter();
+            robot.intake.feedShooter();
         }else{
-            
+            robot.intake.stopFeedShooter();
         }
     }
 
@@ -196,6 +195,18 @@ public class Shooter {
         }else{
             hoodMotor.getEncoder().setPosition(0);
             hoodMotor.set(0);
+        }
+    }
+
+    public boolean getHoodAtPosition(){
+        double hoodPos = hoodMotor.getEncoder().getPosition();
+        System.out.println("HoodPos: " + hoodPos);
+        System.out.println("HoodAmt: " + hoodAmt);
+        if(hoodPos < (hoodAmt - (hoodAmt * Constants.HOOD_DEADZONE))
+        && hoodPos > (hoodAmt + (hoodAmt * Constants.HOOD_DEADZONE))){
+            return true;
+        }else{
+            return false;
         }
     }
     

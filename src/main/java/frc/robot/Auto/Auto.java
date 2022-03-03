@@ -31,7 +31,8 @@ public class Auto {
         TUNE_PATH(5),
         TERMINAL_4_BALL(6),
         SHOOT_N_BACK_UP(7,
-            new Setpoint(-5.0, -10.0, 2000.0)
+            new Setpoint(-5.5, 0.0),
+            new Setpoint(-Constants.RAMP_UP_DEADZONE, -10.0, 2000.0)
         );
 
         final int index;
@@ -95,44 +96,78 @@ public class Auto {
      */
     public void run() {
         double currentTime = Timer.getFPGATimestamp() - startTime;
-        if(path.setpoints.length > 0){
-            currentTime += Math.min(path.setpoints[0].getTime(), 0.0);
-        }
-        if (currentTime > paths[path.index].getTotalTimeSeconds()) {
-            robot.driveTrain.drive(0, 0, 0, false);
-            return;
-        }
-        System.out.println("Testing");
-        for (int i = 0; i < path.setpoints.length; i++){
-            Setpoint setpoint = path.setpoints[i];
-            double setpointTime = currentTime - setpoint.getTime();
-            if(setpoint.isShooter()){
-                if (setpointTime < Constants.RAMP_UP_DEADZONE && setpointTime > -Constants.FIRE_DEADZONE){
-                    robot.shooter.setShooter(setpoint.getVelocity(), setpoint.getHoodPosition());
-                }
+        if(path == Paths.TERMINAL_2_BALL){
+            if(terminal2Ball()){
+                robot.driveTrain.drive(0, 0, 0, false);
+                robot.intake.stopFeedShooter();
+                robot.shooter.stopShooter();
+                return;
+            }
+        }else{
+            //System.out.println("Current Time: " + currentTime);
+            if(path.setpoints.length > 0){
+                currentTime += Math.min(path.setpoints[0].getTime(), 0.0);
+            }
+            if (currentTime > paths[path.index].getTotalTimeSeconds()) {
+                robot.driveTrain.drive(0, 0, 0, false);
+                robot.intake.stopFeedShooter();
+                robot.shooter.stopShooter();
+                return;
+            }
+            for (int i = 0; i < path.setpoints.length; i++){
+                Setpoint setpoint = path.setpoints[i];
+                double setpointTime = currentTime - setpoint.getTime();
 
-                if(setpointTime < Constants.FIRE_DEADZONE && setpointTime > -Constants.FIRE_DEADZONE){
-                    robot.shooter.shoot();
-                    break;
+                // if(i == 0){
+                    //System.out.println("Setpoint Time: " + setpointTime);
+                // }
+                if(setpoint.isShooter()){
+                    //if (setpointTime < Constants.RAMP_UP_DEADZONE && setpointTime > -Constants.RAMP_UP_DEADZONE){
+                        //System.out.println("Inside the isShooter if statement");
+                        robot.shooter.setShooter(setpoint.getVelocity(), setpoint.getHoodPosition());
+                    //}
+                    System.out.println("Hood at Pos: " + robot.shooter.getHoodAtPosition());
+                    if(/*setpointTime < Constants.FIRE_DEADZONE && setpointTime > -Constants.FIRE_DEADZONE*/
+                    robot.shooter.getHoodAtPosition()){
+                        System.out.println("Curr time when trying to shoot: " + currentTime);
+                        robot.shooter.shoot();
+                        break;
+                    }else{
+                        robot.shooter.stopShooter();
+                        robot.intake.stopFeedShooter();
+                    }
                 }else{
-                    System.out.println("stopping shooting");
-                    robot.shooter.stopShooter();
-                }
-            }else{
-                if(setpointTime < Constants.RAMP_UP_DEADZONE && setpointTime > -Constants.RAMP_UP_DEADZONE){
-                    robot.intake.runIntake(setpoint.getVelocity());
-                    break;
-                }else{
-                    robot.intake.runIntake(0.0);
-                }
+                    if(setpointTime < Constants.RAMP_UP_DEADZONE && setpointTime > -Constants.RAMP_UP_DEADZONE){
+                        robot.intake.runIntake(setpoint.getVelocity());
+                        break;
+                    }else{
+                        robot.intake.runIntake(0.0);
+                    }
 
+                }
             }
         }
-        
         Pose2d currentOdomPos = robot.driveTrain.getOdometryPoseMeters();
         PathPlannerState goal = (PathPlannerState) paths[path.index].sample(currentTime);
         ChassisSpeeds speeds = controller.calculate(currentOdomPos, goal,
                 goal.holonomicRotation);
         robot.driveTrain.drive(-speeds.vyMetersPerSecond, -speeds.vxMetersPerSecond, -speeds.omegaRadiansPerSecond, false);
+    }
+    private boolean terminal2Ball(){
+        double currentTime = Timer.getFPGATimestamp() - startTime;
+
+        if(currentTime > 10){
+            return true;
+        }else if(currentTime > paths[3].getTotalTimeSeconds()){
+            robot.shooter.setShooter(2050, -13.0);
+            robot.intake.runIntake(0.0);
+            robot.shooter.shoot();
+            return false;
+        }else{
+            robot.shooter.setShooter(0.0, -13.0);
+            robot.intake.runIntake(0.5);
+            robot.intake.stopFeedShooter();
+            return false;
+        }
     }
 }

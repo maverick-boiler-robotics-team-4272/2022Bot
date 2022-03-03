@@ -98,11 +98,12 @@ public class Constants {
 
     public static final double SHOOTER_DEADZONE = 0.15;
 
-    public static final double RAMP_UP_DEADZONE = 5.0;
-    public static final double FIRE_DEADZONE = 1.0;
+    public static final double RAMP_UP_DEADZONE = 1.0;
+    public static final double FIRE_DEADZONE = 5.0;
 
     public static final double HOOD_MAX = 0.0;
     public static final double HOOD_MIN = -20.0;
+    public static final double HOOD_DEADZONE = 0.025;
     public static final double SHOOTER_MAX = 3000.0;
     public static final double SHOOTER_MIN = 0.0;
 }

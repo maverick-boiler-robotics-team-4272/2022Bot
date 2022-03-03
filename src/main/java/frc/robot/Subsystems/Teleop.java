@@ -85,7 +85,7 @@ public class Teleop {
         }
         
         ///////////////////////// Intake ////////////////////
-        if(driveController.getRightBumper()){
+        if(driveController.getRightBumper() || (opController.getRightBumper() && robot.intake.getFeedSensor())){
             robot.intake.feedShooter();
             //robot.intake.runIntake(Teleop.deadzoneEquations(Constants.TRIGGER_DEADZONE, driveController.getRightTriggerAxis()));
         }else if(opController.getRightTriggerAxis() > Constants.TRIGGER_DEADZONE){
@@ -109,6 +109,7 @@ public class Teleop {
             //robot.shooter.setShooter(pov);
         }else{
             robot.shooter.stopShooter();
+            System.out.println("Beam Break Sensor: " + robot.intake.getFeedSensor());
         }
 
         if(driveController.getYButtonPressed()){
