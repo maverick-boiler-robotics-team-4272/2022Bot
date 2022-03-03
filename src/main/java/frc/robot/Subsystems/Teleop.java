@@ -8,6 +8,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
@@ -36,7 +37,6 @@ public class Teleop {
      * Loop that has all of our inputs to run the robot
      */
     public void run(){
-
         ////////////////////////// Drive ///////////////////////////
         double driveX = driveController.getLeftX();
         double driveY = driveController.getLeftY();
@@ -48,7 +48,7 @@ public class Teleop {
         }
         double hyp = Math.sqrt(Math.pow(driveX, 2) + Math.pow(driveY, 2));
         double angle = Math.atan2(driveY, driveX);
-        hyp = deadzoneEquations(Robot.JSTICK_DEADZONE, hyp);
+        hyp = deadzoneEquations(Constants.JSTICK_DEADZONE, hyp);
 
         driveX = Math.cos(angle) * hyp;
         driveY = Math.sin(angle) * hyp;
@@ -58,10 +58,10 @@ public class Teleop {
             rotX = robot.driveTrain.aimAtHub();
         }else{
             rotX = driveController.getRightX();
-            rotX = deadzoneEquations(Robot.JSTICK_DEADZONE, rotX);
+            rotX = deadzoneEquations(Constants.JSTICK_DEADZONE, rotX);
         }
         
-        robot.driveTrain.drive(driveX * Robot.MAX_SPEED, driveY * Robot.MAX_SPEED, rotX * Robot.MAX_ANGULAR_SPEED, fieldRelative);
+        robot.driveTrain.drive(driveX * Constants.MAX_SPEED, driveY * Constants.MAX_SPEED, rotX * Constants.MAX_ANGULAR_SPEED, fieldRelative);
 
         ////////////////////// Field Relative Toggle /////////////////////////////
         if(driveController.getStartButtonPressed()){
@@ -81,32 +81,34 @@ public class Teleop {
         }
 
         if(opController.getAButtonPressed()){
-            robot.shooter.resetMotor();
+            robot.shooter.fixHood();
         }
         
         ///////////////////////// Intake ////////////////////
-        robot.intake.runIntake(Teleop.deadzoneEquations(Robot.TRIGGER_DEADZONE, opController.getRightTriggerAxis()));
-        if(opController.getRightTriggerAxis() < Robot.TRIGGER_DEADZONE && opController.getLeftTriggerAxis() > Robot.TRIGGER_DEADZONE){
-            robot.intake.runIntake(-Teleop.deadzoneEquations(Robot.TRIGGER_DEADZONE, opController.getLeftTriggerAxis()));
+        if(driveController.getRightBumper()){
+            robot.intake.feedShooter();
+            //robot.intake.runIntake(Teleop.deadzoneEquations(Constants.TRIGGER_DEADZONE, driveController.getRightTriggerAxis()));
+        }else if(opController.getRightTriggerAxis() > Constants.TRIGGER_DEADZONE){
+            robot.intake.runIntake(Teleop.deadzoneEquations(Constants.TRIGGER_DEADZONE, opController.getRightTriggerAxis()));
+        }else if(opController.getRightTriggerAxis() < Constants.TRIGGER_DEADZONE && opController.getLeftTriggerAxis() > Constants.TRIGGER_DEADZONE){
+            robot.intake.runIntake(-Teleop.deadzoneEquations(Constants.TRIGGER_DEADZONE, opController.getLeftTriggerAxis()));
+        }else{
+            robot.intake.runIntake(0.0);
         }
 
         ////////////////// Hood/Shooter //////////////////////////
         int pov = driveController.getPOV();
         if(pov >= 0){
             robot.shooter.setShooter(pov);
-        }
-        robot.shooter.setMotor();
-
-        if(driveController.getLeftTriggerAxis() > Robot.TRIGGER_DEADZONE){
-            robot.shooter.shoot();
             robot.shooter.setHood();
+        }
+
+        if(driveController.getLeftTriggerAxis() > Constants.TRIGGER_DEADZONE){
+            robot.shooter.shoot();
+            //robot.shooter.setHood();
             //robot.shooter.setShooter(pov);
         }else{
             robot.shooter.stopShooter();
-        }
-
-        if(driveController.getRightBumper()){
-            robot.intake.shooterFeedMotor.set(-0.8);
         }
 
         if(driveController.getYButtonPressed()){
@@ -114,27 +116,28 @@ public class Teleop {
         }
 
         if(driveController.getBackButtonPressed()){
-            robot.shooter.updateShooter();
+            //robot.shooter.updateShooter();
+            //robot.shooter.setHood();
+            robot.shooter.zeroHood();
         }
 
         ////////////////////// Climber //////////////////
-        robot.climber.runClimbers(-(Teleop.deadzoneEquations(Robot.JSTICK_DEADZONE, opController.getLeftY())), Teleop.deadzoneEquations(Robot.JSTICK_DEADZONE, opController.getRightY()));
+        //double leftClimberVal = opController.getLeftY();
+        //double rightClimberVal = (opController.getRightY() > Constants.JSTICK_DEADZONE) ? opController.getRightY();
         
+        robot.climber.runClimbers(-(Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, opController.getRightY())), Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, opController.getLeftY()));
+
         //////////////////// Pneumatics //////////////////
-        if(opController.getYButtonPressed()){
-            System.out.println("Op Y Button");
+        if(opController.getYButtonPressed() && robot.pneumatics.getIntake() == Value.kForward){
             robot.pneumatics.toggleClimber();
         }
 
         if(opController.getBButtonPressed()){
-            System.out.println("Op B Button");
-
+            robot.pneumatics.retractClimber();
             robot.pneumatics.toggleIntake();
         }
 
         if(opController.getXButtonPressed()){
-            System.out.println("Op X Button");
-
             robot.pneumatics.toggleClimbSafety();
         }
 
@@ -154,7 +157,6 @@ public class Teleop {
         }else if(hyp <= -deadZoneRadius){
             return (1/(1-deadZoneRadius)) * (hyp + deadZoneRadius);
         }
-
         return 0;
     }
 }

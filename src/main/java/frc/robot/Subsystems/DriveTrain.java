@@ -32,66 +32,6 @@ import frc.robot.Auto.SwerveOdometry;
 public class DriveTrain {
     private Robot robot;
 
-    private static final double TALON_FRONT_RIGHT_P = 0.0039;
-    private static final double TALON_FRONT_RIGHT_I = 0.0;
-    private static final double TALON_FRONT_RIGHT_D = 0.0;
-    private static final double TALON_FRONT_RIGHT_FF = 0.001;
-
-    private static final double TALON_FRONT_LEFT_P = 0.0038;
-    private static final double TALON_FRONT_LEFT_I = 0.0;
-    private static final double TALON_FRONT_LEFT_D = 0.0;
-    private static final double TALON_FRONT_LEFT_FF = 0.001;
-
-    private static final double TALON_BACK_RIGHT_P = 0.0038;
-    private static final double TALON_BACK_RIGHT_I = 0.0;
-    private static final double TALON_BACK_RIGHT_D = 0.0;
-    private static final double TALON_BACK_RIGHT_FF = 0.001;
-
-    private static final double TALON_BACK_LEFT_P = 0.0038;
-    private static final double TALON_BACK_LEFT_I = 0.0;
-    private static final double TALON_BACK_LEFT_D = 0.0;
-    private static final double TALON_BACK_LEFT_FF = 0.001;
-
-    private static final double STEER_FRONT_RIGHT_P = 0.01;
-    private static final double STEER_FRONT_RIGHT_I = 0.0001;
-    private static final double STEER_FRONT_RIGHT_D = 0.0;
-    private static final double STEER_FRONT_RIGHT_FF = 0.0;
-
-    private static final double STEER_FRONT_LEFT_P = 0.01;
-    private static final double STEER_FRONT_LEFT_I = 0.0001;
-    private static final double STEER_FRONT_LEFT_D = 0.0;
-    private static final double STEER_FRONT_LEFT_FF = 0.0;
-
-    private static final double STEER_BACK_RIGHT_P = 0.01;
-    private static final double STEER_BACK_RIGHT_I = 0.0001;
-    private static final double STEER_BACK_RIGHT_D = 0.0;
-    private static final double STEER_BACK_RIGHT_FF = 0.0;
-
-    private static final double STEER_BACK_LEFT_P = 0.01;
-    private static final double STEER_BACK_LEFT_I = 0.0001;
-    private static final double STEER_BACK_LEFT_D = 0.0;
-    private static final double STEER_BACK_LEFT_FF = 0.0;
-
-    private static final double DRIVE_FRONT_RIGHT_P = 0.0039;
-    private static final double DRIVE_FRONT_RIGHT_I = 0.0;
-    private static final double DRIVE_FRONT_RIGHT_D = 0.0;
-    private static final double DRIVE_FRONT_RIGHT_FF = 0.001;
-
-    private static final double DRIVE_FRONT_LEFT_P = 0.0038;
-    private static final double DRIVE_FRONT_LEFT_I = 0.0;
-    private static final double DRIVE_FRONT_LEFT_D = 0.0;
-    private static final double DRIVE_FRONT_LEFT_FF = 0.001;
-
-    private static final double DRIVE_BACK_RIGHT_P = 0.0038;
-    private static final double DRIVE_BACK_RIGHT_I = 0.0;
-    private static final double DRIVE_BACK_RIGHT_D = 0.0;
-    private static final double DRIVE_BACK_RIGHT_FF = 0.001;
-
-    private static final double DRIVE_BACK_LEFT_P = 0.0038;
-    private static final double DRIVE_BACK_LEFT_I = 0.0;
-    private static final double DRIVE_BACK_LEFT_D = 0.0;
-    private static final double DRIVE_BACK_LEFT_FF = 0.001;
-
     //drive motors (ids: 11, 12, 13, 14)
     private CANSparkMax frontRightDrive = new CANSparkMax(2, MotorType.kBrushless);
     private CANSparkMax frontLeftDrive = new CANSparkMax(1, MotorType.kBrushless);
@@ -131,27 +71,16 @@ public class DriveTrain {
 
     public final BasePigeon pigeon;
 
-    //module indexes
-    private static final int FRONT_LEFT_INDEX = 0;
-    private static final int FRONT_RIGHT_INDEX = 1;
-    private static final int BACK_LEFT_INDEX = 2;
-    private static final int BACK_RIGHT_INDEX = 3;
-
-    private static final int FRONT_LEFT_FORWARD = 311;
-    private static final int FRONT_RIGHT_FORWARD = 182;
-    private static final int BACK_LEFT_FORWARD = 209;
-    private static final int BACK_RIGHT_FORWARD = 59;
-
     private final SwerveModule frontLeftModule;
     private final SwerveModule frontRightModule;
     private final SwerveModule backLeftModule;
     private final SwerveModule backRightModule;
 
     //Translation 2d Objects
-    private final Translation2d frontRightLocation = new Translation2d(Robot.WHEEL_DIST, -Robot.WHEEL_DIST);
-    private final Translation2d frontLeftLocation = new Translation2d( Robot.WHEEL_DIST,  Robot.WHEEL_DIST);
-    private final Translation2d backLeftLocation = new Translation2d( -Robot.WHEEL_DIST,  Robot.WHEEL_DIST);
-    private final Translation2d backRightLocation = new Translation2d(-Robot.WHEEL_DIST, -Robot.WHEEL_DIST);
+    private final Translation2d frontRightLocation = new Translation2d(Constants.WHEEL_DIST, -Constants.WHEEL_DIST);
+    private final Translation2d frontLeftLocation = new Translation2d( Constants.WHEEL_DIST,  Constants.WHEEL_DIST);
+    private final Translation2d backLeftLocation = new Translation2d( -Constants.WHEEL_DIST,  Constants.WHEEL_DIST);
+    private final Translation2d backRightLocation = new Translation2d(-Constants.WHEEL_DIST, -Constants.WHEEL_DIST);
     
 
     private final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(backLeftLocation, backRightLocation, frontLeftLocation, frontRightLocation);
@@ -162,24 +91,24 @@ public class DriveTrain {
 
     public DriveTrain(Robot robot){
         this.robot = robot;
-        if(Robot.TALON_BOT){
+        if(Constants.TALON_BOT){
             pigeon = new PigeonIMU(25);
         }else{
             pigeon = new Pigeon2(25);
         }
         this.pigeon.setYaw(0.0);
-        if(Robot.TALON_BOT){
-            frontRightModule = new SwerveModule(this.frontRightDrive, this.frontRightTalon, this.frontRightDriveEnc, 0.0, FRONT_RIGHT_INDEX);
-            frontLeftModule = new SwerveModule(this.frontLeftDrive, this.frontLeftTalon, this.frontLeftDriveEnc, 0.0, FRONT_LEFT_INDEX);
-            backLeftModule = new SwerveModule(this.backLeftDrive, this.backLeftTalon, this.backLeftDriveEnc, 0.0, BACK_LEFT_INDEX);
-            backRightModule = new SwerveModule(this.backRightDrive, this.backRightTalon, this.backRightDriveEnc, 0.0, BACK_RIGHT_INDEX);
+        if(Constants.TALON_BOT){
+            frontRightModule = new SwerveModule(this.frontRightDrive, this.frontRightTalon, this.frontRightDriveEnc, 0.0, Constants.FRONT_RIGHT_INDEX);
+            frontLeftModule = new SwerveModule(this.frontLeftDrive, this.frontLeftTalon, this.frontLeftDriveEnc, 0.0, Constants.FRONT_LEFT_INDEX);
+            backLeftModule = new SwerveModule(this.backLeftDrive, this.backLeftTalon, this.backLeftDriveEnc, 0.0, Constants.BACK_LEFT_INDEX);
+            backRightModule = new SwerveModule(this.backRightDrive, this.backRightTalon, this.backRightDriveEnc, 0.0, Constants.BACK_RIGHT_INDEX);
             this.initTalons();
         }else{
             putCANCodersToSmartDashboard();
-            frontRightModule = new SwerveModule(this.frontRightDrive, this.frontRightRotation, this.frontRightDriveEnc, this.frontRightEncoder, DriveTrain.FRONT_RIGHT_FORWARD, this.frontRightCANCoder, 0);
-            frontLeftModule = new SwerveModule(this.frontLeftDrive, this.frontLeftRotation, this.frontLeftDriveEnc, this.frontLeftEncoder, DriveTrain.FRONT_LEFT_FORWARD, this.frontLeftCANCoder, 1);
-            backLeftModule = new SwerveModule(this.backLeftDrive, this.backLeftRotation, this.backLeftDriveEnc, this.backLeftEncoder, DriveTrain.BACK_LEFT_FORWARD, this.backLeftCANCoder, 2);
-            backRightModule = new SwerveModule(this.backRightDrive, this.backRightRotation, this.backRightDriveEnc, this.backRightEncoder, DriveTrain.BACK_RIGHT_FORWARD, this.backRightCANCoder, 3);
+            frontRightModule = new SwerveModule(this.frontRightDrive, this.frontRightRotation, this.frontRightDriveEnc, this.frontRightEncoder, Constants.FRONT_RIGHT_FORWARD, this.frontRightCANCoder, 0);
+            frontLeftModule = new SwerveModule(this.frontLeftDrive, this.frontLeftRotation, this.frontLeftDriveEnc, this.frontLeftEncoder, Constants.FRONT_LEFT_FORWARD, this.frontLeftCANCoder, 1);
+            backLeftModule = new SwerveModule(this.backLeftDrive, this.backLeftRotation, this.backLeftDriveEnc, this.backLeftEncoder, Constants.BACK_LEFT_FORWARD, this.backLeftCANCoder, 2);
+            backRightModule = new SwerveModule(this.backRightDrive, this.backRightRotation, this.backRightDriveEnc, this.backRightEncoder, Constants.BACK_RIGHT_FORWARD, this.backRightCANCoder, 3);
         }
         initSparks();
         swerveOdometry = new SwerveOdometry(swerveKinematics, getPigeonHeading());
@@ -230,11 +159,11 @@ public class DriveTrain {
      * @param states an array of the swerve module states. 0 for fl, 1 for fr, 2 for bl, 3 for br 
      */
     public void setSwerveModuleStates(SwerveModuleState[] states){
-        if(Robot.TALON_BOT){
-            frontLeftModule.setTalonDesiredState(states[FRONT_LEFT_INDEX]);
-            frontRightModule.setTalonDesiredState(states[FRONT_RIGHT_INDEX]);
-            backLeftModule.setTalonDesiredState(states[BACK_LEFT_INDEX]);
-            backRightModule.setTalonDesiredState(states[BACK_RIGHT_INDEX]);
+        if(Constants.TALON_BOT){
+            frontLeftModule.setTalonDesiredState(states[Constants.FRONT_LEFT_INDEX]);
+            frontRightModule.setTalonDesiredState(states[Constants.FRONT_RIGHT_INDEX]);
+            backLeftModule.setTalonDesiredState(states[Constants.BACK_LEFT_INDEX]);
+            backRightModule.setTalonDesiredState(states[Constants.BACK_RIGHT_INDEX]);
         }else{
             frontLeftModule.setDesiredState(states[0]);
             frontRightModule.setDesiredState(states[1]);
@@ -305,36 +234,36 @@ public class DriveTrain {
      * Initializes all the spark maxes
      */
     public void initSparks(){
-        if(!Robot.TALON_BOT){
+        if(!Constants.TALON_BOT){
             //drive motors don't need offsets
             initSpark(frontRightDrive, 0.0);
             initSpark(frontLeftDrive, 0.0, false);
             initSpark(backLeftDrive, 0.0, true);
             initSpark(backRightDrive, 0.0, true);
-            setPIDF(frontRightDrive, DriveTrain.DRIVE_FRONT_RIGHT_P, DriveTrain.DRIVE_FRONT_RIGHT_I, DriveTrain.DRIVE_FRONT_RIGHT_D, DriveTrain.DRIVE_FRONT_RIGHT_FF);
-            setPIDF(frontLeftDrive, DriveTrain.DRIVE_FRONT_LEFT_P, DriveTrain.DRIVE_FRONT_LEFT_I, DriveTrain.DRIVE_FRONT_LEFT_D, DriveTrain.DRIVE_FRONT_LEFT_FF);
-            setPIDF(backRightDrive, DriveTrain.DRIVE_BACK_RIGHT_P, DriveTrain.DRIVE_BACK_RIGHT_I, DriveTrain.DRIVE_BACK_RIGHT_D, DriveTrain.DRIVE_BACK_RIGHT_FF);
-            setPIDF(backLeftDrive, DriveTrain.DRIVE_BACK_LEFT_P, DriveTrain.DRIVE_BACK_LEFT_I, DriveTrain.DRIVE_BACK_LEFT_D, DriveTrain.DRIVE_BACK_LEFT_FF);
+            setPIDF(frontRightDrive, Constants.DRIVE_FRONT_RIGHT_P, Constants.DRIVE_FRONT_RIGHT_I, Constants.DRIVE_FRONT_RIGHT_D, Constants.DRIVE_FRONT_RIGHT_FF);
+            setPIDF(frontLeftDrive, Constants.DRIVE_FRONT_LEFT_P, Constants.DRIVE_FRONT_LEFT_I, Constants.DRIVE_FRONT_LEFT_D, Constants.DRIVE_FRONT_LEFT_FF);
+            setPIDF(backRightDrive, Constants.DRIVE_BACK_RIGHT_P, Constants.DRIVE_BACK_RIGHT_I, Constants.DRIVE_BACK_RIGHT_D, Constants.DRIVE_BACK_RIGHT_FF);
+            setPIDF(backLeftDrive, Constants.DRIVE_BACK_LEFT_P, Constants.DRIVE_BACK_LEFT_I, Constants.DRIVE_BACK_LEFT_D, Constants.DRIVE_BACK_LEFT_FF);
 
             //negating CANCoder reading to make the encoder read CCW negative so it matches the NEO
             initSpark(frontRightRotation, -(frontRightCANCoder.getAbsolutePosition() % 360.0 - frontRightModule.getOffset()), false);
             initSpark(frontLeftRotation, (frontLeftCANCoder.getAbsolutePosition() % 360.0 - frontLeftModule.getOffset()), false);
             initSpark(backLeftRotation, -(backLeftCANCoder.getAbsolutePosition() % 360.0 - backLeftModule.getOffset()));
             initSpark(backRightRotation, -(backRightCANCoder.getAbsolutePosition() % 360.0 - backRightModule.getOffset()));
-            setPIDF(frontRightRotation, DriveTrain.STEER_FRONT_RIGHT_P, DriveTrain.STEER_FRONT_RIGHT_I, DriveTrain.STEER_FRONT_RIGHT_D, DriveTrain.STEER_FRONT_RIGHT_FF);
-            setPIDF(frontLeftRotation, DriveTrain.STEER_FRONT_LEFT_P, DriveTrain.STEER_FRONT_LEFT_I, DriveTrain.STEER_FRONT_LEFT_D, DriveTrain.STEER_FRONT_LEFT_FF);
-            setPIDF(backLeftRotation, DriveTrain.STEER_BACK_LEFT_P, DriveTrain.STEER_BACK_LEFT_I, DriveTrain.STEER_BACK_LEFT_D, DriveTrain.STEER_BACK_LEFT_FF);
-            setPIDF(backRightRotation, DriveTrain.STEER_BACK_RIGHT_P, DriveTrain.STEER_BACK_RIGHT_I, DriveTrain.STEER_BACK_RIGHT_D, DriveTrain.STEER_BACK_RIGHT_FF);
+            setPIDF(frontRightRotation, Constants.STEER_FRONT_RIGHT_P, Constants.STEER_FRONT_RIGHT_I, Constants.STEER_FRONT_RIGHT_D, Constants.STEER_FRONT_RIGHT_FF);
+            setPIDF(frontLeftRotation, Constants.STEER_FRONT_LEFT_P, Constants.STEER_FRONT_LEFT_I, Constants.STEER_FRONT_LEFT_D, Constants.STEER_FRONT_LEFT_FF);
+            setPIDF(backLeftRotation, Constants.STEER_BACK_LEFT_P, Constants.STEER_BACK_LEFT_I, Constants.STEER_BACK_LEFT_D, Constants.STEER_BACK_LEFT_FF);
+            setPIDF(backRightRotation, Constants.STEER_BACK_RIGHT_P, Constants.STEER_BACK_RIGHT_I, Constants.STEER_BACK_RIGHT_D, Constants.STEER_BACK_RIGHT_FF);
         }else{
             initSpark(frontRightDrive, 0.0);
             initSpark(frontLeftDrive, 0.0);
             initSpark(backLeftDrive, 0.0);
             initSpark(backRightDrive, 0.0);
     
-            setPIDF(frontRightDrive, DriveTrain.TALON_FRONT_RIGHT_P, DriveTrain.TALON_FRONT_RIGHT_I, DriveTrain.TALON_FRONT_RIGHT_D, DriveTrain.TALON_FRONT_RIGHT_FF);
-            setPIDF(frontLeftDrive, DriveTrain.TALON_FRONT_LEFT_P, DriveTrain.TALON_FRONT_LEFT_I, DriveTrain.TALON_FRONT_LEFT_D, DriveTrain.TALON_FRONT_LEFT_FF);
-            setPIDF(backRightDrive, DriveTrain.TALON_BACK_RIGHT_P, DriveTrain.TALON_BACK_RIGHT_I, DriveTrain.TALON_BACK_RIGHT_D, DriveTrain.TALON_BACK_RIGHT_FF);
-            setPIDF(backLeftDrive, DriveTrain.TALON_BACK_LEFT_P, DriveTrain.TALON_BACK_LEFT_I, DriveTrain.TALON_BACK_LEFT_D, DriveTrain.TALON_BACK_LEFT_FF);    
+            setPIDF(frontRightDrive, Constants.TALON_FRONT_RIGHT_P, Constants.TALON_FRONT_RIGHT_I, Constants.TALON_FRONT_RIGHT_D, Constants.TALON_FRONT_RIGHT_FF);
+            setPIDF(frontLeftDrive, Constants.TALON_FRONT_LEFT_P, Constants.TALON_FRONT_LEFT_I, Constants.TALON_FRONT_LEFT_D, Constants.TALON_FRONT_LEFT_FF);
+            setPIDF(backRightDrive, Constants.TALON_BACK_RIGHT_P, Constants.TALON_BACK_RIGHT_I, Constants.TALON_BACK_RIGHT_D, Constants.TALON_BACK_RIGHT_FF);
+            setPIDF(backLeftDrive, Constants.TALON_BACK_LEFT_P, Constants.TALON_BACK_LEFT_I, Constants.TALON_BACK_LEFT_D, Constants.TALON_BACK_LEFT_FF);    
         }
     }
 

@@ -25,14 +25,8 @@ import frc.robot.Subsystems.*;
 public class Robot extends TimedRobot {
 
     //Constants
-    public static final double MAX_SPEED = 4.0;//Meters per second
-    public static final double MAX_ACC = 1;
-    public static final double MAX_ANGULAR_SPEED = 4 * Math.PI;//Half rotation per second
-    public static final double MAX_ANGULAR_ACC = Math.PI;
-    public static final double WHEEL_DIST = Units.feetToMeters(0.5);
 
     private final SendableChooser<Paths> AUTO_CHOOSER = new SendableChooser<>();
-    public static final boolean TALON_BOT = false;
 
     public DriveTrain driveTrain = new DriveTrain(this);
     public Climber climber = new Climber(this);
@@ -43,8 +37,6 @@ public class Robot extends TimedRobot {
     public Pneumatics pneumatics = new Pneumatics();
 
     //Deadzone constants
-    public static final double TRIGGER_DEADZONE = 0.1;
-    public static final double JSTICK_DEADZONE = 0.15;
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -54,7 +46,7 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
         Paths[] paths = Paths.values();
-        SmartDashboard.putNumber("Wheel Distance", Robot.WHEEL_DIST);
+        SmartDashboard.putNumber("Wheel Distance", Constants.WHEEL_DIST);
         for(int pathInd = 0; pathInd < paths.length; pathInd++){
             AUTO_CHOOSER.addOption(paths[pathInd].name(), paths[pathInd]);
         }
@@ -76,7 +68,7 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotPeriodic() {
-        shooter.putHoodDataToDashboard();
+        shooter.putShooterDataToDashboard();
         driveTrain.putCANCodersToSmartDashboard();
     }
 

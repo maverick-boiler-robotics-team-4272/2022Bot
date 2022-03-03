@@ -16,6 +16,11 @@ public class Climber {
         this.robot = robot;
     }
     
+    /**
+     * Runs climber motors with two joystick values
+     * @param leftStickAxis
+     * @param rightStickAxis
+     */
     public void runClimbers(double leftStickAxis, double rightStickAxis){
         climberLeft.set(leftStickAxis);
         climberRight.set(rightStickAxis);

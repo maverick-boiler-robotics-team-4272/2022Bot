@@ -11,11 +11,8 @@ public class Intake {
     private Robot robot;
 
     //Intake motors, ids 7-10(if needed)
-    private CANSparkMax rakeMotor = new CANSparkMax(8, MotorType.kBrushless);
-    // private CANSparkMax leftFeedMotor = new CANSparkMax(6, MotorType.kBrushless);
-    // private CANSparkMax rightFeedMotor = new CANSparkMax(16, MotorType.kBrushless);
-    public CANSparkMax shooterFeedMotor = new CANSparkMax(9, MotorType.kBrushless);
-    // private DoubleSolenoid intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, 0, 1);
+    private CANSparkMax intakeMotor = new CANSparkMax(8, MotorType.kBrushless);
+    private CANSparkMax shooterFeedMotor = new CANSparkMax(9, MotorType.kBrushless);
 
     public Intake(Robot robot){
         this.robot = robot;
@@ -28,17 +25,17 @@ public class Intake {
      * @param triggerVal
      */
     public void runIntake(double triggerVal){
-        rakeMotor.set(triggerVal);
-        
-        shooterFeedMotor.set(-triggerVal);//-triggerval is original
+        intakeMotor.set(triggerVal);
+        shooterFeedMotor.set(-triggerVal);
+    }
+    /**
+     * Runs shooter feed motor to feed shooter
+     */
+    public void feedShooter(){
+        shooterFeedMotor.set(-0.8);
     }
 
-    // public void runHopper(double triggerVal){
-    //     leftFeedMotor.set(triggerVal * 0.9);
-    //     rightFeedMotor.set(triggerVal * 0.4);
-    // }
-
-    public void toggle(){
-        // intakeSolenoid.toggle();
+    public void stopFeedShooter(){
+        shooterFeedMotor.set(0.0);
     }
 }
