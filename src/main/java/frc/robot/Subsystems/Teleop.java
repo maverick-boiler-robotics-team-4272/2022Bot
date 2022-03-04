@@ -80,7 +80,7 @@ public class Teleop {
             robot.driveTrain.resetPigeonHeading();
         }
 
-        if(opController.getAButtonPressed()){
+        if(driveController.getAButtonPressed()){
             robot.shooter.fixHood();
         }
         
@@ -115,15 +115,13 @@ public class Teleop {
             robot.shooter.resetPID();
         }
 
-        if(driveController.getBackButtonPressed()){
-            robot.shooter.updateShooter();
-            robot.shooter.setHood();
-            //robot.shooter.zeroHood();
+        if(driveController.getBackButtonPressed()){//Using for putting hood at zero for shooting wrong colored balls out
+            //robot.shooter.updateShooter();
+            //robot.shooter.setHood();
+            robot.shooter.zeroHood();
         }
 
         ////////////////////// Climber //////////////////
-        //double leftClimberVal = opController.getLeftY();
-        //double rightClimberVal = (opController.getRightY() > Constants.JSTICK_DEADZONE) ? opController.getRightY();
         
         robot.climber.runClimbers(-(Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, opController.getRightY())), Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, opController.getLeftY()));
 
@@ -133,7 +131,7 @@ public class Teleop {
         }
 
         if(opController.getBButtonPressed()){
-            robot.pneumatics.retractClimber();
+            robot.pneumatics.climberUp();
             robot.pneumatics.toggleIntake();
         }
 

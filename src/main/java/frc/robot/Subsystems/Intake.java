@@ -19,7 +19,7 @@ public class Intake {
     public Intake(Robot robot){
         this.robot = robot;
         shooterFeedMotor.setInverted(true);
-        intakeMotor.setSmartCurrentLimit(40);
+        intakeMotor.setSmartCurrentLimit(45);
     }
 
     /**
@@ -39,20 +39,31 @@ public class Intake {
         }
     }
     /**
-     * Runs shooter feed motor to feed shooter
+     * Runs shooter feed motor 
      */
     public void feedShooter(){
         shooterFeedMotor.set(-0.5);
     }
 
+    /**
+     * Stops shooter feed motor
+     */
     public void stopFeedShooter(){
         shooterFeedMotor.set(0.0);
     }
 
+    /**
+     * Returns state of shooter feed beam break sensor(located towards the top of the shooter feed)
+     * @return
+     */
     public boolean getFeedSensor(){
         return feedBreakSensor.get();
     }
 
+    /**
+     * Sets the intake motor's current limit
+     * @param lim
+     */
     public void setIntakeCurrentLimit(int lim){
         this.intakeMotor.setSmartCurrentLimit(lim);
     }

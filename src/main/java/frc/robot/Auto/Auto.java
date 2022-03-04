@@ -26,7 +26,8 @@ public class Auto {
         ),
         HANGAR_2_BALL(1),
         TERMINAL_3_BALL(2,
-            new Setpoint(-2.0, 0.0)),
+            new Setpoint(-2.0, 0.0)
+        ),
         TERMINAL_2_BALL(3),
         OFF_TARMAC(4),
         TUNE_PATH(5),
@@ -163,6 +164,11 @@ public class Auto {
                 goal.holonomicRotation);
         robot.driveTrain.drive(-speeds.vyMetersPerSecond, -speeds.vxMetersPerSecond, -speeds.omegaRadiansPerSecond, false);
     }
+
+    /**
+     * Runs terminal 2 ball commands based on time
+     * @return finished or not
+     */
     private boolean terminal2Ball(){
         double currentTime = Timer.getFPGATimestamp() - startTime;
 
@@ -174,7 +180,7 @@ public class Auto {
             robot.shooter.shoot();
             return false;
         }else{
-            robot.pneumatics.retractIntake();
+            robot.pneumatics.intakeOut();
             robot.shooter.setShooter(2500, -9.0);
             robot.intake.runIntake(0.5);
             robot.intake.stopFeedShooter();
@@ -182,38 +188,57 @@ public class Auto {
         }
     }
 
+    /**
+     * Runs the terminal 3 ball commands based on time
+     * @return finished
+     */
     private boolean terminal3Ball(){
         double currentTime = Timer.getFPGATimestamp() - startTime;
 
         if(currentTime > 14){
             return true;
         }else if(currentTime > 10){
-            //robot.intake.runIntake(0.0);
+                //Shoots last two balls
             robot.shooter.shoot();
             return false;
-        }else if(currentTime > 9.5){
+        }else if(currentTime > 9.9){
+                //Stops the intake before shooting
             robot.intake.runIntake(0.0);
-        }else if(currentTime > 4 && currentTime < 4.5){
+        }else if(currentTime > 9.8 && currentTime < 9.9){
+                //Runs intake backward to prevent balls from touching the shooter and shooting earlier
             robot.intake.runIntake(-0.5);
         }else if(currentTime > 2){
-            robot.pneumatics.retractIntake();
+                //Puts intake out and runs it while setting the hood and shooter setpoints to prepare for
+                //last shots. also stops the shooter from running
+            robot.pneumatics.intakeOut();
             robot.intake.runIntake(0.65);
             robot.shooter.setShooter(2450.0, -9.5);
-            //robot.shooter.stopShooter();
+            robot.shooter.stopShooter();
             return false;
         }else if(currentTime < 2){
-            robot.pneumatics.extendIntake();
+                //Sets current limit higher in the first half second of auto to prevent mechanical jams
+            if(currentTime < 0.5){
+                robot.intake.setIntakeCurrentLimit(60);
+                robot.intake.runIntake(0.8);
+            }else if(currentTime < 0.6){
+                //Sets current limit back to regular and stops intake
+                robot.intake.runIntake(0.0);
+                robot.intake.setIntakeCurrentLimit(45);
+            }
+                //Pulls intake in and sets shooter to shoot first shot
+            robot.pneumatics.intakeIn();
             robot.shooter.setShooter(2275.0, -7.0);
             robot.shooter.shoot();
+            
             return false;
-        }return false;/*else{
-            robot.shooter.setShooter(2150.0, -13.0);
-            robot.intake.runIntake(0.5);
-            robot.intake.stopFeedShooter();
-            return false;
-        }*/
+        }
+        return false;
     }
 
+    /**
+     * Runs off tarmac commands
+     * @return finished
+     */
     private boolean offTarmac(){
         double currentTime = Timer.getFPGATimestamp() - startTime;
         if(currentTime > 6){
@@ -223,11 +248,13 @@ public class Auto {
             robot.shooter.shoot();
         }else{
             robot.shooter.setShooter(2370, -9.5);
-            robot.shooter.setHood();
         }
         return false;
     }
 
+    /**
+     * Stops the bot at the end of auto
+     */
     private void stopAuto(){
         robot.driveTrain.drive(0, 0, 0, false);
         robot.shooter.stopShooter();

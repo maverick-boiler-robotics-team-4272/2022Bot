@@ -19,9 +19,9 @@ public class Shooter {
     //nested array has values [shooter speed, hood angle]
     private double[][] shooterSetpoints = {
         {1200.0, -15.0},//0.25 //Close Low goal
-        {2000.0, -6},//0.38 //Close high goal
+        {2250.0, -0.25},//0.38 //Close high goal
         {2370.0, -9.5},//0.43 //Edge of tarmac high goal
-        {2350.0, -24},//0.48 //Launcpad high goal
+        {2500.0, -19},//0.48 //Launcpad high goal
         {1000, 0}//Shooting out wrong colors
     };
 
@@ -201,6 +201,10 @@ public class Shooter {
         }
     }
 
+    /**
+     * Returns if the hood is within a certain deadzone of its desired position
+     * @return
+     */
     public boolean getHoodAtPosition(){
         double hoodPos = hoodMotor.getEncoder().getPosition();
         System.out.println("HoodPos: " + hoodPos);

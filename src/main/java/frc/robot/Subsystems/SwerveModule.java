@@ -84,15 +84,26 @@ public class SwerveModule {
         / Constants.TALON_GEAR_RATIO / Constants.SECONDS_PER_MINUTE);
     }
 
+    /**
+     * Returns the rotational offset of a swerve module
+     * @return
+     */
     public double getOffset() {
         return offset;
     }
 
+    /**
+     * Sets the rotational offset of a swerve module
+     * @param offset
+     */
     public void setOffset(double offset)
     {
         this.offset = offset;
     }
 
+    /**
+     * Reset the rotation of a swerve module to 0
+     */
     public void resetRotation(){
         this.turningEncoder.setPosition(0);
     }
@@ -145,6 +156,10 @@ public class SwerveModule {
         setHeading(state);
     }
 
+    /**
+     * Returns heading of robot
+     * @return
+     */
     public Rotation2d getHeading() {
         if (Constants.TALON_BOT) {
             double heading = (talonMotor.getSelectedSensorPosition() / Constants.ENCODER_RESOLUTION) * 360.0;
@@ -154,6 +169,10 @@ public class SwerveModule {
         }
     }
 
+    /**
+     * Sets the turning motors to angle specified in the SwerveModuleState
+     * @param state
+     */
     public void setHeading(SwerveModuleState state) {
         if(state.speedMetersPerSecond == 0.0) return;
         double currentHeadingRadians = getHeading().getRadians();
@@ -169,6 +188,12 @@ public class SwerveModule {
         talonMotor.set(ControlMode.MotionMagic, referencePulses);
     }
 
+    /**
+     * Optimizes swerve drive angle to require least amount of turning for the turning motor
+     * @param desiredState
+     * @param currentAngle
+     * @return
+     */
     public static SwerveModuleState optimize(SwerveModuleState desiredState, Rotation2d currentAngle) {
         boolean inverted = false;
 

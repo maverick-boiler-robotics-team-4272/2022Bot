@@ -26,14 +26,14 @@ public class Pneumatics {
     /**
      * Puts climbers down
      */
-    public void extendClimber(){
+    public void climberDown(){
         climberSolenoid.set(Value.kForward);
     }
 
     /**
      * Puts climber up
      */
-    public void retractClimber(){
+    public void climberUp(){
         climberSolenoid.set(Value.kReverse);
     }
 
@@ -47,14 +47,14 @@ public class Pneumatics {
     /**
      * Pulls intake back in
      */
-    public void extendIntake(){
+    public void intakeIn(){
         intakeSolenoid.set(Value.kForward);
     }
 
     /**
      * Pushes intake out
      */
-    public void retractIntake(){
+    public void intakeOut(){
         intakeSolenoid.set(Value.kReverse);
     }
 

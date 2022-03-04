@@ -324,6 +324,10 @@ public class DriveTrain {
         this.pigeon.setYaw(0.0);
     }
 
+    /**
+     * Returns roational value to aim at hub
+     * @return
+     */
     public double aimAtHub(){
         double tx = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0.0);
         return aimController.calculate(tx, 0.0);
