@@ -48,6 +48,10 @@ public class Auto {
     private Pose2d[] startPoints = new Pose2d[Paths.values().length];
     private double startTime;
 
+    private boolean fixingHood = true;
+
+
+
     // Controller
     public PIDController xPid = new PIDController(2.0, 0.01, 0);
     public PIDController yPid = new PIDController(2.0, 0.01, 0);
@@ -175,8 +179,8 @@ public class Auto {
             return false;
         }else{
             robot.pneumatics.retractIntake();
-            robot.shooter.setShooter(2500, -9.0);
-            robot.intake.runIntake(0.5);
+            robot.shooter.setShooter("tarmac");
+            robot.intake.runIntake(0.65);
             robot.intake.stopFeedShooter();
             return false;
         }

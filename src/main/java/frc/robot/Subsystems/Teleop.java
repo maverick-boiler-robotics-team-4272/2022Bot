@@ -32,11 +32,13 @@ public class Teleop {
     private double blFF = 0.1;
 
     public boolean fieldRelative = true;
+    private static boolean fixingHood = false;
 
     /**
      * Loop that has all of our inputs to run the robot
      */
     public void run(){
+
         ////////////////////////// Drive ///////////////////////////
         double driveX = driveController.getLeftX();
         double driveY = driveController.getLeftY();
@@ -80,10 +82,22 @@ public class Teleop {
             robot.driveTrain.resetPigeonHeading();
         }
 
-        if(opController.getAButtonPressed()){
+        if(driveController.getAButtonPressed()){
+            Teleop.fixingHood = true;
+        }
+
+        if(Teleop.fixingHood == true){
             robot.shooter.fixHood();
         }
+
+        if(robot.shooter.getLimSwitch()){
+            Teleop.fixingHood = false;
+        }
         
+        if(driveController.getAButton()){
+
+            System.out.println("LIM SWITCH TELE: " + robot.shooter.getLimSwitch());
+        }
         ///////////////////////// Intake ////////////////////
         if(driveController.getRightBumper() || (opController.getRightBumper() && robot.intake.getFeedSensor())){
             robot.intake.feedShooter();
@@ -132,6 +146,9 @@ public class Teleop {
             robot.pneumatics.toggleClimber();
         }
 
+        if(driveController.getXButtonPressed()){
+            robot.pneumatics.toggleClimber();
+        }
         if(opController.getBButtonPressed()){
             robot.pneumatics.retractClimber();
             robot.pneumatics.toggleIntake();

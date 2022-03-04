@@ -17,11 +17,11 @@ public class Shooter {
     private Robot robot;
     
     //nested array has values [shooter speed, hood angle]
-    private double[][] shooterSetpoints = {
+    public static double[][] shooterSetpoints = {
         {1200.0, -15.0},//0.25 //Close Low goal
-        {2000.0, -6},//0.38 //Close high goal
+        {2250.0, -0.25},//0.38 //Close high goal
         {2370.0, -9.5},//0.43 //Edge of tarmac high goal
-        {2350.0, -24},//0.48 //Launcpad high goal
+        {2500.0, -19},//0.48 //Launcpad high goal
         {1000, 0}//Shooting out wrong colors
     };
 
@@ -104,7 +104,6 @@ public class Shooter {
         //this.shooterMotor.set(shooterAmt);
         this.shooterMotor.getPIDController().setReference(shooterAmt, ControlType.kSmartVelocity);
         SmartDashboard.putNumber("Shooter Velocity", shooterMotor.getEncoder().getVelocity());
-        System.out.println("Shooter Vel: " + shooterMotor.getEncoder().getVelocity());
         // System.out.println("Shooter Vel: " + shooterMotor.getEncoder().getVelocity());
         // System.out.println("shooterAmt: " + shooterAmt);
         if(shooterMotor.getEncoder().getVelocity() >= shooterAmt - (Constants.SHOOTER_DEADZONE) &&
@@ -157,6 +156,26 @@ public class Shooter {
         setHood();
     }
 
+    public void setShooter(String location){
+        location.toLowerCase();
+        location.trim();
+        int index;
+        if(location.equals("closelow")){
+            index = 0;
+        }else if(location.equals("closehigh")){
+            index = 1;
+        }else if(location.equals("tarmac")){
+            index = 2;
+        }else if(location.equals("launchpad")){
+            index = 3;
+        }else{
+            index = 4;
+        }
+        shooterAmt = shooterSetpoints[index][0];
+        hoodAmt = shooterSetpoints[index][1];
+        setHood();
+    }
+
     /**
      * Updates the shooter and hood from smart dashboard
      */
@@ -193,12 +212,23 @@ public class Shooter {
      */
     public void fixHood(){
         double initTime = Timer.getFPGATimestamp();
-        if(Timer.getFPGATimestamp() - initTime < 3 /*|| hoodMotor.getForwardLimitSwitch(Type.kNormallyOpen).isPressed()*/){
+        System.out.println("LIM SWITCH: " + hoodMotor.getForwardLimitSwitch(Type.kNormallyOpen).isPressed());
+        if(!hoodMotor.getForwardLimitSwitch(Type.kNormallyOpen).isPressed()){
             hoodMotor.set(0.2);
         }else{
+            shooterAmt = 0;
+            hoodAmt = 0;
+            System.out.println("Hood pos before: " + 
+            hoodMotor.getEncoder().getPosition());
             hoodMotor.getEncoder().setPosition(0);
-            hoodMotor.set(0);
+            
         }
+        System.out.println("Hood pos after: " + hoodMotor.getEncoder().getPosition());
+
+    }
+
+    public boolean getLimSwitch(){
+        return hoodMotor.getForwardLimitSwitch(Type.kNormallyOpen).isPressed();
     }
 
     public boolean getHoodAtPosition(){

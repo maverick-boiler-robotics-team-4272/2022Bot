@@ -19,7 +19,7 @@ public class Intake {
     public Intake(Robot robot){
         this.robot = robot;
         shooterFeedMotor.setInverted(true);
-        intakeMotor.setSmartCurrentLimit(40);
+        intakeMotor.setSmartCurrentLimit(45);
     }
 
     /**
@@ -28,12 +28,11 @@ public class Intake {
      * @param triggerVal
      */
     public void runIntake(double triggerVal){
-        System.out.println("sensor" + getFeedSensor());
         intakeMotor.set(triggerVal);
         if(feedBreakSensor.get() && triggerVal > 0){
-            shooterFeedMotor.set(-0.55);
+            shooterFeedMotor.set(-0.45);
         }else if(triggerVal < 0){
-            shooterFeedMotor.set(0.55);
+            shooterFeedMotor.set(0.45);
         }else{
             shooterFeedMotor.set(0);
         }
