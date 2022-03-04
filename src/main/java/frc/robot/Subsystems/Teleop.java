@@ -109,7 +109,6 @@ public class Teleop {
             //robot.shooter.setShooter(pov);
         }else{
             robot.shooter.stopShooter();
-            System.out.println("Beam Break Sensor: " + robot.intake.getFeedSensor());
         }
 
         if(driveController.getYButtonPressed()){
@@ -117,9 +116,9 @@ public class Teleop {
         }
 
         if(driveController.getBackButtonPressed()){
-            //robot.shooter.updateShooter();
-            //robot.shooter.setHood();
-            robot.shooter.zeroHood();
+            robot.shooter.updateShooter();
+            robot.shooter.setHood();
+            //robot.shooter.zeroHood();
         }
 
         ////////////////////// Climber //////////////////

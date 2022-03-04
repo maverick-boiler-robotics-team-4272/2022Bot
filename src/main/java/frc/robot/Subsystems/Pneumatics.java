@@ -16,10 +16,10 @@ public class Pneumatics {
 
 
     public Pneumatics(){
-        extraSolenoids.set(Value.kForward);
+        extraSolenoids.set(Value.kReverse);
         climberSolenoid.set(Value.kReverse);
 
-        intakeSolenoid.set(Value.kReverse);
+        intakeSolenoid.set(Value.kForward);
         //climbSafetySolenoid.set(true);
     }
 

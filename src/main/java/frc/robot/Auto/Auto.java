@@ -25,7 +25,8 @@ public class Auto {
             new Setpoint(1.0, 20.0, 1000.0)
         ),
         HANGAR_2_BALL(1),
-        TERMINAL_3_BALL(2),
+        TERMINAL_3_BALL(2,
+            new Setpoint(-2.0, 0.0)),
         TERMINAL_2_BALL(3),
         OFF_TARMAC(4),
         TUNE_PATH(5),
@@ -96,18 +97,27 @@ public class Auto {
      */
     public void run() {
         double currentTime = Timer.getFPGATimestamp() - startTime;
+        if(path.setpoints.length > 0){
+            currentTime += Math.min(path.setpoints[0].getTime(), 0.0);
+        }
         if(path == Paths.TERMINAL_2_BALL){
             if(terminal2Ball()){
-                robot.driveTrain.drive(0, 0, 0, false);
-                robot.intake.stopFeedShooter();
-                robot.shooter.stopShooter();
+                stopAuto();
+                return;
+            }
+        }else if(path == Paths.TERMINAL_3_BALL){
+            if(terminal3Ball()){
+                stopAuto();
+                return;
+            }
+        }else if(path == Paths.OFF_TARMAC){
+            if(offTarmac()){
+                stopAuto();
                 return;
             }
         }else{
             //System.out.println("Current Time: " + currentTime);
-            if(path.setpoints.length > 0){
-                currentTime += Math.min(path.setpoints[0].getTime(), 0.0);
-            }
+            
             if (currentTime > paths[path.index].getTotalTimeSeconds()) {
                 robot.driveTrain.drive(0, 0, 0, false);
                 robot.intake.stopFeedShooter();
@@ -159,15 +169,68 @@ public class Auto {
         if(currentTime > 10){
             return true;
         }else if(currentTime > paths[3].getTotalTimeSeconds()){
-            robot.shooter.setShooter(2050, -13.0);
+            // robot.shooter.setShooter(2370, -9.5);
             robot.intake.runIntake(0.0);
             robot.shooter.shoot();
             return false;
         }else{
-            robot.shooter.setShooter(0.0, -13.0);
+            robot.pneumatics.retractIntake();
+            robot.shooter.setShooter(2500, -9.0);
             robot.intake.runIntake(0.5);
             robot.intake.stopFeedShooter();
             return false;
         }
+    }
+
+    private boolean terminal3Ball(){
+        double currentTime = Timer.getFPGATimestamp() - startTime;
+
+        if(currentTime > 14){
+            return true;
+        }else if(currentTime > 10){
+            //robot.intake.runIntake(0.0);
+            robot.shooter.shoot();
+            return false;
+        }else if(currentTime > 9.5){
+            robot.intake.runIntake(0.0);
+        }else if(currentTime > 4 && currentTime < 4.5){
+            robot.intake.runIntake(-0.5);
+        }else if(currentTime > 2){
+            robot.pneumatics.retractIntake();
+            robot.intake.runIntake(0.65);
+            robot.shooter.setShooter(2450.0, -9.5);
+            //robot.shooter.stopShooter();
+            return false;
+        }else if(currentTime < 2){
+            robot.pneumatics.extendIntake();
+            robot.shooter.setShooter(2275.0, -7.0);
+            robot.shooter.shoot();
+            return false;
+        }return false;/*else{
+            robot.shooter.setShooter(2150.0, -13.0);
+            robot.intake.runIntake(0.5);
+            robot.intake.stopFeedShooter();
+            return false;
+        }*/
+    }
+
+    private boolean offTarmac(){
+        double currentTime = Timer.getFPGATimestamp() - startTime;
+        if(currentTime > 6){
+            robot.shooter.stopShooter();
+            return true;
+        }else if(currentTime > 3){
+            robot.shooter.shoot();
+        }else{
+            robot.shooter.setShooter(2370, -9.5);
+            robot.shooter.setHood();
+        }
+        return false;
+    }
+
+    private void stopAuto(){
+        robot.driveTrain.drive(0, 0, 0, false);
+        robot.shooter.stopShooter();
+        robot.intake.stopFeedShooter();
     }
 }

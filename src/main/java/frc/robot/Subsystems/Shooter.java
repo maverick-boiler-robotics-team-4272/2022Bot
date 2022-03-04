@@ -19,8 +19,8 @@ public class Shooter {
     //nested array has values [shooter speed, hood angle]
     private double[][] shooterSetpoints = {
         {1200.0, -15.0},//0.25 //Close Low goal
-        {2000.0, -7},//0.38 //Close high goal
-        {2100.0, -13},//0.43 //Edge of tarmac high goal
+        {2000.0, -6},//0.38 //Close high goal
+        {2370.0, -9.5},//0.43 //Edge of tarmac high goal
         {2350.0, -24},//0.48 //Launcpad high goal
         {1000, 0}//Shooting out wrong colors
     };
@@ -37,13 +37,13 @@ public class Shooter {
     public Shooter(Robot robot){
         this.robot = robot;
         this.hoodMotor.getEncoder().setPositionConversionFactor(1);
-        SmartDashboard.putNumber("RPM", 60.0);
+        /*SmartDashboard.putNumber("RPM", 60.0);
         SmartDashboard.putNumber("Rotation Motor P", 0.0000001);
         SmartDashboard.putNumber("Rotation Motor I", 0.0);
         SmartDashboard.putNumber("Rotation Motor D", 0.0);
         SmartDashboard.putNumber("Rotation Motor F", 0.0001);
         SmartDashboard.putNumber("Rotation Motor ACC", 40000.0);
-        SmartDashboard.putNumber("Rotation Motor MAX VEL", 40000.0);
+        SmartDashboard.putNumber("Rotation Motor MAX VEL", 40000.0);*/
 
         
         hoodPIDController.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
@@ -64,14 +64,14 @@ public class Shooter {
         
         SmartDashboard.putNumber("Shooter Velocity Set", 0.0);
         SmartDashboard.putNumber("Hood Setpoint", 0.0);
-        SmartDashboard.putNumber("Shooter Motor P", 0.0000001);
-        SmartDashboard.putNumber("Shooter Motor I", 0.0000005);
+        SmartDashboard.putNumber("Shooter Motor P", 0.0000005);
+        SmartDashboard.putNumber("Shooter Motor I", 0.000000002);
         SmartDashboard.putNumber("Shooter Motor D", 0.0);
-        SmartDashboard.putNumber("Shooter Motor F", 0.0);
-        shooterPIDController.setP(0.0000001);
-        shooterPIDController.setI(0.0000005);
+        SmartDashboard.putNumber("Shooter Motor F", 0.00018);
+        shooterPIDController.setP(0.0000005);
+        shooterPIDController.setI(0.000000002);
         shooterPIDController.setD(0.0);
-        shooterPIDController.setFF(0.0);
+        shooterPIDController.setFF(0.00018);
 
         shooterPIDController.setSmartMotionMaxVelocity(3000.0, 0);
         shooterPIDController.setSmartMotionMaxAccel(4000.0, 0);
@@ -100,13 +100,15 @@ public class Shooter {
      * Starts the shooter wheel based on the shooter amount variable that is determined by the dpad
      */
     public void shoot(){
+        System.out.println("beam break: " + robot.intake.getFeedSensor());
         //this.shooterMotor.set(shooterAmt);
         this.shooterMotor.getPIDController().setReference(shooterAmt, ControlType.kSmartVelocity);
         SmartDashboard.putNumber("Shooter Velocity", shooterMotor.getEncoder().getVelocity());
+        System.out.println("Shooter Vel: " + shooterMotor.getEncoder().getVelocity());
         // System.out.println("Shooter Vel: " + shooterMotor.getEncoder().getVelocity());
         // System.out.println("shooterAmt: " + shooterAmt);
-        if(shooterMotor.getEncoder().getVelocity() >= shooterAmt - (shooterAmt * Constants.SHOOTER_DEADZONE) &&
-            shooterMotor.getEncoder().getVelocity() <= shooterAmt + (shooterAmt * Constants.SHOOTER_DEADZONE) &&
+        if(shooterMotor.getEncoder().getVelocity() >= shooterAmt - (Constants.SHOOTER_DEADZONE) &&
+            shooterMotor.getEncoder().getVelocity() <= shooterAmt + (Constants.SHOOTER_DEADZONE) &&
             shooterAmt > 500){
             robot.intake.feedShooter();
         }else{
@@ -130,6 +132,9 @@ public class Shooter {
         SmartDashboard.putNumber("Shooter Velocity", shooterMotor.getEncoder().getVelocity());
         //SmartDashboard.putNumber("Hood Setpoint", 0.0);
         SmartDashboard.putNumber("Shooter Percent", 0.0);
+        
+        SmartDashboard.putNumber("shooter amount", shooterAmt);
+        SmartDashboard.putNumber("hood amount", hoodAmt);
 
     }
 
@@ -149,8 +154,6 @@ public class Shooter {
     public void setShooter(double shooterAmount, double hoodAmount){
         shooterAmt = shooterAmount;
         hoodAmt = hoodAmount;
-        SmartDashboard.putNumber("shooter amount", shooterAmt);
-        SmartDashboard.putNumber("hood amount", hoodAmt);
         setHood();
     }
 

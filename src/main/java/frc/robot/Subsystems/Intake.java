@@ -12,13 +12,14 @@ public class Intake {
     private Robot robot;
 
     //Intake motors, ids 7-10(if needed)
-    private DigitalInput feedBreakSensor = new DigitalInput(0);
+    private DigitalInput feedBreakSensor = new DigitalInput(0); //or 4, was 0 before the mxmp board thingy
     private CANSparkMax intakeMotor = new CANSparkMax(8, MotorType.kBrushless);
     private CANSparkMax shooterFeedMotor = new CANSparkMax(9, MotorType.kBrushless);
 
     public Intake(Robot robot){
         this.robot = robot;
         shooterFeedMotor.setInverted(true);
+        intakeMotor.setSmartCurrentLimit(40);
     }
 
     /**
@@ -27,6 +28,7 @@ public class Intake {
      * @param triggerVal
      */
     public void runIntake(double triggerVal){
+        System.out.println("sensor" + getFeedSensor());
         intakeMotor.set(triggerVal);
         if(feedBreakSensor.get() && triggerVal > 0){
             shooterFeedMotor.set(-0.55);
@@ -40,7 +42,7 @@ public class Intake {
      * Runs shooter feed motor to feed shooter
      */
     public void feedShooter(){
-        shooterFeedMotor.set(-0.55);
+        shooterFeedMotor.set(-0.5);
     }
 
     public void stopFeedShooter(){
@@ -49,5 +51,9 @@ public class Intake {
 
     public boolean getFeedSensor(){
         return feedBreakSensor.get();
+    }
+
+    public void setIntakeCurrentLimit(int lim){
+        this.intakeMotor.setSmartCurrentLimit(lim);
     }
 }
