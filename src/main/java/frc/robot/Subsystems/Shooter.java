@@ -55,13 +55,6 @@ public class Shooter {
     private boolean shooterAtSpeed = false;
     public Shooter(){
         this.hoodMotor.getEncoder().setPositionConversionFactor(1);
-        /*SmartDashboard.putNumber("RPM", 60.0);
-        SmartDashboard.putNumber("Rotation Motor P", 0.0000001);
-        SmartDashboard.putNumber("Rotation Motor I", 0.0);
-        SmartDashboard.putNumber("Rotation Motor D", 0.0);
-        SmartDashboard.putNumber("Rotation Motor F", 0.0001);
-        SmartDashboard.putNumber("Rotation Motor ACC", 40000.0);
-        SmartDashboard.putNumber("Rotation Motor MAX VEL", 40000.0);*/
 
         
         hoodPIDController.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
@@ -134,11 +127,6 @@ public class Shooter {
         }
     }
 
-    public void shoot(double shootAmt, double hoodAmt){
-        setShooter(shooterAmt, hoodAmt);
-        shoot();
-    }
-
     public void resetShooterAtSpeed(){
         if(shooterAtSpeed){
             Subsystems.getIntake().stopFeedShooter();
@@ -165,14 +153,11 @@ public class Shooter {
     public void fixHood(){
         System.out.println("LIM SWITCH: " + hoodMotor.getForwardLimitSwitch(Type.kNormallyOpen).isPressed());
         if(!hoodMotor.getForwardLimitSwitch(Type.kNormallyOpen).isPressed()){
-            hoodMotor.set(0.2);
+            hoodMotor.set(0.1);
         }else{
-            shooterAmt = 0;
-            hoodAmt = 0;
-            System.out.println("Hood pos before: " + 
-            hoodMotor.getEncoder().getPosition());
+            System.out.println("Hood pos before: " + hoodMotor.getEncoder().getPosition());
             hoodMotor.getEncoder().setPosition(0);
-            
+            setShooter(ShooterPositions.EJECT);
         }
         System.out.println("Hood pos after: " + hoodMotor.getEncoder().getPosition());
 
@@ -211,13 +196,6 @@ public class Shooter {
         shooterAmt = shooterAmount;
         hoodAmt = hoodAmount;
         feedAmt = feedAmount;
-        setHood();
-    }
-
-    public void setShooter(double shooterAmount, double hoodAmount){
-        shooterAmt = shooterAmount;
-        hoodAmt = hoodAmount;
-        feedAmt = -0.5;
         setHood();
     }
 

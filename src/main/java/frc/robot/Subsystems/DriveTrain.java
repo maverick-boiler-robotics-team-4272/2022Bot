@@ -61,7 +61,7 @@ public class DriveTrain {
     private CANCoder backLeftCANCoder = new CANCoder(23);
     private CANCoder backRightCANCoder = new CANCoder(24);
 
-    private PIDController aimController = new PIDController(1.0, 0.0, 0.0);
+    private PIDController aimController = new PIDController(0.02, 0.0, 0.0);
 
     public final BasePigeon pigeon;
 
@@ -90,6 +90,9 @@ public class DriveTrain {
             pigeon = new Pigeon2(25);
         }
         this.pigeon.setYaw(0.0);
+        SmartDashboard.putNumber("Aim P", aimController.getP());
+        SmartDashboard.putNumber("Aim I", aimController.getI());
+        SmartDashboard.putNumber("Aim D", aimController.getD());
         if(Constants.TALON_BOT){
             frontRightModule = new SwerveModule(this.frontRightDrive, this.frontRightTalon, this.frontRightDriveEnc, 0.0, Constants.FRONT_RIGHT_INDEX);
             frontLeftModule = new SwerveModule(this.frontLeftDrive, this.frontLeftTalon, this.frontLeftDriveEnc, 0.0, Constants.FRONT_LEFT_INDEX);
@@ -313,12 +316,15 @@ public class DriveTrain {
         this.pigeon.setYaw(0.0);
     }
 
+    public void resetAimPID(){
+        aimController.setPID(SmartDashboard.getNumber("Aim P", 1.0), SmartDashboard.getNumber("Aim I", 0.0), SmartDashboard.getNumber("Aim D", 0.0));
+    }
     /**
      * Returns roational value to aim at hub
      * @return
      */
     public double aimAtHub(){
         double tx = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0.0);
-        return aimController.calculate(tx, 0.0);
+        return aimController.calculate(-tx, 0.0);
     }
 }

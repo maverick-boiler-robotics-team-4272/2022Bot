@@ -19,6 +19,8 @@ public class Teleop {
     private double blFF = 0.1;
 
     public boolean fieldRelative = true;
+    private boolean intakeStopped = true;
+    private boolean shooterStopped = true;
 
     /**
      * Loop that has all of our inputs to run the robot
@@ -42,10 +44,12 @@ public class Teleop {
 
         double rotX;
         if(driveController.getLeftBumper()){
-            // rotX = Subsystems.getDriveTrain().aimAtHub();
-            System.out.println(NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx"));
-            rotX = 0.0;
+            rotX = Subsystems.getDriveTrain().aimAtHub();
+            NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(3);
+            // System.out.println(NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0.0));
+            // rotX = 0.0;
         }else{
+            NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1);
             rotX = driveController.getRightX();
             rotX = Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, rotX);
         }
@@ -74,14 +78,20 @@ public class Teleop {
         }
         
         ///////////////////////// Intake ////////////////////
-        if(driveController.getRightBumper() && Subsystems.getIntake().getFeedSensor()){
+        double opRTrigger = Teleop.deadzoneEquations(Constants.TRIGGER_DEADZONE, opController.getRightTriggerAxis());
+        double opLTrigger = Teleop.deadzoneEquations(Constants.TRIGGER_DEADZONE, opController.getLeftTriggerAxis());
+
+        if(driveController.getRightBumper()){
             Subsystems.getIntake().feedShooter();
-            //Subsystems.getIntake().runIntake(Teleop.deadzoneEquations(Constants.TRIGGER_DEADZONE, driveController.getRightTriggerAxis()));
-        }else if(opController.getRightTriggerAxis() > Constants.TRIGGER_DEADZONE){
-            Subsystems.getIntake().runIntake(Teleop.deadzoneEquations(Constants.TRIGGER_DEADZONE, opController.getRightTriggerAxis()));
-        }else if(opController.getRightTriggerAxis() < Constants.TRIGGER_DEADZONE && opController.getLeftTriggerAxis() > Constants.TRIGGER_DEADZONE){
-            Subsystems.getIntake().runIntake(-Teleop.deadzoneEquations(Constants.TRIGGER_DEADZONE, opController.getLeftTriggerAxis()));
-        }else{
+            Subsystems.getIntake().testBeamBreaks();
+        }else if(opRTrigger > 0){
+            intakeStopped = false;
+            Subsystems.getIntake().runIntake(opRTrigger);
+        }else if(opLTrigger > 0){
+            intakeStopped = false;
+            Subsystems.getIntake().runIntake(-opLTrigger);
+        }else if(!intakeStopped){
+            intakeStopped = true;
             Subsystems.getIntake().runIntake(0.0);
         }
 
@@ -124,27 +134,31 @@ public class Teleop {
         }
 
 
-        if(driveController.getLeftTriggerAxis() > Constants.TRIGGER_DEADZONE){
+        if(driveController.getRightTriggerAxis() > Constants.TRIGGER_DEADZONE){
+            shooterStopped = false;
             Subsystems.getShooter().shoot();
-            //Subsystems.getShooter().setHood();
-            //Subsystems.getShooter().setShooter(pov);
-        }else if(driveController.getRightTriggerAxis() > Constants.TRIGGER_DEADZONE){
+        }else if(driveController.getLeftTriggerAxis() > Constants.TRIGGER_DEADZONE){
+            shooterStopped = false;
             Subsystems.getShooter().revShooter();
-        }else{    
+        }else if(!shooterStopped){
+            shooterStopped = true;    
             Subsystems.getShooter().stopShooter();
         }
-
 
         if(driveController.getYButtonPressed()){
             Subsystems.getShooter().resetPID();
         }
 
-        if(driveController.getBackButtonPressed()){//Using for putting hood at zero for shooting wrong colored balls out
+        if(driveController.getBackButtonPressed()){
             //Subsystems.getShooter().updateShooter();
             //Subsystems.getShooter().setHood();
             
             Subsystems.getShooter().fixHood();
             //Subsystems.getShooter().zeroHood();
+        }
+
+        if(driveController.getLeftBumperPressed()){
+            Subsystems.getDriveTrain().resetAimPID();
         }
     }
 

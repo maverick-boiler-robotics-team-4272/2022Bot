@@ -9,6 +9,8 @@ public class Intake {
 
     //Intake motors, ids 7-10(if needed)
     private DigitalInput feedBreakSensor = new DigitalInput(0); //or 4, was 0 before the mxmp board thingy
+    private DigitalInput feedBreakSensorTwenty = new DigitalInput(20);
+    private DigitalInput feedBreakSensorFourteen = new DigitalInput(14);
     private CANSparkMax intakeMotor = new CANSparkMax(8, MotorType.kBrushless);
     private CANSparkMax shooterFeedMotor = new CANSparkMax(9, MotorType.kBrushless);
 
@@ -25,11 +27,11 @@ public class Intake {
         // System.out.println("sensor" + getFeedSensor());
         intakeMotor.set(triggerVal);
         if(feedBreakSensor.get() && triggerVal > 0){
-            shooterFeedMotor.set(-0.55);
+            feedShooter(-0.55);
         }else if(triggerVal < 0){
-            shooterFeedMotor.set(0.55);
+            feedShooter(0.55);
         }else{
-            shooterFeedMotor.set(0);
+            stopFeedShooter();
         }
     }
 
@@ -65,5 +67,12 @@ public class Intake {
      */
     public void setIntakeCurrentLimit(int lim){
         this.intakeMotor.setSmartCurrentLimit(lim);
+    }
+
+    public void testBeamBreaks(){
+        System.out.println("14: " + feedBreakSensorFourteen);
+        System.out.println("20: " + feedBreakSensorTwenty);
+        System.out.println("0: " + feedBreakSensor);
+        System.out.println("-------------------");
     }
 }

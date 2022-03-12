@@ -12,6 +12,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Subsystems.Constants;
+import frc.robot.Subsystems.Shooter;
 import frc.robot.Subsystems.Subsystems;
 import frc.robot.Subsystems.Shooter.ShooterPositions;
 
@@ -20,7 +21,7 @@ public class Auto {
         HANGAR_3_BALL(0),
         HANGAR_2_BALL(1),
         TERMINAL_3_BALL(2,
-        new Setpoint(-4.0, 4.0, () -> Subsystems.getShooter().setShooter(ShooterPositions.FENDER_HIGH), () -> Subsystems.getShooter().shoot(ShooterPositions.FENDER_HIGH.shootAmt, ShooterPositions.FENDER_HIGH.hoodAmt), Subsystems.getShooter()::stopShooterAndFeed),
+        new Setpoint(-1.5, 2.0, () -> Subsystems.getShooter().setShooter(ShooterPositions.FENDER_HIGH), Subsystems.getShooter()::shoot, Subsystems.getShooter()::stopShooterAndFeed),
         new Setpoint(1.5, 0.1, Subsystems.getPneumatics()::intakeOut, Setpoint::noop, Setpoint::noop),
         new Setpoint(2.0, 7.0, () -> Subsystems.getIntake().runIntake(0.5), () -> Subsystems.getIntake().runIntake(0.5), () -> Subsystems.getIntake().runIntake(0.0)),
         new Setpoint(9.0, 0.1, () -> Subsystems.getIntake().runIntake(-0.5), () -> Subsystems.getIntake().runIntake(-0.5),  () -> Subsystems.getIntake().runIntake(0.0)),
@@ -30,8 +31,8 @@ public class Auto {
         OFF_TARMAC(4),
         TUNE_PATH(5),
         TERMINAL_4_BALL(6),
-        SHOOT_N_BACK_UP(7,
-            new Setpoint(-2.0, 2.0, () -> Subsystems.getShooter().setShooter(2300.0, -12.5), Subsystems.getShooter()::shoot, Subsystems.getShooter()::stopShooterAndFeed)
+        SHOOT_N_BACK_UP(7
+            // new Setpoint(-2.0, 2.0, () -> Subsystems.getShooter().setShooter(ShooterPositions.MID_TARMAC), Subsystems.getShooter()::shoot, Subsystems.getShooter()::stopShooterAndFeed)
         );
 
         final int index;
@@ -51,6 +52,7 @@ public class Auto {
     public PIDController yPid = new PIDController(2.0, 0.01, 0);
     public ProfiledPIDController thetaPid = new ProfiledPIDController(4.5, 0, 0,
     new TrapezoidProfile.Constraints(Constants.MAX_ANGULAR_SPEED, Constants.MAX_ANGULAR_ACC));
+
     private SwerveAutoController controller = new SwerveAutoController(
             xPid,
             yPid,
@@ -68,6 +70,8 @@ public class Auto {
            this.paths[index] = PathPlanner.loadPath(name, Constants.MAX_SPEED, Constants.MAX_ACC);
            this.startPoints[index] = this.paths[index].getInitialState().poseMeters;
         }
+
+        thetaPid.enableContinuousInput(-180, 180);
     }
 
     /**
