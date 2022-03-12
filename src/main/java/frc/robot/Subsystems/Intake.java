@@ -4,21 +4,15 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import frc.robot.Robot;
 
 public class Intake {
-    private Robot robot;
 
     //Intake motors, ids 7-10(if needed)
     private DigitalInput feedBreakSensor = new DigitalInput(0); //or 4, was 0 before the mxmp board thingy
     private CANSparkMax intakeMotor = new CANSparkMax(8, MotorType.kBrushless);
     private CANSparkMax shooterFeedMotor = new CANSparkMax(9, MotorType.kBrushless);
 
-    public Intake(Robot robot){
-        this.robot = robot;
-        shooterFeedMotor.setInverted(true);
+    public Intake(){
         intakeMotor.setSmartCurrentLimit(45);
     }
 
@@ -28,7 +22,7 @@ public class Intake {
      * @param triggerVal
      */
     public void runIntake(double triggerVal){
-        System.out.println("sensor" + getFeedSensor());
+        // System.out.println("sensor" + getFeedSensor());
         intakeMotor.set(triggerVal);
         if(feedBreakSensor.get() && triggerVal > 0){
             shooterFeedMotor.set(-0.55);
@@ -38,11 +32,16 @@ public class Intake {
             shooterFeedMotor.set(0);
         }
     }
+
     /**
      * Runs shooter feed motor 
      */
     public void feedShooter(){
-        shooterFeedMotor.set(-0.5);
+        feedShooter(-0.8);
+    }
+
+    public void feedShooter(double feedPercent){
+        shooterFeedMotor.set(feedPercent);
     }
 
     /**

@@ -1,7 +1,6 @@
 package frc.robot.Subsystems;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
@@ -20,7 +19,7 @@ public class Pneumatics {
         climberSolenoid.set(Value.kReverse);
 
         intakeSolenoid.set(Value.kForward);
-        //climbSafetySolenoid.set(true);
+        climbSafetySolenoid.set(false);
     }
 
     /**

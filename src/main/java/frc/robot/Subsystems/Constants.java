@@ -87,7 +87,7 @@ public class Constants {
     public static final double RAD_PER_ROT = 2 * Math.PI;
 
     public static final boolean TALON_BOT = false;
-    public static final double MAX_SPEED = 4.0;//Meters per second
+    public static final double MAX_SPEED = 4.15;//Meters per second
     public static final double MAX_ACC = 1;
     public static final double MAX_ANGULAR_SPEED = 4 * Math.PI;//Half rotation per second
     public static final double MAX_ANGULAR_ACC = Math.PI;
@@ -96,7 +96,7 @@ public class Constants {
     public static final double TRIGGER_DEADZONE = 0.1;
     public static final double JSTICK_DEADZONE = 0.15;
 
-    public static final double SHOOTER_DEADZONE = 100;
+    public static final double SHOOTER_DEADZONE = 100.0;
 
     public static final double RAMP_UP_DEADZONE = 1.0;
     public static final double FIRE_DEADZONE = 5.0;

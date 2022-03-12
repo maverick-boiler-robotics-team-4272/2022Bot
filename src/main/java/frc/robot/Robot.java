@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -27,14 +25,8 @@ public class Robot extends TimedRobot {
     //Constants
 
     private final SendableChooser<Paths> AUTO_CHOOSER = new SendableChooser<>();
-
-    public DriveTrain driveTrain = new DriveTrain(this);
-    public Climber climber = new Climber(this);
-    public Intake intake = new Intake(this);
-    public Shooter shooter = new Shooter(this);
-    public Teleop teleop = new Teleop(this);
-    public Auto auto = new Auto(this);
-    public Pneumatics pneumatics = new Pneumatics();
+    public Teleop teleop;
+    public Auto auto;
 
     //Deadzone constants
 
@@ -45,14 +37,18 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotInit() {
+        Subsystems.initSubsystems();
+        auto = new Auto();
+        teleop = new Teleop();
         Paths[] paths = Paths.values();
         SmartDashboard.putNumber("Wheel Distance", Constants.WHEEL_DIST);
         for(int pathInd = 0; pathInd < paths.length; pathInd++){
             AUTO_CHOOSER.addOption(paths[pathInd].name(), paths[pathInd]);
         }
+        AUTO_CHOOSER.setDefaultOption("TERMINAL_3_BALL", Paths.TERMINAL_3_BALL);
         SmartDashboard.putData("Auto choices", AUTO_CHOOSER);
-        SmartDashboard.putNumber("Pigeon Heading", driveTrain.pigeon.getYaw());
-        shooter.putShooterDataToDashboard();
+        SmartDashboard.putNumber("Pigeon Heading", Subsystems.getDriveTrain().pigeon.getYaw());
+        Subsystems.getShooter().putShooterDataToDashboard();
     }
 
     /**
@@ -68,8 +64,8 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotPeriodic() {
-        shooter.putShooterDataToDashboard();
-        driveTrain.putCANCodersToSmartDashboard();
+        Subsystems.getShooter().putShooterDataToDashboard();
+        Subsystems.getDriveTrain().putCANCodersToSmartDashboard();
     }
 
     /**
@@ -91,6 +87,7 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void autonomousInit() {
+
         auto.setPath(AUTO_CHOOSER.getSelected());
         auto.initPath();
     }

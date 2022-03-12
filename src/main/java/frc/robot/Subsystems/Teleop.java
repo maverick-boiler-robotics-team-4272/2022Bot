@@ -1,25 +1,12 @@
 package frc.robot.Subsystems;
 
-import java.sql.Driver;
+import java.lang.Character.Subset;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Robot;
 
 public class Teleop {
-
-    private Robot robot;
-    public Teleop(Robot robot){
-        this.robot = robot;
-    }
-
     //Xbox controllers
     private XboxController driveController = new XboxController(0);
     public XboxController opController = new XboxController(1);
@@ -55,13 +42,15 @@ public class Teleop {
 
         double rotX;
         if(driveController.getLeftBumper()){
-            rotX = robot.driveTrain.aimAtHub();
+            // rotX = Subsystems.getDriveTrain().aimAtHub();
+            System.out.println(NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx"));
+            rotX = 0.0;
         }else{
             rotX = driveController.getRightX();
-            rotX = deadzoneEquations(Constants.JSTICK_DEADZONE, rotX);
+            rotX = Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, rotX);
         }
         
-        robot.driveTrain.drive(driveX * Constants.MAX_SPEED, driveY * Constants.MAX_SPEED, rotX * Constants.MAX_ANGULAR_SPEED, fieldRelative);
+        Subsystems.getDriveTrain().drive(driveX * Constants.MAX_SPEED, driveY * Constants.MAX_SPEED, rotX * Constants.MAX_ANGULAR_SPEED, fieldRelative);
 
         ////////////////////// Field Relative Toggle /////////////////////////////
         if(driveController.getStartButtonPressed()){
@@ -77,68 +66,86 @@ public class Teleop {
         }
 
         if(driveController.getBButtonPressed()){
-            robot.driveTrain.resetPigeonHeading();
+            Subsystems.getDriveTrain().resetPigeonHeading();
         }
 
         if(driveController.getAButtonPressed()){
-            robot.shooter.fixHood();
+            Subsystems.getShooter().fixHood();
         }
         
         ///////////////////////// Intake ////////////////////
-        if(driveController.getRightBumper() || (opController.getRightBumper() && robot.intake.getFeedSensor())){
-            robot.intake.feedShooter();
-            //robot.intake.runIntake(Teleop.deadzoneEquations(Constants.TRIGGER_DEADZONE, driveController.getRightTriggerAxis()));
+        if(driveController.getRightBumper() && Subsystems.getIntake().getFeedSensor()){
+            Subsystems.getIntake().feedShooter();
+            //Subsystems.getIntake().runIntake(Teleop.deadzoneEquations(Constants.TRIGGER_DEADZONE, driveController.getRightTriggerAxis()));
         }else if(opController.getRightTriggerAxis() > Constants.TRIGGER_DEADZONE){
-            robot.intake.runIntake(Teleop.deadzoneEquations(Constants.TRIGGER_DEADZONE, opController.getRightTriggerAxis()));
+            Subsystems.getIntake().runIntake(Teleop.deadzoneEquations(Constants.TRIGGER_DEADZONE, opController.getRightTriggerAxis()));
         }else if(opController.getRightTriggerAxis() < Constants.TRIGGER_DEADZONE && opController.getLeftTriggerAxis() > Constants.TRIGGER_DEADZONE){
-            robot.intake.runIntake(-Teleop.deadzoneEquations(Constants.TRIGGER_DEADZONE, opController.getLeftTriggerAxis()));
+            Subsystems.getIntake().runIntake(-Teleop.deadzoneEquations(Constants.TRIGGER_DEADZONE, opController.getLeftTriggerAxis()));
         }else{
-            robot.intake.runIntake(0.0);
+            Subsystems.getIntake().runIntake(0.0);
         }
 
         ////////////////// Hood/Shooter //////////////////////////
         int pov = driveController.getPOV();
         if(pov >= 0){
-            robot.shooter.setShooter(pov);
-            robot.shooter.setHood();
+            Subsystems.getShooter().setShooter(pov);
+            Subsystems.getShooter().setHood();
         }
-
-        if(driveController.getLeftTriggerAxis() > Constants.TRIGGER_DEADZONE){
-            robot.shooter.shoot();
-            //robot.shooter.setHood();
-            //robot.shooter.setShooter(pov);
-        }else{
-            robot.shooter.stopShooter();
-        }
-
-        if(driveController.getYButtonPressed()){
-            robot.shooter.resetPID();
-        }
-
-        if(driveController.getBackButtonPressed()){//Using for putting hood at zero for shooting wrong colored balls out
-            //robot.shooter.updateShooter();
-            //robot.shooter.setHood();
-            robot.shooter.zeroHood();
-        }
+        
 
         ////////////////////// Climber //////////////////
-        
-        robot.climber.runClimbers(-(Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, opController.getRightY())), Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, opController.getLeftY()));
+        double lClimbSpeed = Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, opController.getLeftY());
+        double rClimbSpeed = Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, opController.getRightY());
+
+
+        if(opController.getRightBumper()){
+            if(Math.abs(lClimbSpeed) > Math.abs(rClimbSpeed)){
+                rClimbSpeed = lClimbSpeed;
+            }else{
+                lClimbSpeed = rClimbSpeed;
+            }
+            Subsystems.getClimber().runClimbers(rClimbSpeed, lClimbSpeed);
+        }else{
+            Subsystems.getClimber().runClimbers(rClimbSpeed, lClimbSpeed);
+        }
 
         //////////////////// Pneumatics //////////////////
-        if(opController.getYButtonPressed() && robot.pneumatics.getIntake() == Value.kForward){
-            robot.pneumatics.toggleClimber();
+        if(opController.getYButtonPressed()){
+            Subsystems.getPneumatics().toggleClimber();
         }
 
         if(opController.getBButtonPressed()){
-            robot.pneumatics.climberUp();
-            robot.pneumatics.toggleIntake();
+            Subsystems.getPneumatics().climberUp();
+            Subsystems.getPneumatics().toggleIntake();
         }
 
         if(opController.getXButtonPressed()){
-            robot.pneumatics.toggleClimbSafety();
+            Subsystems.getPneumatics().toggleClimbSafety();
         }
 
+
+        if(driveController.getLeftTriggerAxis() > Constants.TRIGGER_DEADZONE){
+            Subsystems.getShooter().shoot();
+            //Subsystems.getShooter().setHood();
+            //Subsystems.getShooter().setShooter(pov);
+        }else if(driveController.getRightTriggerAxis() > Constants.TRIGGER_DEADZONE){
+            Subsystems.getShooter().revShooter();
+        }else{    
+            Subsystems.getShooter().stopShooter();
+        }
+
+
+        if(driveController.getYButtonPressed()){
+            Subsystems.getShooter().resetPID();
+        }
+
+        if(driveController.getBackButtonPressed()){//Using for putting hood at zero for shooting wrong colored balls out
+            //Subsystems.getShooter().updateShooter();
+            //Subsystems.getShooter().setHood();
+            
+            Subsystems.getShooter().fixHood();
+            //Subsystems.getShooter().zeroHood();
+        }
     }
 
     /**

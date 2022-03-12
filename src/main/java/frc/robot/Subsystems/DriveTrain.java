@@ -9,7 +9,6 @@ import com.ctre.phoenix.sensors.PigeonIMU;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -19,18 +18,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Robot;
 import frc.robot.Auto.SwerveOdometry;
 
 public class DriveTrain {
-    private Robot robot;
 
     //drive motors (ids: 11, 12, 13, 14)
     private CANSparkMax frontRightDrive = new CANSparkMax(2, MotorType.kBrushless);
@@ -89,8 +83,7 @@ public class DriveTrain {
 
     
 
-    public DriveTrain(Robot robot){
-        this.robot = robot;
+    public DriveTrain(){
         if(Constants.TALON_BOT){
             pigeon = new PigeonIMU(25);
         }else{
@@ -133,10 +126,6 @@ public class DriveTrain {
     }
 
     public void putCANCodersToSmartDashboard(){
-        SmartDashboard.putNumber("Front Right Tuning", this.frontRightCANCoder.getAbsolutePosition());
-        SmartDashboard.putNumber("Front Left Tuning", this.frontLeftCANCoder.getAbsolutePosition());
-        SmartDashboard.putNumber("Back Right Tuning", this.backRightCANCoder.getAbsolutePosition());
-        SmartDashboard.putNumber("Back Left Tuning", this.backLeftCANCoder.getAbsolutePosition());
     }
 
     /**

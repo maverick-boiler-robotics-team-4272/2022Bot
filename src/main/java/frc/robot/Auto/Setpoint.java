@@ -1,38 +1,48 @@
 package frc.robot.Auto;
 
-import frc.robot.Subsystems.Constants;
-
 public class Setpoint {
-    private double time;
-    private double hoodPosition;
-    private double velocity;
-    private boolean shooter;
+    private double startTime;
+    private double duration;
+    private boolean started = false;
+    private Runnable startMethod;
+    private Runnable duringMethod;
+    private Runnable endMethod;
 
-    public Setpoint(double time, double hoodPosition, double shooterVelocity){
-        this.time = time;
-        this.hoodPosition = Math.max(Constants.HOOD_MIN, Math.min(hoodPosition, Constants.HOOD_MAX));
-        this.velocity = Math.max(Constants.SHOOTER_MIN, Math.min(shooterVelocity, Constants.SHOOTER_MAX));
-        this.shooter = true;
-    }
-
-    public Setpoint(double time, double intakeVelocity){
-        this(time, 0.0, intakeVelocity);
-        this.shooter = false;
-    }
-
-    public double getHoodPosition(){
-        return this.hoodPosition;
-    }
-
-    public double getVelocity(){
-        return this.velocity;
-    }
-
-    public boolean isShooter(){
-        return this.shooter;
+    public Setpoint(double time, double deadzone,Runnable start, Runnable during, Runnable end){
+        this.startTime = time;
+        this.duration = deadzone;
+        this.startMethod = start;
+        this.duringMethod = during;
+        this.endMethod = end;
     }
 
     public double getTime(){
-        return this.time;
+        return startTime;
+    }
+
+    public void inTime(){
+        if(!started){
+            started = true;
+            startMethod.run();
+        }else{
+            duringMethod.run();
+        }
+    }
+
+    public void outOfTime(){
+
+        if(started){
+            started = false;
+            endMethod.run();
+        }
+    }
+
+    public boolean isInTime(double currentTime){
+        double referenceTime = currentTime - startTime;
+        return referenceTime < duration && referenceTime > 0;
+    }
+
+    public static void noop(){
+
     }
 }
