@@ -29,6 +29,12 @@ public class Shooter {
         ),
         EJECT(
             1000.0, 0.0, -0.5
+        ),
+        MID_TARMAC(
+            2300.0, -10.0, -0.8
+        ),
+        MID_LAUNCHPAD(
+            2450.0, -16.0, -0.8
         );
 
         public final double shootAmt;
@@ -127,19 +133,15 @@ public class Shooter {
         }
     }
 
-    public void resetShooterAtSpeed(){
-        if(shooterAtSpeed){
-            Subsystems.getIntake().stopFeedShooter();
-        }
-        shooterAtSpeed = false;
-    }
-
     /**
      * Stops the shooter
      */
     public void stopShooter(){
         this.shooterMotor.set(0);
-        resetShooterAtSpeed();
+        if(shooterAtSpeed){
+            Subsystems.getIntake().stopFeedShooter();
+        }
+        shooterAtSpeed = false;
     }
 
     public void stopShooterAndFeed(){
