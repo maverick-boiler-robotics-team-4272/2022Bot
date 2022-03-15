@@ -35,7 +35,14 @@ public class Auto {
             // new Setpoint(-2.0, 2.0, () -> Subsystems.getShooter().setShooter(ShooterPositions.MID_TARMAC), Subsystems.getShooter()::shoot, Subsystems.getShooter()::stopShooterAndFeed)
         ),
         TERMINAL_5_BALL(8
-        
+        new Setpoint(-1.0, 1.0, () -> Subsystems.getShooter().setShooter(ShooterPositions.FENDER_HIGH), Subsystems.getShooter()::shoot, Subsystems.getShooter()::stopShooterAndFeed),
+        new Setpoint(1.2, 0.1, Subsystems.getPnuematics()::intakeOut, () -> Subsystems.getShooter().setShooter(ShooterPositions.TARMAC), Setpoint::noop),
+        new Setpoint(2.0, 5.0, () -> Subsystems.getIntake().runIntake(0.6), () -> Subsystems.getIntake().runIntake(0.6), Subsystesm.getIntake().runIntake(0.0)),
+        new Setpoint(6.5, 0.5, Subsystems.getShooter()::revShooter, Subsystesm.getShooter()::revShooter, Setpoint::noop),
+        new Setpoint(7.0, 1.5, Subsystems.getShooter()::shoot, Subsystems.getShooter()::shoot, Subsystesm.getShooter()::stopShooterAndFeed),
+        new Setpoint(8.5, 3.5, Subsystesm.getShooter().setShooter(ShooterPositions.LAUCH_PAD), Subsystesm.getIntake().runIntake(0.5), Subsytems.getIntake.runIntake(0.0)),
+        new Setpoint(11.0, 1.0, Setpoint::noop, Subsystems.getShooter()::revShooter, Setpoint::noop),
+        new Setpoint(12.0, 2.0, Subsystems.getShooter()::shoot, Subsystems.getShooter()::shoot, Subsystems.getShooter()::stopShooterAndFeed)
         );
 
         final int index;
