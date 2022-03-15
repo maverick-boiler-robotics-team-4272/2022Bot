@@ -22,6 +22,7 @@ public class Teleop {
     private boolean intakeStopped = true;
     private boolean shooterStopped = true;
 
+
     /**
      * Loop that has all of our inputs to run the robot
      */
@@ -57,7 +58,7 @@ public class Teleop {
         Subsystems.getDriveTrain().drive(driveX * Constants.MAX_SPEED, driveY * Constants.MAX_SPEED, rotX * Constants.MAX_ANGULAR_SPEED, fieldRelative);
 
         ////////////////////// Field Relative Toggle /////////////////////////////
-        if(driveController.getStartButtonPressed()){
+        if(driveController.getStartButtonPressed() || driveController.getAButtonPressed()){
             String fieldRelativeOnOrNot;
             fieldRelative = !fieldRelative;
             if(fieldRelative){
@@ -81,10 +82,7 @@ public class Teleop {
         double opRTrigger = Teleop.deadzoneEquations(Constants.TRIGGER_DEADZONE, opController.getRightTriggerAxis());
         double opLTrigger = Teleop.deadzoneEquations(Constants.TRIGGER_DEADZONE, opController.getLeftTriggerAxis());
 
-        if(driveController.getRightBumper()){
-            Subsystems.getIntake().feedShooter();
-            Subsystems.getIntake().testBeamBreaks();
-        }else if(opRTrigger > 0){
+        if(opRTrigger > 0){
             intakeStopped = false;
             Subsystems.getIntake().runIntake(opRTrigger);
         }else if(opLTrigger > 0){
@@ -92,7 +90,8 @@ public class Teleop {
             Subsystems.getIntake().runIntake(-opLTrigger);
         }else if(!intakeStopped){
             intakeStopped = true;
-            Subsystems.getIntake().runIntake(0.0);
+            Subsystems.getIntake().stopIntake();
+
         }
 
         ////////////////// Hood/Shooter //////////////////////////
@@ -125,7 +124,6 @@ public class Teleop {
         }
 
         if(opController.getBButtonPressed()){
-            Subsystems.getPneumatics().climberUp();
             Subsystems.getPneumatics().toggleIntake();
         }
 
@@ -133,6 +131,10 @@ public class Teleop {
             Subsystems.getPneumatics().toggleClimbSafety();
         }
 
+
+        if(driveController.getRightBumper()){
+            Subsystems.getIntake().testLidar();
+        }
 
         if(driveController.getRightTriggerAxis() > Constants.TRIGGER_DEADZONE){
             shooterStopped = false;
@@ -154,12 +156,13 @@ public class Teleop {
             //Subsystems.getShooter().setHood();
             
             Subsystems.getShooter().fixHood();
-            //Subsystems.getShooter().zeroHood();
         }
 
+        /*
         if(driveController.getLeftBumperPressed()){
             Subsystems.getDriveTrain().resetAimPID();
         }
+        */
     }
 
     /**

@@ -57,6 +57,8 @@ public class Shooter {
     private CANSparkMax hoodMotor = new CANSparkMax(10, MotorType.kBrushless);
     private SparkMaxPIDController shooterPIDController = shooterMotor.getPIDController();
     private SparkMaxPIDController hoodPIDController = hoodMotor.getPIDController();
+
+    private boolean ballOffWheel = false;
     
     private boolean shooterAtSpeed = false;
     public Shooter(){
@@ -126,8 +128,13 @@ public class Shooter {
             shooterAmt > 500){
             shooterAtSpeed = true;
         }
-        if(shooterAtSpeed){
+        if(!ballOffWheel){
+            ballOffWheel = Subsystems.getIntake().reverseToMid();
+            return;
+        }
+        if(shooterAtSpeed && ballOffWheel){
             Subsystems.getIntake().feedShooter(feedAmt);
+            Subsystems.getIntake().resetBall();
         }else{
             Subsystems.getIntake().stopFeedShooter();
         }
@@ -142,6 +149,7 @@ public class Shooter {
             Subsystems.getIntake().stopFeedShooter();
         }
         shooterAtSpeed = false;
+        ballOffWheel = false;
     }
 
     public void stopShooterAndFeed(){

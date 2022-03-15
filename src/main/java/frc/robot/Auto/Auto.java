@@ -22,7 +22,7 @@ public class Auto {
         HANGAR_2_BALL(1),
         TERMINAL_3_BALL(2,
         new Setpoint(-1.5, 2.0, () -> Subsystems.getShooter().setShooter(ShooterPositions.FENDER_HIGH), Subsystems.getShooter()::shoot, Subsystems.getShooter()::stopShooterAndFeed),
-        new Setpoint(1.5, 0.1, Subsystems.getPneumatics()::intakeOut, Setpoint::noop, Setpoint::noop),
+        new Setpoint(1.2, 0.1, Subsystems.getPneumatics()::intakeOut, () -> Subsystems.getShooter().setShooter(ShooterPositions.TARMAC), Setpoint::noop),
         new Setpoint(2.0, 7.0, () -> Subsystems.getIntake().runIntake(0.5), () -> Subsystems.getIntake().runIntake(0.5), () -> Subsystems.getIntake().runIntake(0.0)),
         new Setpoint(9.0, 0.1, () -> Subsystems.getIntake().runIntake(-0.5), () -> Subsystems.getIntake().runIntake(-0.5),  () -> Subsystems.getIntake().runIntake(0.0)),
         new Setpoint(10.0, 3.0, () -> Subsystems.getShooter().setShooter(ShooterPositions.TARMAC), Subsystems.getShooter()::shoot, Subsystems.getShooter()::stopShooterAndFeed)
@@ -33,6 +33,9 @@ public class Auto {
         TERMINAL_4_BALL(6),
         SHOOT_N_BACK_UP(7
             // new Setpoint(-2.0, 2.0, () -> Subsystems.getShooter().setShooter(ShooterPositions.MID_TARMAC), Subsystems.getShooter()::shoot, Subsystems.getShooter()::stopShooterAndFeed)
+        ),
+        TERMINAL_5_BALL(8
+        
         );
 
         final int index;

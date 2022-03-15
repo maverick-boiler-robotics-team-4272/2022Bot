@@ -87,9 +87,9 @@ public class Constants {
     public static final double RAD_PER_ROT = 2 * Math.PI;
 
     public static final boolean TALON_BOT = false;
-    public static final double MAX_SPEED = 4.15;//Meters per second
-    public static final double MAX_ACC = 1;
-    public static final double MAX_ANGULAR_SPEED = 4 * Math.PI;//Half rotation per second
+    public static final double MAX_SPEED = 4.2;//Meters per second
+    public static final double MAX_ACC = 2;
+    public static final double MAX_ANGULAR_SPEED = 8 * Math.PI;//Half rotation per second
     public static final double MAX_ANGULAR_ACC = Math.PI;
     public static final double WHEEL_DIST = Constants.TALON_BOT ?  Units.feetToMeters(0.5) : Units.feetToMeters(1);
     
