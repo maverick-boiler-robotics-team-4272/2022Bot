@@ -35,6 +35,8 @@ public class Intake {
 
     public Intake(){
         intakeMotor.setSmartCurrentLimit(45);
+        shooterFeedMotor.setSmartCurrentLimit(45);
+        shooterFeedMotor.setOpenLoopRampRate(0.5);
     }
 
     /**
@@ -152,6 +154,10 @@ public class Intake {
      */
     public void feedShooter(){
         feedShooter(-0.6);
+    }
+
+    public boolean getShooterBeam(){
+        return !(shooterBeamBreak.get());
     }
 
     public void feedShooter(double feedPercent){

@@ -21,12 +21,13 @@ public class Teleop {
     public boolean fieldRelative = true;
     private boolean intakeStopped = true;
     private boolean shooterStopped = true;
+    private boolean fixingHood = false;
     
-    private Intake = Subsystems.getIntake();
-    private DriveTrain = Subsystems.getDriveTrain();
-    private Climber = Subsystems.getClimber();
-    private Shooter = Subsystems.getShooter();
-    private Pneumatics = Subsystems.getPneumatics();
+    private Intake intake = Subsystems.getIntake();
+    private DriveTrain drivetrain = Subsystems.getDriveTrain();
+    private Climber climber = Subsystems.getClimber();
+    private Shooter shooter = Subsystems.getShooter();
+    private Pneumatics pneumatics = Subsystems.getPneumatics();
 
 
     /**
@@ -64,7 +65,7 @@ public class Teleop {
         Subsystems.getDriveTrain().drive(driveX * Constants.MAX_SPEED, driveY * Constants.MAX_SPEED, rotX * Constants.MAX_ANGULAR_SPEED, fieldRelative);
 
         ////////////////////// Field Relative Toggle /////////////////////////////
-        if(driveController.getStartButtonPressed() || driveController.getAButtonPressed()){
+        if(driveController.getStartButtonPressed() /*|| driveController.getAButtonPressed()*/){
             String fieldRelativeOnOrNot;
             fieldRelative = !fieldRelative;
             if(fieldRelative){
@@ -81,7 +82,14 @@ public class Teleop {
         }
 
         if(driveController.getAButtonPressed()){
-            Subsystems.getShooter().fixHood();
+            pneumatics.toggleIntake();
+        }
+
+        if(driveController.getXButton()){
+            intake.runIntake(0.7);
+        }else if(driveController.getXButtonReleased()){
+            intake.runIntake(0.0);
+            intake.stopFeedShooter();
         }
         
         ///////////////////////// Intake ////////////////////
@@ -154,6 +162,7 @@ public class Teleop {
         }
 
         if(driveController.getYButtonPressed()){
+            Subsystems.getDriveTrain().resetAimPID();
             Subsystems.getShooter().resetPID();
         }
 
@@ -161,14 +170,14 @@ public class Teleop {
             //Subsystems.getShooter().updateShooter();
             //Subsystems.getShooter().setHood();
             
-            Subsystems.getShooter().fixHood();
+            fixingHood = true;
         }
 
-        /*
-        if(driveController.getLeftBumperPressed()){
-            Subsystems.getDriveTrain().resetAimPID();
+        if(fixingHood){
+            fixingHood = shooter.fixHood();
         }
-        */
+
+        
     }
 
     /**

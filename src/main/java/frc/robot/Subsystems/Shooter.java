@@ -16,13 +16,13 @@ public class Shooter {
     public enum ShooterPositions{
         //shootAmt, hoodAmt, feedAmt
         FENDER_LOW(
-            1200.0, -15.0, -0.8
+            1200.0, -15.0, -0.5
         ),
         FENDER_HIGH(
-            2250.0, -0.25, -0.8
+            2300.0, -0.25, -0.5 //2250
         ),
         TARMAC(
-            2300.0, -12.5, -0.8
+            2450.0, -11, -0.5 //2300, -12.5
         ),
         LAUNCHPAD(
             2625.0, -20.0, -0.5
@@ -127,9 +127,15 @@ public class Shooter {
             shooterMotor.getEncoder().getVelocity() <= shooterAmt + (Constants.SHOOTER_DEADZONE) &&
             shooterAmt > 500){
             shooterAtSpeed = true;
-        }else if(!ballOffWheel){
-            ballOffWheel = Subsystems.getIntake().reverseToMid();
         }
+        if(!Subsystems.getIntake().getShooterBeam()){
+            ballOffWheel = true;
+        }
+        if(!ballOffWheel){
+            ballOffWheel = Subsystems.getIntake().reverseToMid();
+            return;
+        }
+
         if(shooterAtSpeed && ballOffWheel){
             Subsystems.getIntake().feedShooter(feedAmt);
             Subsystems.getIntake().resetBall();
@@ -158,16 +164,18 @@ public class Shooter {
      /**
      * Pushes the hood down until it hits the limit switch to 0 it
      */
-    public void fixHood(){
+    public boolean fixHood(){
         System.out.println("LIM SWITCH: " + hoodMotor.getForwardLimitSwitch(Type.kNormallyOpen).isPressed());
         if(!hoodMotor.getForwardLimitSwitch(Type.kNormallyOpen).isPressed()){
             hoodMotor.set(0.1);
+            return true;
         }else{
             System.out.println("Hood pos before: " + hoodMotor.getEncoder().getPosition());
             hoodMotor.getEncoder().setPosition(0);
             setShooter(ShooterPositions.EJECT);
+            System.out.println("Hood pos after: " + hoodMotor.getEncoder().getPosition());
+            return false;//return false once done
         }
-        System.out.println("Hood pos after: " + hoodMotor.getEncoder().getPosition());
 
     }
 
@@ -212,7 +220,15 @@ public class Shooter {
     }
 
     public void revShooter(){
-        shooterMotor.getPIDController().setReference(shooterAmt * 0.8, ControlType.kSmartVelocity);
+        
+        if(!Subsystems.getIntake().getShooterBeam()){
+            ballOffWheel = true;
+        }
+        if(!ballOffWheel){
+            ballOffWheel = Subsystems.getIntake().reverseToMid();
+            return;
+        }
+        shooterMotor.getPIDController().setReference(shooterAmt * 0.9, ControlType.kSmartVelocity);
     }
 
     /**
