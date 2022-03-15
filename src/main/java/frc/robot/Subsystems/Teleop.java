@@ -21,12 +21,14 @@ public class Teleop {
     public boolean fieldRelative = true;
     private boolean intakeStopped = true;
     private boolean shooterStopped = true;
+    private boolean fixingHood = false;
     
-    private Intake = Subsystems.getIntake();
-    private DriveTrain = Subsystems.getDriveTrain();
-    private Climber = Subsystems.getClimber();
-    private Shooter = Subsystems.getShooter();
-    private Pneumatics = Subsystems.getPneumatics();
+    private Intake intake = Subsystems.getIntake();
+    private DriveTrain drivetrain= Subsystems.getDriveTrain();
+    private Climber climber = Subsystems.getClimber();
+    private Shooter shooter = Subsystems.getShooter();
+    private Pneumatics pneumatics = Subsystems.getPneumatics();
+    private NetworkTableInstance limelight = NetworkTableInstance.getDefault().getTable("limelight");
 
 
     /**
@@ -61,7 +63,7 @@ public class Teleop {
             rotX = Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, rotX);
         }
         
-        Subsystems.getDriveTrain().drive(driveX * Constants.MAX_SPEED, driveY * Constants.MAX_SPEED, rotX * Constants.MAX_ANGULAR_SPEED, fieldRelative);
+        drivetrain.drive(driveX * Constants.MAX_SPEED, driveY * Constants.MAX_SPEED, rotX * Constants.MAX_ANGULAR_SPEED, fieldRelative);
 
         ////////////////////// Field Relative Toggle /////////////////////////////
         if(driveController.getStartButtonPressed() || driveController.getAButtonPressed()){
@@ -90,21 +92,21 @@ public class Teleop {
 
         if(opRTrigger > 0){
             intakeStopped = false;
-            Subsystems.getIntake().runIntake(opRTrigger);
+            intake.runIntake(opRTrigger);
         }else if(opLTrigger > 0){
             intakeStopped = false;
-            Subsystems.getIntake().runIntake(-opLTrigger);
+            intake.runIntake(-opLTrigger);
         }else if(!intakeStopped){
             intakeStopped = true;
-            Subsystems.getIntake().stopIntake();
+            intake.stopIntake();
 
         }
 
         ////////////////// Hood/Shooter //////////////////////////
         int pov = driveController.getPOV();
         if(pov >= 0){
-            Subsystems.getShooter().setShooter(pov);
-            Subsystems.getShooter().setHood();
+            shooter.setShooter(pov);
+            shooter.setHood();
         }
         
 
@@ -119,56 +121,50 @@ public class Teleop {
             }else{
                 lClimbSpeed = rClimbSpeed;
             }
-            Subsystems.getClimber().runClimbers(rClimbSpeed, lClimbSpeed);
+            climber.runClimbers(rClimbSpeed, lClimbSpeed);
         }else{
-            Subsystems.getClimber().runClimbers(rClimbSpeed, lClimbSpeed);
+            climber.getClimber().runClimbers(rClimbSpeed, lClimbSpeed);
         }
 
         //////////////////// Pneumatics //////////////////
         if(opController.getYButtonPressed()){
-            Subsystems.getPneumatics().toggleClimber();
+            pneumatics.toggleClimber();
         }
 
         if(opController.getBButtonPressed()){
-            Subsystems.getPneumatics().toggleIntake();
+            pneumatics.toggleIntake();
         }
 
         if(opController.getXButtonPressed()){
-            Subsystems.getPneumatics().toggleClimbSafety();
+            pneumatics.toggleClimbSafety();
         }
 
-
-        if(driveController.getRightBumper()){
-            Subsystems.getIntake().testLidar();
-        }
 
         if(driveController.getRightTriggerAxis() > Constants.TRIGGER_DEADZONE){
             shooterStopped = false;
-            Subsystems.getShooter().shoot();
+            shooter.shoot();
         }else if(driveController.getLeftTriggerAxis() > Constants.TRIGGER_DEADZONE){
             shooterStopped = false;
-            Subsystems.getShooter().revShooter();
+            shooter.revShooter();
         }else if(!shooterStopped){
             shooterStopped = true;    
-            Subsystems.getShooter().stopShooter();
+            shooter.stopShooter();
         }
 
         if(driveController.getYButtonPressed()){
-            Subsystems.getShooter().resetPID();
+            shooter.resetPID();
+            drivetrain.resetAimPID();
         }
 
         if(driveController.getBackButtonPressed()){
-            //Subsystems.getShooter().updateShooter();
-            //Subsystems.getShooter().setHood();
+            //shooter.updateShooter();
+            //shooter.setHood();
             
-            Subsystems.getShooter().fixHood();
+            fixingHood = true;
         }
-
-        /*
-        if(driveController.getLeftBumperPressed()){
-            Subsystems.getDriveTrain().resetAimPID();
+        if(fixingHood){
+            fixingHood = shooter.fixHood();
         }
-        */
     }
 
     /**
