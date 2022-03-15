@@ -158,16 +158,18 @@ public class Shooter {
      /**
      * Pushes the hood down until it hits the limit switch to 0 it
      */
-    public void fixHood(){
+    public boolean fixHood(){
         System.out.println("LIM SWITCH: " + hoodMotor.getForwardLimitSwitch(Type.kNormallyOpen).isPressed());
         if(!hoodMotor.getForwardLimitSwitch(Type.kNormallyOpen).isPressed()){
             hoodMotor.set(0.1);
+            return false;
         }else{
             System.out.println("Hood pos before: " + hoodMotor.getEncoder().getPosition());
             hoodMotor.getEncoder().setPosition(0);
             setShooter(ShooterPositions.EJECT);
+            System.out.println("Hood pos after: " + hoodMotor.getEncoder().getPosition());
+            return true;
         }
-        System.out.println("Hood pos after: " + hoodMotor.getEncoder().getPosition());
 
     }
 
