@@ -127,10 +127,8 @@ public class Shooter {
             shooterMotor.getEncoder().getVelocity() <= shooterAmt + (Constants.SHOOTER_DEADZONE) &&
             shooterAmt > 500){
             shooterAtSpeed = true;
-        }
-        if(!ballOffWheel){
+        }else if(!ballOffWheel){
             ballOffWheel = Subsystems.getIntake().reverseToMid();
-            return;
         }
         if(shooterAtSpeed && ballOffWheel){
             Subsystems.getIntake().feedShooter(feedAmt);
