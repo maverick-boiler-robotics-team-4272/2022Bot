@@ -21,6 +21,12 @@ public class Teleop {
     public boolean fieldRelative = true;
     private boolean intakeStopped = true;
     private boolean shooterStopped = true;
+    
+    private Intake = Subsystems.getIntake();
+    private DriveTrain = Subsystems.getDriveTrain();
+    private Climber = Subsystems.getClimber();
+    private Shooter = Subsystems.getShooter();
+    private Pneumatics = Subsystems.getPneumatics();
 
 
     /**
