@@ -20,9 +20,14 @@ public class Intake {
 
     private boolean ballInFeed = false;
     private boolean ballInHopper = false;
-    private boolean ballsFull = false;
 
     private boolean ballCheckPoint1 = false;
+    
+    //runIntakeComplex
+    private boolean b1 = false;
+    private boolean b2 = false;
+    
+    private boolean ballsFull = false;
     
 
     private CANSparkMax intakeMotor = new CANSparkMax(8, MotorType.kBrushless);
@@ -55,6 +60,39 @@ public class Intake {
         }
         
     }
+    
+    public void runIntakeComplex(double triggerVal, boolean inverted){
+        if(inverted){
+            intakeMotor.set(-triggerVal);
+            shooterFeedMotor.set(0.5);
+            resetBall();
+            return;
+        }
+        
+        intakeMotor.set(triggerVal);
+        
+        boolean botBeam = !lowFeedBeamBreak.get();
+        boolean midBeam = !midFeedBeamBreak.get();
+        boolean shooterBeam = !shooterBeamBreak.get();
+        boolean hopperBeam = !(lidar.getOutput() >= 0.09 || lidar.getOutput() <= 0.04);
+        //true if ball, false if not
+        
+        if(!(b1 || b2)){
+            feedShooter();
+        }
+        if(shooterBeam && !b1){
+            b1 = reverseToMid();
+        }else if(hopperBeam && b1 && !b2){
+            b2 = reverseToLow();
+        }else if(b1 && b2 && !ballsFull){
+            if(!shooterBeam){
+                feedShooter();
+            }else{
+                ballsFull = true;
+            }
+        }
+        
+    }
 
     public boolean reverseToMid(){
         boolean midBeam = midFeedBeamBreak.get();
@@ -67,7 +105,8 @@ public class Intake {
         }
     }
 
-    public boolean reverseToLow(boolean lowBeam){
+    public boolean reverseToLow(){
+        boolean lowBeam = lowFeedBeamBreak.get();
         if(lowBeam){
             reverseFeed(0.2);
             return false;
@@ -82,7 +121,7 @@ public class Intake {
     }
 
     public void reverseABit(){
-
+        
     }
 
     public void checkBalls(boolean hopperBeam, boolean lowBeam, 
