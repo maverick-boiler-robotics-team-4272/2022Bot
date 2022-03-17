@@ -221,8 +221,8 @@ public class Shooter {
 
     public void revShooter(){
         
-        if(!Subsystems.getIntake().getShooterBeam()){
-            ballOffWheel = true;
+        if(Subsystems.getIntake().getShooterBeam()){
+            ballOffWheel = false;
         }
         if(!ballOffWheel){
             ballOffWheel = Subsystems.getIntake().reverseToMid();

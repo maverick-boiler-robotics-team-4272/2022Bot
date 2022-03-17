@@ -98,14 +98,13 @@ public class Teleop {
 
         if(opRTrigger > 0){
             intakeStopped = false;
-            Subsystems.getIntake().runIntake(opRTrigger);
+            Subsystems.getIntake().runIntakeComplex(opRTrigger, false);
         }else if(opLTrigger > 0){
             intakeStopped = false;
-            Subsystems.getIntake().runIntake(-opLTrigger);
+            Subsystems.getIntake().runIntakeComplex(opLTrigger, true);
         }else if(!intakeStopped){
             intakeStopped = true;
             Subsystems.getIntake().stopIntake();
-
         }
 
         ////////////////// Hood/Shooter //////////////////////////
