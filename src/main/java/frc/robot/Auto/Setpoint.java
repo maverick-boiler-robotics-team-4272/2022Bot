@@ -16,6 +16,19 @@ public class Setpoint {
         this.endMethod = end;
     }
 
+    public Setpoint(double time, double deadzone, Runnable action, Runnable endAction){
+        this.startTime = time;
+        this.duration = deadzone;
+        this.startMethod = action;
+        this.endMethod = endAction;
+    }
+
+    public Setpoint(double time, double deadzone, Runnable action){
+        this.startTime = time;
+        this.duration = deadzone;
+        this.startMethod = action;
+    }
+
     public double getTime(){
         return startTime;
     }

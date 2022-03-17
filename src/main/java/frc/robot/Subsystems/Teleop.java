@@ -169,7 +169,6 @@ public class Teleop {
         if(driveController.getBackButtonPressed()){
             //Subsystems.getShooter().updateShooter();
             //Subsystems.getShooter().setHood();
-            
             fixingHood = true;
         }
 

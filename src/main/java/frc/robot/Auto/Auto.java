@@ -29,13 +29,47 @@ public class Auto {
             Subsystems.getIntake()::stopIntake)
         ),
         TERMINAL_3_BALL(1,
-        new Setpoint(-1.5, 2.0, () -> Subsystems.getShooter().setShooter(ShooterPositions.FENDER_HIGH), Subsystems.getShooter()::shoot, Subsystems.getShooter()::stopShooterAndFeed),
-        new Setpoint(1.2, 0.1, Subsystems.getPneumatics()::intakeOut, () -> Subsystems.getShooter().setShooter(ShooterPositions.TARMAC), Setpoint::noop),
-        new Setpoint(2.0, 7.0, () -> Subsystems.getIntake().runIntake(0.5), () -> Subsystems.getIntake().runIntake(0.5), () -> Subsystems.getIntake().runIntake(0.0)),
-        new Setpoint(9.0, 0.1, () -> Subsystems.getIntake().runIntake(-0.5), () -> Subsystems.getIntake().runIntake(-0.5),  () -> Subsystems.getIntake().runIntake(0.0)),
-        new Setpoint(10.0, 3.0, () -> Subsystems.getShooter().setShooter(ShooterPositions.TARMAC), Subsystems.getShooter()::shoot, Subsystems.getShooter()::stopShooterAndFeed)
+        new Setpoint(-1.5, 1.5, 
+            () -> Subsystems.getShooter().setShooter(ShooterPositions.FENDER_HIGH), 
+            Subsystems.getShooter()::shoot, 
+            Subsystems.getShooter()::stopShooterAndFeed),
+        new Setpoint(0.5, 0.1, 
+            Subsystems.getPneumatics()::intakeOut, 
+            () -> Subsystems.getShooter().setShooter(ShooterPositions.TARMAC), 
+            Setpoint::noop),
+        new Setpoint(0.0, 0.1, 
+            Setpoint::noop, 
+            Subsystems.getShooter()::revShooter, 
+            Setpoint::noop),
+        new Setpoint(0.5, 4.5, 
+            () -> Subsystems.getShooter().setShooter(ShooterPositions.TARMAC), 
+            () -> Subsystems.getIntake().runIntake(0.75), 
+            () -> Subsystems.getIntake().runIntake(0.0)),
+        new Setpoint(5.0, 0.5, 
+            Subsystems.getIntake()::reverseToMid, 
+            Subsystems.getShooter()::revShooter,  
+            Subsystems.getShooter()::shoot),
+        new Setpoint(5.5, 3.0, 
+            Setpoint::noop, 
+            Subsystems.getShooter()::shoot, 
+            Subsystems.getShooter()::stopShooterAndFeed)
         ),
-        TERMINAL_2_BALL(2),
+        TERMINAL_2_BALL(2,
+        new Setpoint(-2.0, 2.0,
+            Subsystems.getShooter()::shoot,
+            Subsystems.getShooter()::shoot,
+            Subsystems.getShooter()::stopShooterAndFeed),
+        new Setpoint(1.0, 4.0, 
+            () -> Subsystems.getIntake().runIntake(0.85),
+            () -> Subsystems.getShooter().setShooter(ShooterPositions.TARMAC),
+            Subsystems.getIntake()::stopIntake),
+        new Setpoint(6.0, 3.0,
+            Subsystems.getIntake()::reverseToMid,
+            Subsystems.getShooter()::shoot,
+            () -> Subsystems.getShooter().stopShooterAndFeed()
+        )
+        
+        ),
         OFF_TARMAC(3),
         TUNE_PATH(4),
         TERMINAL_5_BALL(5,
@@ -43,22 +77,26 @@ public class Auto {
             () -> Subsystems.getShooter().setShooter(ShooterPositions.FENDER_HIGH), 
             Subsystems.getShooter()::shoot, 
             Subsystems.getShooter()::stopShooterAndFeed),
-        new Setpoint(0.5, 0.1, 
+        new Setpoint(0.1, 0.1, 
             Subsystems.getPneumatics()::intakeOut, 
             Setpoint::noop, 
-            () -> Subsystems.getShooter().setShooter(ShooterPositions.TARMAC)),
-        new Setpoint(2.0, 5.0, 
-            Setpoint::noop, 
+            () -> Subsystems.getIntake().runIntake(0.75)),
+        new Setpoint(1.0, 1.75, 
+            () -> Subsystems.getShooter().setShooter(ShooterPositions.TARMAC), 
             () -> Subsystems.getIntake().runIntake(0.75), 
             () -> Subsystems.getIntake().runIntake(0.0)),
-        new Setpoint(5.0, 0.5, 
-            Setpoint::noop, 
+        new Setpoint(2.75, 1.25, 
+            () -> Subsystems.getIntake().runIntake(0.2),  
+            Subsystems.getShooter()::revShooter, 
+            Subsystems.getIntake()::stopIntake),
+        new Setpoint(5.5, 0.5, 
             Subsystems.getIntake()::reverseToMid, 
-            Subsystems.getShooter()::revShooter),
-        new Setpoint(6.0, 1.5, 
-            Setpoint::noop, 
+            () -> Subsystems.getIntake().runIntakeOnly(0.75), 
+            Subsystems.getShooter()::shoot),
+        new Setpoint(5.0, 4.0, 
+            Subsystems.getShooter()::revShooter, 
             Subsystems.getShooter()::shoot, 
-            Subsystems.getShooter()::stopShooterAndFeed),
+            Subsystems.getShooter()::stopShooterAndFeed)/*,
         new Setpoint(8.5, 2.0, 
             () -> Subsystems.getShooter().setShooter(ShooterPositions.TARMAC), 
             () -> Subsystems.getIntake().runIntake(0.75), 
@@ -70,7 +108,7 @@ public class Auto {
         new Setpoint(12.0, 2.0, 
             Setpoint::noop, 
             Subsystems.getShooter()::shoot, 
-            Subsystems.getShooter()::stopShooterAndFeed)
+            Subsystems.getShooter()::stopShooterAndFeed)*/
         );
 
         final int index;
@@ -84,6 +122,7 @@ public class Auto {
     private PathPlannerTrajectory[] paths = new PathPlannerTrajectory[Paths.values().length];
     private Pose2d[] startPoints = new Pose2d[Paths.values().length];
     private double startTime;
+    private boolean fiveBall = false;
 
     // Controller
     public PIDController xPid = new PIDController(2.0, 0.01, 0);
@@ -126,6 +165,10 @@ public class Auto {
      * and starting the time
      */
     public void initPath() {
+        if(path.equals(Paths.TERMINAL_5_BALL)){
+            fiveBall = true;
+            path = Paths.TERMINAL_3_BALL;
+        }
         Subsystems.getDriveTrain().setOdometry(startPoints[path.index]);
         Subsystems.getDriveTrain().setHeading(paths[path.index].getInitialState().holonomicRotation);
         startTime = Timer.getFPGATimestamp();
@@ -135,12 +178,24 @@ public class Auto {
      * Runs the path
      */
     public void run() {
+        // if(Timer.getFPGATimestamp() - startTime > 15.0){            
+        //     stopAuto();
+        //     return;
+        // }
         double currentTime = Timer.getFPGATimestamp() - startTime;
         if(path.setpoints.length > 0){
             currentTime += Math.min(path.setpoints[0].getTime(), 0.0);
         }
         boolean stopped = false;
         if (currentTime > paths[path.index].getTotalTimeSeconds()) {
+            if(path.name().equals(Paths.TERMINAL_3_BALL.name()) && fiveBall){
+                path = Paths.TERMINAL_2_BALL;
+                initPath();
+                System.out.println("auto path: " + path.name());
+                return;
+            }
+
+            System.out.println("auto path: " + path.name());
             Subsystems.getDriveTrain().drive(0, 0, 0, false);
             stopped = true;
             //Subsystems.getIntake().stopFeedShooter();
@@ -162,6 +217,11 @@ public class Auto {
         if(!stopped){
             Subsystems.getDriveTrain().drive(-speeds.vyMetersPerSecond, -speeds.vxMetersPerSecond, -speeds.omegaRadiansPerSecond, false);
         }
+    }
+
+    public void stopAuto(){
+        Subsystems.getIntake().runIntake(0.0);
+        Subsystems.getShooter().stopShooterAndFeed();
     }
 
 }

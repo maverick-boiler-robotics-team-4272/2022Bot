@@ -46,21 +46,29 @@ public class Intake {
      */
     public void runIntake(double triggerVal){
         // System.out.println("sensor" + getFeedSensor());
-        intakeMotor.set(triggerVal);
         boolean botBeam = lowFeedBeamBreak.get();
         boolean midBeam = midFeedBeamBreak.get();
         boolean shooterBeam = shooterBeamBreak.get();
         boolean hopperBeam = (lidar.getOutput() >= 0.09 || lidar.getOutput() <= 0.04);
+        if(!hopperBeam && !b1){
+            triggerVal *= 0.25;
+        }else if(!hopperBeam){
+            triggerVal = 0;
+        }
+        intakeMotor.set(triggerVal);
         //true if unbroken, false if broken
-        System.out.println("shooterBeam: " + shooterBeam);
-        System.out.println("midBeam: " + midBeam);
-        System.out.println("hopperBeam: " + hopperBeam);
         if(shooterBeam){
+            b1 = false;
             feedShooter();
         }else{
+            b1 = true;
             stopFeedShooter();
         }
         
+    }
+
+    public void runIntakeOnly(double val){
+        intakeMotor.set(val);
     }
     
     public void runIntakeComplex(double triggerVal, boolean inverted){
