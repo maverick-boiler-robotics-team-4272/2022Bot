@@ -7,7 +7,6 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxLimitSwitch.Type;
 import com.revrobotics.SparkMaxPIDController.AccelStrategy;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Shooter {    
@@ -59,6 +58,7 @@ public class Shooter {
     private SparkMaxPIDController hoodPIDController = hoodMotor.getPIDController();
 
     private boolean ballOffWheel = false;
+    private boolean shootin = false;
     
     private boolean shooterAtSpeed = false;
     public Shooter(){
@@ -120,6 +120,15 @@ public class Shooter {
      * Starts the shooter wheel based on the shooter amount variable that is determined by the dpad
      */
     public void shoot(){
+        shootin = true;
+        if(!Subsystems.getIntake().getShooterBeam()){
+            ballOffWheel = true;
+        }
+        if(!ballOffWheel){
+            ballOffWheel = Subsystems.getIntake().reverseToMid();
+            return;
+        }
+
         this.shooterMotor.getPIDController().setReference(shooterAmt, ControlType.kSmartVelocity);
         SmartDashboard.putNumber("Shooter Velocity", shooterMotor.getEncoder().getVelocity());
 
@@ -128,13 +137,7 @@ public class Shooter {
             shooterAmt > 500){
             shooterAtSpeed = true;
         }
-        if(!Subsystems.getIntake().getShooterBeam()){
-            ballOffWheel = true;
-        }
-        if(!ballOffWheel){
-            ballOffWheel = Subsystems.getIntake().reverseToMid();
-            return;
-        }
+        
 
         if(shooterAtSpeed && ballOffWheel){
             Subsystems.getIntake().feedShooter(feedAmt);
@@ -154,8 +157,12 @@ public class Shooter {
         }
         shooterAtSpeed = false;
         ballOffWheel = false;
+        shootin = false;
     }
 
+    /**
+     * Stops both the shooter and feed motor
+     */
     public void stopShooterAndFeed(){
         stopShooter();
         Subsystems.getIntake().stopFeedShooter();
@@ -198,7 +205,7 @@ public class Shooter {
      * Sets shooterAmt and hoodAmt variables to specified values in an array who's index is determined by
      * the inputted dpad value
      * 
-     * @param pov
+     * @param pov pov from an XboxController
      */
     public void setShooter(int pov){
         int index = pov / 90;
@@ -208,6 +215,12 @@ public class Shooter {
         setShooter(shooterSetpoints[index].shootAmt, shooterSetpoints[index].hoodAmt, shooterSetpoints[index].feedAmt);
     }
 
+    /**
+     * Sets all of the parameters of the shooter
+     * @param shooterAmount speed to run the shooter at
+     * @param hoodAmount position to set the hood to
+     * @param feedAmount speed to run the feed motor at
+     */
     public void setShooter(double shooterAmount, double hoodAmount, double feedAmount){
         shooterAmt = shooterAmount;
         hoodAmt = hoodAmount;
@@ -215,10 +228,17 @@ public class Shooter {
         setHood();
     }
 
+    /**
+     * Set the position of the shooter through an enum
+     * @param shooterPosition the enum
+     */
     public void setShooter(ShooterPositions shooterPosition){
         setShooter(shooterPosition.shootAmt, shooterPosition.hoodAmt, shooterPosition.feedAmt);
     }
 
+    /**
+     * Revs up the shooter, but will not shoot. Used so we can shoot sooner in auto
+     */
     public void revShooter(){
         
         if(Subsystems.getIntake().getShooterBeam()){
@@ -227,6 +247,8 @@ public class Shooter {
         if(!ballOffWheel){
             ballOffWheel = Subsystems.getIntake().reverseToMid();
             return;
+        }else if(!shootin){
+            Subsystems.getIntake().stopFeedShooter();
         }
         shooterMotor.getPIDController().setReference(shooterAmt * 0.9, ControlType.kSmartVelocity);
     }
@@ -251,10 +273,7 @@ public class Shooter {
      * Sets the hood to 0
      */
     public void zeroHood(){
-        hoodAmt = ShooterPositions.EJECT.hoodAmt;
-        shooterAmt = ShooterPositions.EJECT.shootAmt;
-        feedAmt = ShooterPositions.EJECT.feedAmt;
-        setHood();
+        setShooter(ShooterPositions.EJECT);
     }
 
     /**
@@ -278,14 +297,5 @@ public class Shooter {
         }else{
             return false;
         }
-    }
-    
-
-    /**
-     * Assuming that we have a camera this funciton will align the bot with the reflective strips on the hub
-     * If, IF, I can figure out how I will have it calculate the perfect position and just auto put itself there, distance, angle, everything, but that's a later issue
-     */
-    public void cameraAlign(){
-        
     }
 }

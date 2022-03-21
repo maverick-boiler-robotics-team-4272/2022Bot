@@ -1,10 +1,8 @@
 package frc.robot.Subsystems;
 
-import java.lang.Character.Subset;
 
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.Subsystems.Limelight.LEDMode;
 
 public class Teleop {
     //Xbox controllers
@@ -53,11 +51,11 @@ public class Teleop {
         double rotX;
         if(driveController.getLeftBumper()){
             rotX = Subsystems.getDriveTrain().aimAtHub();
-            NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(3);
+            Limelight.setLEDMode(LEDMode.ON);;
             // System.out.println(NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0.0));
             // rotX = 0.0;
         }else{
-            NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1);
+            Limelight.setLEDMode(LEDMode.OFF);;
             rotX = driveController.getRightX();
             rotX = Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, rotX);
         }
@@ -86,7 +84,7 @@ public class Teleop {
         }
 
         if(driveController.getXButton()){
-            intake.runIntake(0.7);
+            intake.runIntakeOnly(0.7);
         }else if(driveController.getXButtonReleased()){
             intake.runIntake(0.0);
             intake.stopFeedShooter();
@@ -98,10 +96,12 @@ public class Teleop {
 
         if(opRTrigger > 0){
             intakeStopped = false;
-            Subsystems.getIntake().runIntakeComplex(opRTrigger, false);
+            // Subsystems.getIntake().runIntakeComplex(opRTrigger, false);
+            intake.runIntake(opRTrigger);
         }else if(opLTrigger > 0){
             intakeStopped = false;
-            Subsystems.getIntake().runIntakeComplex(opLTrigger, true);
+            // Subsystems.getIntake().runIntakeComplex(opLTrigger, true);
+            intake.runIntake(-opLTrigger);
         }else if(!intakeStopped){
             intakeStopped = true;
             Subsystems.getIntake().stopIntake();
@@ -130,6 +130,12 @@ public class Teleop {
         }else{
             Subsystems.getClimber().runClimbers(rClimbSpeed, lClimbSpeed);
         }
+        
+        if(opController.getLeftBumperPressed()){
+            climber.disableSoftLimits();            
+        }else if(opController.getLeftBumperReleased()){
+            climber.zeroClimbers();
+        }
 
         //////////////////// Pneumatics //////////////////
         if(opController.getYButtonPressed()){
@@ -146,7 +152,7 @@ public class Teleop {
 
 
         if(driveController.getRightBumper()){
-            Subsystems.getIntake().testLidar();
+            // Subsystems.getIntake().testLidar();
         }
 
         if(driveController.getRightTriggerAxis() > Constants.TRIGGER_DEADZONE){

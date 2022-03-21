@@ -19,7 +19,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Auto.SwerveOdometry;
@@ -186,14 +185,33 @@ public class DriveTrain {
         this.setOdometry(new Pose2d(0.0, 0.0, getPigeonHeading()));
     }
 
+    /**
+     * Retrieves the current pose meters of the odometry
+     * @return pose meters of the odometry
+     */
     public Pose2d getOdometryPoseMeters(){
         return swerveOdometry.getPoseMeters();
     }
 
+    /**
+     * Returns the heading from our pigeon
+     * @return A Rotation2d object of our pigeon heading
+     */
     public Rotation2d getPigeonHeading(){
         return Rotation2d.fromDegrees(this.pigeon.getYaw());
     }
 
+    /**
+     * Resets the current yaw angle of the robot such that the way it is currently facing is the new forward direction
+     */
+    public void resetPigeonHeading(){
+        this.pigeon.setYaw(0.0);
+    }
+
+    /**
+     * 
+     * @param newHeading
+     */
     public void setHeading(Rotation2d newHeading){
         this.setOdometry(new Pose2d(getOdometryPoseMeters().getX(), getOdometryPoseMeters().getY(), newHeading));
     }
@@ -286,6 +304,7 @@ public class DriveTrain {
         spark.getEncoder().setPosition(error);
         //spark.getEncoder().setPosition(0.0);
     }
+
     /**
      * Initializes a single spark max
      */
@@ -298,6 +317,9 @@ public class DriveTrain {
         //spark.getEncoder().setPosition(0.0);
     }
 
+    /**
+     * Resets the rotation of the module. Used in the event the NEO encoders accumulate error
+     */
     public void resetModuleRotation(){
         frontLeftModule.setOffset(0);
         frontLeftModule.resetRotation();
@@ -310,21 +332,76 @@ public class DriveTrain {
     }
 
     /**
-     * Resets the current yaw angle of the robot such that the way it is currently facing is the new forward direction
+     * Used when tu
+     * 
+     * 
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     ning the PID on the limelight aiming
      */
-    public void resetPigeonHeading(){
-        this.pigeon.setYaw(0.0);
-    }
-
     public void resetAimPID(){
         aimController.setPID(SmartDashboard.getNumber("Aim P", 1.0), SmartDashboard.getNumber("Aim I", 0.0), SmartDashboard.getNumber("Aim D", 0.0));
     }
     /**
      * Returns roational value to aim at hub
-     * @return
+     * @return 
      */
     public double aimAtHub(){
-        double tx = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0.0);
+        double tx = Limelight.getTX();
         return aimController.calculate(-tx, 0.0);
     }
 }

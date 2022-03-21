@@ -101,7 +101,6 @@ public class SwerveModule {
 
     /**
      * Returns swerve module state object
-     * 
      * @return SwerveModuleState
      */
     public SwerveModuleState getState() {
@@ -116,7 +115,6 @@ public class SwerveModule {
 
     /**
      * Sets the desired state of the swerve module
-     * 
      * @param desiredState
      */
     public void setDesiredState(SwerveModuleState desiredState) {
@@ -133,7 +131,6 @@ public class SwerveModule {
 
     /**
      * Sets the module to the desired state, this is the one to use for talons
-     * 
      * @param desired The desired SwerveModuleState
      */
     public void setTalonDesiredState(SwerveModuleState desired) {
@@ -180,7 +177,7 @@ public class SwerveModule {
     }
 
     /**
-     * Optimizes swerve drive angle to require least amount of turning for the turning motor
+     * Optimizes swerve drive angle to require least amount of turning on the turning motor
      * @param desiredState
      * @param currentAngle
      * @return
