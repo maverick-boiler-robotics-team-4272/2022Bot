@@ -37,7 +37,16 @@ public class Teleop {
         double driveX = driveController.getLeftX();
         double driveY = driveController.getLeftY();
 
-        
+        if(finishAuto){
+            shooter.shoot();
+            if(driveX + driveY > 0 || !intake.ballPresent()){
+                finishAuto = false;
+                shooter.stopShooterAndFeed();
+            }
+            return;
+        }
+
+
         if(Math.abs(driveX) <= 0.08){
             driveX = 0;
         }
@@ -45,14 +54,7 @@ public class Teleop {
             driveY = 0;
         }
 
-        /*if(finishAuto){
-            shooter.shoot();
-            if(driveX + driveY > 0){
-                finishAuto = false;
-                shooter.stopShooterAndFeed();
-            }
-            return;
-        }*/
+        
         
         double hyp = Math.sqrt(Math.pow(driveX, 2) + Math.pow(driveY, 2));
         double angle = Math.atan2(driveY, driveX);

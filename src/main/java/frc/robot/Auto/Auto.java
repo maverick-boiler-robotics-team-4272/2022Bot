@@ -31,26 +31,21 @@ public class Auto {
             () -> Subsystems.getIntake().stopIntake())
         ),
         TERMINAL_3_BALL(1,
-        new Setpoint(-2.0, 2.0, 
-            () -> Subsystems.getShooter().setShooter(ShooterPositions.FENDER_HIGH), 
-            () -> Subsystems.getShooter().shoot(), 
-            () -> Subsystems.getShooter().stopShooterAndFeed()),
+        new Setpoint(-2.25, 0.25, 
+            () -> Subsystems.getShooter().setShooter(ShooterPositions.FENDER_HIGH)),
+        new Setpoint(-2.0, 2.0,
+            () -> Subsystems.getShooter().shoot()),
         new Setpoint(0.55, 0.1, 
             () -> Subsystems.getPneumatics().intakeOut(), 
-            () -> Subsystems.getShooter().setShooter(ShooterPositions.TARMAC), 
-            () -> Setpoint.noop()),
+            () -> Subsystems.getShooter().setShooter(ShooterPositions.TARMAC)),
         new Setpoint(0.75, 4.5,
             () -> Subsystems.getIntake().runIntake(0.75),
-            () -> Subsystems.getIntake().runIntake(0.75)),
-        new Setpoint(5.0, 0.1,
             () -> Subsystems.getIntake().stopIntake()),
-        new Setpoint(5.0, 2.0,
+        new Setpoint(5.25, 1.0,
             () -> Subsystems.getShooter().shoot()
         )),
         TERMINAL_2_BALL(2,
-        new Setpoint(-2.0, 2.0,
-            () -> Setpoint.noop(), 
-            () -> Setpoint.noop(), 
+        new Setpoint(0.0, 0.1,
             () -> Subsystems.getShooter().stopShooterAndFeed()),
         new Setpoint(1.0, 4.0, 
             () -> Subsystems.getShooter().stopShooterAndFeed(),
@@ -177,7 +172,7 @@ public class Auto {
         if (currentTime > paths[path.index].getTotalTimeSeconds()) {
             Subsystems.getDriveTrain().drive(0, 0, 0, false);
             if(path.name().equals(Paths.TERMINAL_3_BALL.name()) && fiveBall){
-                if(Subsystems.getIntake().hopperStatus()){
+                if(Subsystems.getIntake().ballPresent()){
                     return;
                 }
                 path = Paths.TERMINAL_2_BALL;
@@ -187,7 +182,6 @@ public class Auto {
             }
 
             System.out.println("auto path: " + path.name());
-            Subsystems.getDriveTrain().drive(0, 0, 0, false);
             stopped = true;
             //Subsystems.getIntake().stopFeedShooter();
             //Subsystems.getShooter().stopShooter();

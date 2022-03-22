@@ -152,9 +152,8 @@ public class Shooter {
      */
     public void stopShooter(){
         this.shooterMotor.set(0);
-        if(shooterAtSpeed){
-            Subsystems.getIntake().stopFeedShooter();
-        }
+        stopShooterAndFeed();
+        Subsystems.getIntake().resetBall();
         shooterAtSpeed = false;
         ballOffWheel = false;
         shootin = false;

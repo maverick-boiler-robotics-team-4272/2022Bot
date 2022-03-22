@@ -26,10 +26,6 @@ public class Intake {
     private boolean b1 = false;
     private boolean b2 = false;
     private boolean b1Mid = false;
-    private boolean b1Low = false;
-    private boolean feedShooter = false;
-    
-    private boolean ballsFull = false;
     
 
     private CANSparkMax intakeMotor = new CANSparkMax(8, MotorType.kBrushless);
@@ -47,19 +43,21 @@ public class Intake {
      * @param triggerVal
      */
     public void runIntake(double triggerVal){
-        // System.out.println("sensor" + getFeedSensor());
 
         boolean botBeam = lowFeedBeamBreak.get();
         boolean midBeam = midFeedBeamBreak.get();
         boolean shooterBeam = shooterBeamBreak.get();
         boolean hopperBeam = (lidar.getOutput() >= 0.09 || lidar.getOutput() <= 0.04);
+        //true if unbroken, false if broken
+
         if(!hopperBeam && !b1){
             triggerVal *= 0.25;
         }else if(!hopperBeam){
             triggerVal = 0;
         }
+
         intakeMotor.set(triggerVal);
-        //true if unbroken, false if broken
+
         if(shooterBeam){
             b1 = false;
             feedShooter();
@@ -79,10 +77,12 @@ public class Intake {
     }
     
     public void beamBreaksToSmart(){
+
         boolean botBeam = !lowFeedBeamBreak.get();
         boolean midBeam = !midFeedBeamBreak.get();
         boolean shooterBeam = !shooterBeamBreak.get();
         boolean hopperBeam = lidar.getOutput() < 0.08 && lidar.getOutput() > 0.01;
+
         SmartDashboard.putNumber("hopBeamVal", lidar.getOutput());
         SmartDashboard.putBoolean("botBeam", botBeam);
         SmartDashboard.putBoolean("midBeam", midBeam);
@@ -95,44 +95,54 @@ public class Intake {
      * @param inverted whether the feed motor is inverted
      */
     public void runIntakeComplex(double triggerVal, boolean inverted){
-        boolean botBeam = !lowFeedBeamBreak.get();
+
         boolean midBeam = !midFeedBeamBreak.get();
         boolean shooterBeam = !shooterBeamBreak.get();
         boolean hopperBeam = lidar.getOutput() < 0.1;
         double feedVal = -0.6;
 
         if(inverted){
-            intakeMotor.set(triggerVal);
+            intakeMotor.set(-triggerVal);
             shooterFeedMotor.set(-feedVal);
             return;
         }
 
-        if(!(b1 || b2)){
-            feedVal = -0.6;
-        }else if(b1 && b2){
-            if(shooterBeam){
-                stopFeedShooter();
-                stopIntake();
-            }else{
-                feedVal *= 0.6;
-                triggerVal *= 0.2;
-            }
-        }
+        //intake normally if no balls
+        //if there is a ball in hopper then slow down intake to allow feed to grab ball
+        //if ball is in feed go up to shooter beam then back up to mid to make sure the ball doesn't jam the intake
+        //then slowly SLOWLY run the feed to try and get both balls in the feed until the shooter beam is set off
 
-        if(hopperBeam && !b1){
+        if(hopperBeam){//slow down intake if ball in hopper
             triggerVal *= 0.2;
-        }else if(hopperBeam && b1){
-            reverseToLow();
-            b2 = true;
+        }
+        
+        if(shooterBeam && !b1){//detects ball at shooter beam and sets b1 to true
+            b1 = true;
         }
 
-        if(shooterBeam){
-            b1 = true;
+        if(b1 && !b1Mid && !midBeam){//ball at shooter reverse feed til midBeam
+            feedVal = 0.3;
+        }else if(b1 && !b1Mid && midBeam){
+            b1Mid = true;
             feedVal = 0;
         }
 
+        if(b1Mid && !b2 && hopperBeam){ //if b1 has been put to mid and b2 doesn't exist yet and there's a ball in the hopper then b2 is true
+            b2 = true;
+        }else if(b1Mid && b2){ //if b1 is mid and b2 is there then just move feed slowly
+            triggerVal *= 0.15;
+            feedVal = -0.2;
+        }else if(b1Mid){
+            feedVal = 0;
+        }
+
+        if(shooterBeam && b1 && b2){
+            feedVal = 0;
+            triggerVal = 0;
+        }
+
         shooterFeedMotor.set(feedVal);
-        
+
         intakeMotor.set(triggerVal);
         
     }
@@ -184,7 +194,11 @@ public class Intake {
         shooterFeedMotor.getPIDController().setReference(initEnc + difference, ControlType.kPosition);
     }
 
-    public boolean hopperStatus(){
+    /**
+     * 
+     * @return true if a ball is in the robot anywhere there's a sensor, false otherwise
+     */
+    public boolean ballPresent(){
         
         boolean botBeam = !lowFeedBeamBreak.get();
         boolean midBeam = !midFeedBeamBreak.get();
@@ -198,15 +212,9 @@ public class Intake {
      * Resets all the booleans
      */
     public void resetBall(){
-        ballInHopper = false;
-        ballInFeed = false;
-        ballsFull = false;
-        ballCheckPoint1 = false;
-
         b1 = false;
         b2 = false;
         b1Mid = false;
-        b1Low = false;
     }
 
     /**
