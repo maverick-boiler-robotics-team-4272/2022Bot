@@ -1,5 +1,7 @@
 package frc.robot.Auto;
 
+import java.util.function.Supplier;
+
 public class Setpoint {
     private double startTime;
     private double duration;
@@ -7,6 +9,8 @@ public class Setpoint {
     private Runnable startMethod;
     private Runnable duringMethod;
     private Runnable endMethod;
+    private Supplier<Boolean> stopCondition;
+    private boolean scheduleBased;
     
     /**
      * 
@@ -22,6 +26,7 @@ public class Setpoint {
         this.startMethod = start;
         this.duringMethod = during;
         this.endMethod = end;
+        this.scheduleBased = true;
     }
 
     /**
@@ -45,6 +50,15 @@ public class Setpoint {
         this(time, deadzone, action, Setpoint::noop, Setpoint::noop);
 
     }
+    
+    public Setpoint(double time, Supplier<Boolean> endCondition, Runnable startAction, Runnable duringAction, Runnable endAction){
+        this.startTime = time;
+        this.stopCondition = endCondition;
+        this.startMethod = startAction;
+        this.duringMethod = duringAction;
+        this.endMethod = endAction;
+        this.scheduleBased = false;
+    }
 
     /**
      * gets the the time value to start the action
@@ -60,6 +74,9 @@ public class Setpoint {
      */
     public void inTime(){
         if(!started){
+            if(!scheduleBased){
+                Auto.getTimer().stop();
+            }
             started = true;
             startMethod.run();
         }else{
@@ -73,6 +90,9 @@ public class Setpoint {
      */
     public void outOfTime(){
         if(started){
+            if(!scheduleBased){
+                Auto.getTimer().start();
+            }
             started = false;
             endMethod.run();
         }
@@ -84,8 +104,14 @@ public class Setpoint {
      * @return whether or not we are in the time for our setpoint to run
      */
     public boolean isInTime(double currentTime){
+        System.out.println("isInTime: " + scheduleBased);
+        System.out.println("startTime: " + startTime);
         double referenceTime = currentTime - startTime;
-        return referenceTime < duration && referenceTime > 0;
+        if(scheduleBased){
+            return referenceTime < duration && referenceTime > 0.0;
+        }else{
+            return referenceTime > 0.0 && stopCondition.get();
+        }
     }
 
     /**

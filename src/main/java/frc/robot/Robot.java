@@ -66,6 +66,8 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         Subsystems.getShooter().putShooterDataToDashboard();
         Subsystems.getDriveTrain().putCANCodersToSmartDashboard();
+        Subsystems.getIntake().beamBreaksToSmart();
+
     }
 
     /**
@@ -95,7 +97,9 @@ public class Robot extends TimedRobot {
     /** This function is called periodically during autonomous. */
     @Override
     public void autonomousPeriodic() {
+        
         auto.run();
+        Subsystems.getIntake().beamBreaksToSmart();
     }
 
     /** This function is called once when teleop is enabled. */
@@ -108,6 +112,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
         teleop.run();
+
     }
 
     /** This function is called once when the robot is disabled. */

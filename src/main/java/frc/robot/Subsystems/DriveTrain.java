@@ -89,9 +89,9 @@ public class DriveTrain {
             pigeon = new Pigeon2(25);
         }
         this.pigeon.setYaw(0.0);
-        SmartDashboard.putNumber("Aim P", aimController.getP());
-        SmartDashboard.putNumber("Aim I", aimController.getI());
-        SmartDashboard.putNumber("Aim D", aimController.getD());
+        // SmartDashboard.putNumber("Aim P", aimController.getP());
+        // SmartDashboard.putNumber("Aim I", aimController.getI());
+        // SmartDashboard.putNumber("Aim D", aimController.getD());
         if(Constants.TALON_BOT){
             frontRightModule = new SwerveModule(this.frontRightDrive, this.frontRightTalon, this.frontRightDriveEnc, 0.0, Constants.FRONT_RIGHT_INDEX);
             frontLeftModule = new SwerveModule(this.frontLeftDrive, this.frontLeftTalon, this.frontLeftDriveEnc, 0.0, Constants.FRONT_LEFT_INDEX);
@@ -99,7 +99,7 @@ public class DriveTrain {
             backRightModule = new SwerveModule(this.backRightDrive, this.backRightTalon, this.backRightDriveEnc, 0.0, Constants.BACK_RIGHT_INDEX);
             this.initTalons();
         }else{
-            putCANCodersToSmartDashboard();
+            // putCANCodersToSmartDashboard();
             frontRightModule = new SwerveModule(this.frontRightDrive, this.frontRightRotation, this.frontRightDriveEnc, this.frontRightEncoder, Constants.FRONT_RIGHT_FORWARD, this.frontRightCANCoder, 0);
             frontLeftModule = new SwerveModule(this.frontLeftDrive, this.frontLeftRotation, this.frontLeftDriveEnc, this.frontLeftEncoder, Constants.FRONT_LEFT_FORWARD, this.frontLeftCANCoder, 1);
             backLeftModule = new SwerveModule(this.backLeftDrive, this.backLeftRotation, this.backLeftDriveEnc, this.backLeftEncoder, Constants.BACK_LEFT_FORWARD, this.backLeftCANCoder, 2);
@@ -168,7 +168,7 @@ public class DriveTrain {
      */
     public void updateOdometry(){
         swerveOdometry.update(getPigeonHeading(), getSwerveModuleStates());
-        SmartDashboard.putString("Robot Pose", swerveOdometry.getPoseMeters().toString());
+        // SmartDashboard.putString("Robot Pose", swerveOdometry.getPoseMeters().toString());
     }
 
     /**

@@ -6,6 +6,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycle;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Intake {
 
@@ -47,6 +48,7 @@ public class Intake {
      */
     public void runIntake(double triggerVal){
         // System.out.println("sensor" + getFeedSensor());
+
         boolean botBeam = lowFeedBeamBreak.get();
         boolean midBeam = midFeedBeamBreak.get();
         boolean shooterBeam = shooterBeamBreak.get();
@@ -76,6 +78,17 @@ public class Intake {
         intakeMotor.set(val);
     }
     
+    public void beamBreaksToSmart(){
+        boolean botBeam = !lowFeedBeamBreak.get();
+        boolean midBeam = !midFeedBeamBreak.get();
+        boolean shooterBeam = !shooterBeamBreak.get();
+        boolean hopperBeam = lidar.getOutput() < 0.08 && lidar.getOutput() > 0.01;
+        SmartDashboard.putNumber("hopBeamVal", lidar.getOutput());
+        SmartDashboard.putBoolean("botBeam", botBeam);
+        SmartDashboard.putBoolean("midBeam", midBeam);
+        SmartDashboard.putBoolean("shooterBeam", shooterBeam);
+        SmartDashboard.putBoolean("hopperBeam", hopperBeam);
+    }
     /**
      * Run the intake and feed, using beam breaks to figure out when to stop
      * @param triggerVal speed to run intake at
@@ -169,6 +182,16 @@ public class Intake {
         double initEnc = shooterFeedMotor.getEncoder().getPosition();
         double difference = 2;
         shooterFeedMotor.getPIDController().setReference(initEnc + difference, ControlType.kPosition);
+    }
+
+    public boolean hopperStatus(){
+        
+        boolean botBeam = !lowFeedBeamBreak.get();
+        boolean midBeam = !midFeedBeamBreak.get();
+        boolean shooterBeam = !shooterBeamBreak.get();
+        boolean hopperBeam = lidar.getOutput() < 0.12 && lidar.getOutput() > 0.01;
+
+        return (botBeam || midBeam || shooterBeam || hopperBeam);
     }
 
     /**

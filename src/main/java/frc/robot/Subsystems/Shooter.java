@@ -15,10 +15,10 @@ public class Shooter {
     public enum ShooterPositions{
         //shootAmt, hoodAmt, feedAmt
         FENDER_LOW(
-            1200.0, -15.0, -0.5
+            1200.0, -15.0, -0.75
         ),
         FENDER_HIGH(
-            2300.0, -0.25, -0.5 //2250
+            2300.0, -0.25, -0.85 //2250
         ),
         TARMAC(
             2450.0, -11, -0.5 //2300, -12.5
@@ -81,13 +81,13 @@ public class Shooter {
         shooterFollowerMotor.follow(shooterMotor, true);
         
         
-        SmartDashboard.putNumber("Shooter Velocity Set", 0.0);
-        SmartDashboard.putNumber("Hood Setpoint", 0.0);
-        SmartDashboard.putNumber("Feed Setpoint", 0.0);
-        SmartDashboard.putNumber("Shooter Motor P", 0.0001);
-        SmartDashboard.putNumber("Shooter Motor I", 0.000000002);
-        SmartDashboard.putNumber("Shooter Motor D", 0.0);
-        SmartDashboard.putNumber("Shooter Motor F", 0.00018);
+        // SmartDashboard.putNumber("Shooter Velocity Set", 0.0);
+        // SmartDashboard.putNumber("Hood Setpoint", 0.0);
+        // SmartDashboard.putNumber("Feed Setpoint", 0.0);
+        // SmartDashboard.putNumber("Shooter Motor P", 0.0001);
+        // SmartDashboard.putNumber("Shooter Motor I", 0.000000002);
+        // SmartDashboard.putNumber("Shooter Motor D", 0.0);
+        // SmartDashboard.putNumber("Shooter Motor F", 0.00018);
         shooterPIDController.setP(0.0001);
         shooterPIDController.setI(0.000000002);
         shooterPIDController.setD(0.0);
@@ -130,7 +130,7 @@ public class Shooter {
         }
 
         this.shooterMotor.getPIDController().setReference(shooterAmt, ControlType.kSmartVelocity);
-        SmartDashboard.putNumber("Shooter Velocity", shooterMotor.getEncoder().getVelocity());
+        // SmartDashboard.putNumber("Shooter Velocity", shooterMotor.getEncoder().getVelocity());
 
         if(shooterMotor.getEncoder().getVelocity() >= shooterAmt - (Constants.SHOOTER_DEADZONE) &&
             shooterMotor.getEncoder().getVelocity() <= shooterAmt + (Constants.SHOOTER_DEADZONE) &&
@@ -190,14 +190,14 @@ public class Shooter {
      * Pushes hood and shooter data to Smart Dashboard
      */
     public void putShooterDataToDashboard(){
-        SmartDashboard.putNumber("Hood Position", hoodMotor.getEncoder().getPosition());
-        SmartDashboard.putNumber("Hood Velocity", hoodMotor.getEncoder().getVelocity());
-        SmartDashboard.putNumber("Shooter Velocity", shooterMotor.getEncoder().getVelocity());
-        //SmartDashboard.putNumber("Hood Setpoint", 0.0);
-        SmartDashboard.putNumber("Shooter Percent", 0.0);
+        // SmartDashboard.putNumber("Hood Position", hoodMotor.getEncoder().getPosition());
+        // SmartDashboard.putNumber("Hood Velocity", hoodMotor.getEncoder().getVelocity());
+        // SmartDashboard.putNumber("Shooter Velocity", shooterMotor.getEncoder().getVelocity());
+        // //SmartDashboard.putNumber("Hood Setpoint", 0.0);
+        // SmartDashboard.putNumber("Shooter Percent", 0.0);
         
-        SmartDashboard.putNumber("shooter amount", shooterAmt);
-        SmartDashboard.putNumber("hood amount", hoodAmt);
+        // SmartDashboard.putNumber("shooter amount", shooterAmt);
+        // SmartDashboard.putNumber("hood amount", hoodAmt);
 
     }
 

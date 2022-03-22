@@ -29,8 +29,8 @@ public class Climber {
         climberLeft.enableSoftLimit(SoftLimitDirection.kForward, false);
         climberRight.enableSoftLimit(SoftLimitDirection.kReverse, true);
         climberLeft.enableSoftLimit(SoftLimitDirection.kReverse, true);
-        climberRight.setSoftLimit(SoftLimitDirection.kReverse, -180.0f);
-        climberLeft.setSoftLimit(SoftLimitDirection.kReverse, -180.0f);
+        climberRight.setSoftLimit(SoftLimitDirection.kReverse, Constants.CLIMBER_SOFT_LIMIT);
+        climberLeft.setSoftLimit(SoftLimitDirection.kReverse, Constants.CLIMBER_SOFT_LIMIT);
     }
 
     /**

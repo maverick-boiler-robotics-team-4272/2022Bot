@@ -27,7 +27,7 @@ public class Limelight {
     }
 
     public static double getDistanceFeet(){
-        return (8.5 - 29.0 / 12.0) / Math.tan(50.0 + Limelight.getTY());
+        return (8.5 - 29.0 / 12.0) / Math.tan((50.0 + Limelight.getTY()) * Math.PI / 180.0);
     }
 
     public static void setLEDMode(LEDMode mode){

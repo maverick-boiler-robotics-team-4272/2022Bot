@@ -106,4 +106,6 @@ public class Constants {
     public static final double HOOD_DEADZONE = 0.025;
     public static final double SHOOTER_MAX = 3000.0;
     public static final double SHOOTER_MIN = 0.0;
+
+    public static final float CLIMBER_SOFT_LIMIT = -324.f;
 }

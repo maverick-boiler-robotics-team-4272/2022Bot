@@ -20,6 +20,7 @@ public class Teleop {
     private boolean intakeStopped = true;
     private boolean shooterStopped = true;
     private boolean fixingHood = false;
+    private boolean finishAuto = true;
     
     private Intake intake = Subsystems.getIntake();
     private DriveTrain drivetrain = Subsystems.getDriveTrain();
@@ -35,12 +36,24 @@ public class Teleop {
         ////////////////////////// Drive ///////////////////////////
         double driveX = driveController.getLeftX();
         double driveY = driveController.getLeftY();
+
+        
         if(Math.abs(driveX) <= 0.08){
             driveX = 0;
         }
         if(Math.abs(driveY) <= 0.08){
             driveY = 0;
         }
+
+        /*if(finishAuto){
+            shooter.shoot();
+            if(driveX + driveY > 0){
+                finishAuto = false;
+                shooter.stopShooterAndFeed();
+            }
+            return;
+        }*/
+        
         double hyp = Math.sqrt(Math.pow(driveX, 2) + Math.pow(driveY, 2));
         double angle = Math.atan2(driveY, driveX);
         hyp = deadzoneEquations(Constants.JSTICK_DEADZONE, hyp);
