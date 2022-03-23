@@ -107,6 +107,44 @@ public class Intake {
             return;
         }
 
+
+        //if no ball then just run norms
+        //if ball in hopper, slow intake speed to allow feed succ
+        //if ball in feed and not hitting mid beam, run norm speed
+        //if ball in feed and hit mid beam, slow feed
+        //run feed til ball hit shooter beam
+        //only run intake
+
+        if(shooterBeam){
+            b1 = true;
+        }
+
+        if(b1 && midBeam){
+            feedVal = 0;
+            b1Mid = false;
+        }else if(!b1 && midBeam){
+            b1Mid = true;
+        }else if(b1 && !midBeam){
+            feedVal = 0.3;
+        }
+
+        if(b1Mid){
+            feedVal = -0.2;
+        }
+
+        if(hopperBeam){
+            triggerVal *= 0.2;
+        }
+
+
+        
+        intakeMotor.set(triggerVal);
+
+        shooterFeedMotor.set(feedVal);
+
+        /////////////////////////// 3 - 22 CODE ///////////////////////////////////////
+        /*
+
         //intake normally if no balls
         //if there is a ball in hopper then slow down intake to allow feed to grab ball
         //if ball is in feed go up to shooter beam then back up to mid to make sure the ball doesn't jam the intake
@@ -144,6 +182,8 @@ public class Intake {
         shooterFeedMotor.set(feedVal);
 
         intakeMotor.set(triggerVal);
+
+        */
         
     }
 
