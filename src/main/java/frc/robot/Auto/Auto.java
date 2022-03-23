@@ -31,30 +31,34 @@ public class Auto {
             () -> Subsystems.getIntake().stopIntake())
         ),
         TERMINAL_3_BALL(1,
-        new Setpoint(-2.25, 0.25, 
-            () -> Subsystems.getShooter().setShooter(ShooterPositions.FENDER_HIGH)),
         new Setpoint(-2.0, 2.0,
-            () -> Subsystems.getShooter().shoot()),
-        new Setpoint(0.55, 0.1, 
-            () -> Subsystems.getPneumatics().intakeOut(), 
-            () -> Subsystems.getShooter().setShooter(ShooterPositions.TARMAC)),
-        new Setpoint(0.75, 4.5,
-            () -> Subsystems.getIntake().runIntake(0.75),
-            () -> Subsystems.getIntake().stopIntake()),
-        new Setpoint(5.25, 1.0,
-            () -> Subsystems.getShooter().shoot()
-        )),
-        TERMINAL_2_BALL(2,
-        new Setpoint(0.0, 0.1,
-            () -> Subsystems.getShooter().stopShooterAndFeed()),
-        new Setpoint(1.0, 4.0, 
-            () -> Subsystems.getShooter().stopShooterAndFeed(),
-            () -> Subsystems.getIntake().runIntake(0.8)),
-        new Setpoint(5.0, 0.1,
-            () -> Subsystems.getIntake().stopIntake()),
-        new Setpoint(6.0, 3.0,
-            () -> Subsystems.getShooter().shoot()
-        )),
+            () -> Subsystems.getShooter().setShooter(ShooterPositions.FENDER_HIGH),
+            () -> Subsystems.getShooter().shoot(),
+            () -> Setpoint.noop())
+        // new Setpoint(0.55, 0.1, 
+        //     () -> Subsystems.getPneumatics().intakeOut(), 
+        //     () -> Subsystems.getShooter().setShooter(ShooterPositions.TARMAC)),
+        // new Setpoint(0.75, 4.5,
+        //     () -> Subsystems.getIntake().runIntake(0.75),
+        //     () -> Subsystems.getIntake().stopIntake()),
+        // new Setpoint(5.25, 1.0,
+        //     () -> Subsystems.getShooter().shoot()
+        // )),
+        ),
+        TERMINAL_2_BALL(2
+        // new Setpoint(0.0, 0.1,
+        //     () -> Subsystems.getShooter().stopShooterAndFeed()),
+        // new Setpoint(1.0, 3.75, 
+        //     () -> Subsystems.getShooter().stopShooterAndFeed(),
+        //     () -> Subsystems.getIntake().runIntake(0.8)),
+        // new Setpoint(4.8, 0.1,
+        //     () -> Setpoint.noop(),
+        //     () -> Subsystems.getIntake().stopIntake(),
+        //     () -> Setpoint.noop()),
+        // new Setpoint(6.0, 3.0,
+        //     () -> Subsystems.getShooter().shoot()
+        // )),
+        ),
         OFF_TARMAC(3),
         TUNE_PATH(4),
         TERMINAL_5_BALL(5,
@@ -108,6 +112,7 @@ public class Auto {
     private Pose2d[] startPoints = new Pose2d[Paths.values().length];
     private boolean fiveBall = false;
     private static Timer timer = new Timer();
+    private double startTime;
 
     // PID Controllers
     public PIDController xPid = new PIDController(2.0, 0.01, 0);
@@ -156,6 +161,8 @@ public class Auto {
         }
         Subsystems.getDriveTrain().setOdometry(startPoints[path.index]);
         Subsystems.getDriveTrain().setHeading(paths[path.index].getInitialState().holonomicRotation);
+        startTime = Timer.getFPGATimestamp();
+
         Auto.timer.reset();
         Auto.timer.start();
     }
@@ -169,10 +176,20 @@ public class Auto {
             currentTime += Math.min(path.setpoints[0].getTime(), 0.0);
         }
         boolean stopped = false;
+
+        if(path.equals(Paths.TERMINAL_3_BALL)){
+            terminal3Ball();
+        }else if(path.equals(Paths.TERMINAL_2_BALL)){
+            terminal2Ball();
+        }
+
         if (currentTime > paths[path.index].getTotalTimeSeconds()) {
             Subsystems.getDriveTrain().drive(0, 0, 0, false);
+            if(fiveBall && path.equals(Paths.TERMINAL_2_BALL) && Subsystems.getIntake().ballPresent()){
+                Subsystems.getDriveTrain().drive(0, 0, Subsystems.getDriveTrain().aimAtHub(), false);
+            }
             if(path.name().equals(Paths.TERMINAL_3_BALL.name()) && fiveBall){
-                if(Subsystems.getIntake().ballPresent()){
+                if(Subsystems.getIntake().ballPresent() || currentTime < 8.0){
                     return;
                 }
                 path = Paths.TERMINAL_2_BALL;
@@ -211,5 +228,41 @@ public class Auto {
 
     public static Timer getTimer(){
         return Auto.timer;
+    }
+
+    public void terminal3Ball(){
+        double currTime = Auto.timer.get();
+        System.out.println("time: " + currTime);
+        if(currTime < 0.1){
+            Subsystems.getShooter().setShooter(ShooterPositions.FENDER_HIGH);
+        }else if(currTime > 0.15 && currTime < 2.0){
+            Subsystems.getShooter().shoot();
+        }else if(currTime < 2.1){
+            Subsystems.getShooter().stopShooterAndFeed();
+        }else if(currTime < 2.55 && currTime > 2.45){
+            Subsystems.getShooter().setShooter(ShooterPositions.TARMAC);
+            Subsystems.getPneumatics().intakeOut();
+        }else if(currTime < 7.19 && currTime > 3.0){
+            Subsystems.getIntake().runIntakeComplex(0.55, false);
+        }else if(currTime < 7.2){
+            Subsystems.getIntake().stopIntake();
+        }else if(currTime > 7.2){
+            Subsystems.getShooter().shoot();
+        }
+    }
+
+    public void terminal2Ball(){
+        double currTime = Timer.getFPGATimestamp() - startTime;
+
+        if(currTime < 1.0 && currTime > 0.8){
+            Subsystems.getShooter().stopShooterAndFeed();
+        }else if(currTime < 2.0){
+            Subsystems.getIntake().runIntakeComplex(0.7, false);
+            Subsystems.getShooter().setShooter(ShooterPositions.TARMAC);
+        }else if(currTime < 4.7 && currTime > 4.6){
+            Subsystems.getIntake().stopIntake();
+        }else if(currTime > 4.8){
+            Subsystems.getShooter().shoot();
+        }
     }
 }

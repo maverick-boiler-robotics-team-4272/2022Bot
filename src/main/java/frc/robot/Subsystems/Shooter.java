@@ -18,10 +18,10 @@ public class Shooter {
             1200.0, -15.0, -0.75
         ),
         FENDER_HIGH(
-            2300.0, -0.25, -0.85 //2250
+            2325.0, -1.0, -0.85 //2250
         ),
         TARMAC(
-            2450.0, -11, -0.5 //2300, -12.5
+            2280.0, -18, -0.5 //2300, -12.5
         ),
         LAUNCHPAD(
             2625.0, -20.0, -0.5
@@ -81,8 +81,8 @@ public class Shooter {
         shooterFollowerMotor.follow(shooterMotor, true);
         
         
-        // SmartDashboard.putNumber("Shooter Velocity Set", 0.0);
-        // SmartDashboard.putNumber("Hood Setpoint", 0.0);
+        SmartDashboard.putNumber("Shooter Velocity Set", 0.0);
+        SmartDashboard.putNumber("Hood Setpoint", 0.0);
         // SmartDashboard.putNumber("Feed Setpoint", 0.0);
         // SmartDashboard.putNumber("Shooter Motor P", 0.0001);
         // SmartDashboard.putNumber("Shooter Motor I", 0.000000002);
@@ -152,7 +152,7 @@ public class Shooter {
      */
     public void stopShooter(){
         this.shooterMotor.set(0);
-        stopShooterAndFeed();
+        Subsystems.getIntake().stopFeedShooter();
         Subsystems.getIntake().resetBall();
         shooterAtSpeed = false;
         ballOffWheel = false;
@@ -258,7 +258,7 @@ public class Shooter {
     public void updateShooter() {
         shooterAmt = SmartDashboard.getNumber("Shooter Velocity Set", 0.0);
         hoodAmt = SmartDashboard.getNumber("Hood Setpoint", 0.0);
-        feedAmt = SmartDashboard.getNumber("Feed Setpoint", 0.0);
+        feedAmt = -0.6;
     }
 
     /**

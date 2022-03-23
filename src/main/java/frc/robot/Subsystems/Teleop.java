@@ -37,14 +37,14 @@ public class Teleop {
         double driveX = driveController.getLeftX();
         double driveY = driveController.getLeftY();
 
-        if(finishAuto){
+        /*if(finishAuto){
             shooter.shoot();
             if(driveX + driveY > 0 || !intake.ballPresent()){
                 finishAuto = false;
                 shooter.stopShooterAndFeed();
             }
             return;
-        }
+        }*/
 
 
         if(Math.abs(driveX) <= 0.08){
@@ -99,9 +99,9 @@ public class Teleop {
         }
 
         if(driveController.getXButton()){
-            intake.runIntakeOnly(0.7);
+            intake.runIntakeComplex(0.7, false);
         }else if(driveController.getXButtonReleased()){
-            intake.runIntake(0.0);
+            intake.stopIntake();
             intake.stopFeedShooter();
         }
         
@@ -112,11 +112,11 @@ public class Teleop {
         if(opRTrigger > 0){
             intakeStopped = false;
             // Subsystems.getIntake().runIntakeComplex(opRTrigger, false);
-            intake.runIntake(opRTrigger);
+            intake.runIntakeComplex(opRTrigger, false);
         }else if(opLTrigger > 0){
             intakeStopped = false;
             // Subsystems.getIntake().runIntakeComplex(opLTrigger, true);
-            intake.runIntake(-opLTrigger);
+            intake.runIntakeComplex(opLTrigger, true);
         }else if(!intakeStopped){
             intakeStopped = true;
             Subsystems.getIntake().stopIntake();
@@ -187,8 +187,8 @@ public class Teleop {
         }
 
         if(driveController.getBackButtonPressed()){
-            //Subsystems.getShooter().updateShooter();
-            //Subsystems.getShooter().setHood();
+            // Subsystems.getShooter().updateShooter();
+            // Subsystems.getShooter().setHood();
             fixingHood = true;
         }
 

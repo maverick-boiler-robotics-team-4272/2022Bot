@@ -60,7 +60,7 @@ public class DriveTrain {
     private CANCoder backLeftCANCoder = new CANCoder(23);
     private CANCoder backRightCANCoder = new CANCoder(24);
 
-    private PIDController aimController = new PIDController(0.02, 0.0, 0.0);
+    private PIDController aimController = new PIDController(0.01, 0.0, 0.0);
 
     public final BasePigeon pigeon;
 
