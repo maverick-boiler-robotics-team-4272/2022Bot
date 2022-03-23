@@ -246,10 +246,9 @@ public class Shooter {
         if(!ballOffWheel){
             ballOffWheel = Subsystems.getIntake().reverseToMid();
             return;
-        }else if(!shootin){
-            Subsystems.getIntake().stopFeedShooter();
         }
-        shooterMotor.getPIDController().setReference(shooterAmt * 0.9, ControlType.kSmartVelocity);
+
+        shooterMotor.getPIDController().setReference(shooterAmt, ControlType.kSmartVelocity);
     }
 
     /**

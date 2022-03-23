@@ -115,21 +115,12 @@ public class Intake {
         //run feed til ball hit shooter beam
         //only run intake
 
-        if(shooterBeam){
-            b1 = true;
-        }
-
-        if(b1 && midBeam){
-            feedVal = 0;
-            b1Mid = false;
-        }else if(!b1 && midBeam){
+        if(midBeam && !b1Mid){
             b1Mid = true;
-        }else if(b1 && !midBeam){
-            feedVal = 0.3;
-        }
-
-        if(b1Mid){
-            feedVal = -0.2;
+        }else if(b1Mid && midBeam){
+            feedVal = -0.3;
+        }else if(b1Mid && !midBeam){
+            feedVal = 0;
         }
 
         if(hopperBeam){

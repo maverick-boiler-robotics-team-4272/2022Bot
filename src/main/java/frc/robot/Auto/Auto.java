@@ -242,8 +242,11 @@ public class Auto {
         }else if(currTime < 2.55 && currTime > 2.45){
             Subsystems.getShooter().setShooter(ShooterPositions.TARMAC);
             Subsystems.getPneumatics().intakeOut();
-        }else if(currTime < 7.19 && currTime > 3.0){
+        }else if(currTime < 4.9 && currTime > 3.0){
             Subsystems.getIntake().runIntakeComplex(0.55, false);
+        }else if(currTime > 5.0 && currTime < 7.19){
+            Subsystems.getIntake().runIntakeComplex(0.55, false);
+            Subsystems.getShooter().revShooter();
         }else if(currTime < 7.2){
             Subsystems.getIntake().stopIntake();
         }else if(currTime > 7.2){
@@ -252,13 +255,16 @@ public class Auto {
     }
 
     public void terminal2Ball(){
-        double currTime = Timer.getFPGATimestamp() - startTime;
+        double currTime = Auto.timer.get();
 
         if(currTime < 1.0 && currTime > 0.8){
             Subsystems.getShooter().stopShooterAndFeed();
-        }else if(currTime < 2.0){
+        }else if(currTime < 3.5){
             Subsystems.getIntake().runIntakeComplex(0.7, false);
             Subsystems.getShooter().setShooter(ShooterPositions.TARMAC);
+        }else if(currTime < 4.5){
+            Subsystems.getIntake().runIntakeComplex(0.7, false);
+            Subsystems.getShooter().revShooter();
         }else if(currTime < 4.7 && currTime > 4.6){
             Subsystems.getIntake().stopIntake();
         }else if(currTime > 4.8){
