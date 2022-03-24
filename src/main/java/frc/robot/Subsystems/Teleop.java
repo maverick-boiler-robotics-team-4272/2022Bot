@@ -20,7 +20,7 @@ public class Teleop {
     private boolean intakeStopped = true;
     private boolean shooterStopped = true;
     private boolean fixingHood = false;
-    private boolean finishAuto = true;
+    private boolean finishAuto = false;
     
     private Intake intake = Subsystems.getIntake();
     private DriveTrain drivetrain = Subsystems.getDriveTrain();
@@ -37,14 +37,14 @@ public class Teleop {
         double driveX = driveController.getLeftX();
         double driveY = driveController.getLeftY();
 
-        /*if(finishAuto){
+        if(finishAuto){
             shooter.shoot();
-            if(driveX + driveY > 0 || !intake.ballPresent()){
+            if(driveX + driveY > 0 /*|| !intake.ballPresent()*/){
                 finishAuto = false;
                 shooter.stopShooterAndFeed();
             }
             return;
-        }*/
+        }
 
 
         if(Math.abs(driveX) <= 0.08){
@@ -66,13 +66,18 @@ public class Teleop {
         double rotX;
         if(driveController.getLeftBumper()){
             rotX = Subsystems.getDriveTrain().aimAtHub();
-            Limelight.setLEDMode(LEDMode.ON);;
-            // System.out.println(NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0.0));
-            // rotX = 0.0;
+            // Limelight.setLEDMode(LEDMode.ON);
+            System.out.println("Distance: " + Limelight.getDistanceFeet());
         }else{
-            Limelight.setLEDMode(LEDMode.OFF);;
+            // Limelight.setLEDMode(LEDMode.OFF);;
             rotX = driveController.getRightX();
             rotX = Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, rotX);
+        }
+
+        if(driveController.getLeftBumperPressed()){
+            Limelight.setLEDMode(LEDMode.ON);
+        }else if(driveController.getLeftBumperReleased()){
+            Limelight.setLEDMode(LEDMode.OFF);
         }
         
         Subsystems.getDriveTrain().drive(driveX * Constants.MAX_SPEED, driveY * Constants.MAX_SPEED, rotX * Constants.MAX_ANGULAR_SPEED, fieldRelative);
@@ -99,7 +104,7 @@ public class Teleop {
         }
 
         if(driveController.getXButton()){
-            intake.runIntakeComplex(0.7, false);
+            intake.runIntakeComplex(0.5, false);
         }else if(driveController.getXButtonReleased()){
             intake.stopIntake();
             intake.stopFeedShooter();
@@ -167,7 +172,9 @@ public class Teleop {
 
 
         if(driveController.getRightBumper()){
-            // Subsystems.getIntake().testLidar();
+            Subsystems.getIntake().runIntakeComplex(0.5, false);
+        }else if(driveController.getRightBumperReleased()){
+            intake.stopIntake();
         }
 
         if(driveController.getRightTriggerAxis() > Constants.TRIGGER_DEADZONE){
@@ -187,9 +194,9 @@ public class Teleop {
         }
 
         if(driveController.getBackButtonPressed()){
-            // Subsystems.getShooter().updateShooter();
-            // Subsystems.getShooter().setHood();
-            fixingHood = true;
+            Subsystems.getShooter().updateShooter();
+            Subsystems.getShooter().setHood();
+            // fixingHood = true;
         }
 
         if(fixingHood){
@@ -214,5 +221,9 @@ public class Teleop {
             return (1/(1-deadZoneRadius)) * (hyp + deadZoneRadius);
         }
         return 0;
+    }
+
+    public void autod(){
+        finishAuto = true;
     }
 }

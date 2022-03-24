@@ -18,13 +18,13 @@ public class Shooter {
             1200.0, -15.0, -0.75
         ),
         FENDER_HIGH(
-            2325.0, -1.0, -0.85 //2250
+            2200.0, -3.5, -0.9 //2250
         ),
         TARMAC(
-            2280.0, -18, -0.5 //2300, -12.5
+            2400.0, -13.75, -0.9 //2300, -12.5
         ),
         LAUNCHPAD(
-            2625.0, -20.0, -0.5
+            2575.0, -22.5, -0.5
         ),
         EJECT(
             1000.0, 0.0, -0.5
@@ -34,6 +34,9 @@ public class Shooter {
         ),
         MID_LAUNCHPAD(
             2450.0, -16.0, -0.8
+        ),
+        AUTO_TARMAC(
+            2425.0, -15.25, -0.9
         );
 
         public final double shootAmt;
@@ -59,6 +62,8 @@ public class Shooter {
 
     private boolean ballOffWheel = false;
     private boolean shootin = false;
+
+    private boolean ballShooting = false;
     
     private boolean shooterAtSpeed = false;
     public Shooter(){
@@ -76,6 +81,7 @@ public class Shooter {
         hoodPIDController.setSmartMotionAllowedClosedLoopError(0.0, 0);
         // System.out.println(hoodMotor.getForwardLimitSwitch(Type.kNormallyOpen));
         this.hoodMotor.getEncoder().setPosition(0.0);
+        hoodMotor.setSmartCurrentLimit(20);
         this.shooterMotor.setInverted(true);
         //System.out.println(hoodMotor.getForwardLimitSwitch(Type.kNormallyClosed).toString());
         shooterFollowerMotor.follow(shooterMotor, true);
@@ -123,11 +129,19 @@ public class Shooter {
         shootin = true;
         if(!Subsystems.getIntake().getShooterBeam()){
             ballOffWheel = true;
+
         }
-        if(!ballOffWheel){
+        if(Subsystems.getIntake().getShooterBeam()){
+            ballShooting = true;
+        }
+
+        if(ballShooting && !Subsystems.getIntake().getShooterBeam() && getHoodAtPosition()){
+            Subsystems.getIntake().shotBall();
+        }
+        /*if(!ballOffWheel){
             ballOffWheel = Subsystems.getIntake().reverseToMid();
             return;
-        }
+        }*/
 
         this.shooterMotor.getPIDController().setReference(shooterAmt, ControlType.kSmartVelocity);
         // SmartDashboard.putNumber("Shooter Velocity", shooterMotor.getEncoder().getVelocity());
@@ -141,7 +155,7 @@ public class Shooter {
 
         if(shooterAtSpeed && ballOffWheel){
             Subsystems.getIntake().feedShooter(feedAmt);
-            Subsystems.getIntake().resetBall();
+            // Subsystems.getIntake().resetBall();
         }else{
             Subsystems.getIntake().stopFeedShooter();
         }
@@ -239,16 +253,9 @@ public class Shooter {
      * Revs up the shooter, but will not shoot. Used so we can shoot sooner in auto
      */
     public void revShooter(){
-        
-        if(Subsystems.getIntake().getShooterBeam()){
-            ballOffWheel = false;
-        }
-        if(!ballOffWheel){
-            ballOffWheel = Subsystems.getIntake().reverseToMid();
-            return;
-        }
 
         shooterMotor.getPIDController().setReference(shooterAmt, ControlType.kSmartVelocity);
+
     }
 
     /**

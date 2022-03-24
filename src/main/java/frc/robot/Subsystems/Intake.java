@@ -51,14 +51,14 @@ public class Intake {
         //true if unbroken, false if broken
 
         if(!hopperBeam && !b1){
-            triggerVal *= 0.25;
+            triggerVal *= 0.7;
         }else if(!hopperBeam){
             triggerVal = 0;
         }
 
         intakeMotor.set(triggerVal);
 
-        if(shooterBeam){
+        if(midBeam){
             b1 = false;
             feedShooter();
         }else{
@@ -117,14 +117,20 @@ public class Intake {
 
         if(midBeam && !b1Mid){
             b1Mid = true;
+            b1 = true;
         }else if(b1Mid && midBeam){
             feedVal = -0.3;
         }else if(b1Mid && !midBeam){
+            
             feedVal = 0;
         }
 
+        if(b1 && hopperBeam){
+            b2 = true;
+        }
+
         if(hopperBeam){
-            triggerVal *= 0.2;
+            triggerVal = 0.2;
         }
 
 
@@ -176,6 +182,27 @@ public class Intake {
 
         */
         
+    }
+
+    public int getBallCount(){
+        int count = 0;
+
+        if(b1){
+            count++;
+        }
+        if(b2){
+            count++;
+        }
+
+        return count;
+    }
+
+    public void shotBall(){
+        if(b1 && b2){
+            b1 = false;
+        }else if(!b1 && b2){
+            b2 = false;
+        }
     }
 
     /**

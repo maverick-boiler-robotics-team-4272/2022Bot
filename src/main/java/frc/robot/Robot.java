@@ -45,7 +45,7 @@ public class Robot extends TimedRobot {
         for(int pathInd = 0; pathInd < paths.length; pathInd++){
             AUTO_CHOOSER.addOption(paths[pathInd].name(), paths[pathInd]);
         }
-        AUTO_CHOOSER.setDefaultOption("TERMINAL_3_BALL", Paths.TERMINAL_3_BALL);
+        AUTO_CHOOSER.setDefaultOption("TERMINAL_5_BALL", Paths.TERMINAL_5_BALL);
         SmartDashboard.putData("Auto choices", AUTO_CHOOSER);
         SmartDashboard.putNumber("Pigeon Heading", Subsystems.getDriveTrain().pigeon.getYaw());
         Subsystems.getShooter().putShooterDataToDashboard();
@@ -92,6 +92,7 @@ public class Robot extends TimedRobot {
 
         auto.setPath(AUTO_CHOOSER.getSelected());
         auto.initPath();
+        teleop.autod();
     }
 
     /** This function is called periodically during autonomous. */

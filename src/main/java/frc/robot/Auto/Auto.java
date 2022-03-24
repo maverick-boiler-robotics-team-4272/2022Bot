@@ -32,8 +32,6 @@ public class Auto {
         ),
         TERMINAL_3_BALL(1,
         new Setpoint(-2.0, 2.0,
-            () -> Subsystems.getShooter().setShooter(ShooterPositions.FENDER_HIGH),
-            () -> Subsystems.getShooter().shoot(),
             () -> Setpoint.noop())
         // new Setpoint(0.55, 0.1, 
         //     () -> Subsystems.getPneumatics().intakeOut(), 
@@ -45,7 +43,9 @@ public class Auto {
         //     () -> Subsystems.getShooter().shoot()
         // )),
         ),
-        TERMINAL_2_BALL(2
+        TERMINAL_2_BALL(2,
+        new Setpoint(-0.5, 0.5,
+            () -> Setpoint.noop())
         // new Setpoint(0.0, 0.1,
         //     () -> Subsystems.getShooter().stopShooterAndFeed()),
         // new Setpoint(1.0, 3.75, 
@@ -189,7 +189,8 @@ public class Auto {
                 Subsystems.getDriveTrain().drive(0, 0, Subsystems.getDriveTrain().aimAtHub(), false);
             }
             if(path.name().equals(Paths.TERMINAL_3_BALL.name()) && fiveBall){
-                if(Subsystems.getIntake().ballPresent() || currentTime < 8.0){
+                if(Subsystems.getIntake().ballPresent()){
+                    System.out.println("ball count:  " + Subsystems.getIntake().getBallCount());
                     return;
                 }
                 path = Paths.TERMINAL_2_BALL;
@@ -232,24 +233,28 @@ public class Auto {
 
     public void terminal3Ball(){
         double currTime = Auto.timer.get();
-        System.out.println("time: " + currTime);
-        if(currTime < 0.1){
+        //System.out.println("time: " + currTime);
+        if(currTime < 0.25){
             Subsystems.getShooter().setShooter(ShooterPositions.FENDER_HIGH);
-        }else if(currTime > 0.15 && currTime < 2.0){
+            Subsystems.getShooter().revShooter();
+        }else if(currTime > 0.26 && currTime < 2.0){
             Subsystems.getShooter().shoot();
         }else if(currTime < 2.1){
             Subsystems.getShooter().stopShooterAndFeed();
         }else if(currTime < 2.55 && currTime > 2.45){
-            Subsystems.getShooter().setShooter(ShooterPositions.TARMAC);
+            Subsystems.getShooter().setShooter(ShooterPositions.AUTO_TARMAC);
             Subsystems.getPneumatics().intakeOut();
         }else if(currTime < 4.9 && currTime > 3.0){
-            Subsystems.getIntake().runIntakeComplex(0.55, false);
-        }else if(currTime > 5.0 && currTime < 7.19){
-            Subsystems.getIntake().runIntakeComplex(0.55, false);
+            Subsystems.getIntake().runIntake(0.45);
             Subsystems.getShooter().revShooter();
-        }else if(currTime < 7.2){
+        }else if(currTime > 5.0 && currTime < 6.75){
+            Subsystems.getIntake().runIntake(0.45);
+            Subsystems.getShooter().revShooter();
+        }else if(currTime < 6.8){
             Subsystems.getIntake().stopIntake();
-        }else if(currTime > 7.2){
+            Subsystems.getShooter().shoot();
+        }else if(currTime > 6.9){
+            Subsystems.getIntake().runIntakeOnly(0.15);
             Subsystems.getShooter().shoot();
         }
     }
@@ -257,17 +262,18 @@ public class Auto {
     public void terminal2Ball(){
         double currTime = Auto.timer.get();
 
-        if(currTime < 1.0 && currTime > 0.8){
+        if(currTime < 1.8 && currTime > 1.5){
             Subsystems.getShooter().stopShooterAndFeed();
         }else if(currTime < 3.5){
-            Subsystems.getIntake().runIntakeComplex(0.7, false);
-            Subsystems.getShooter().setShooter(ShooterPositions.TARMAC);
-        }else if(currTime < 4.5){
-            Subsystems.getIntake().runIntakeComplex(0.7, false);
+            Subsystems.getIntake().runIntake(0.5);
+            Subsystems.getShooter().setShooter(ShooterPositions.AUTO_TARMAC);
             Subsystems.getShooter().revShooter();
-        }else if(currTime < 4.7 && currTime > 4.6){
+        }else if(currTime < 5.75){
+            Subsystems.getIntake().runIntake(0.5);
+            Subsystems.getShooter().revShooter();
+        }/*else if(currTime < 4.7 && currTime > 4.6){
             Subsystems.getIntake().stopIntake();
-        }else if(currTime > 4.8){
+        }*/else if(currTime > 5.5){
             Subsystems.getShooter().shoot();
         }
     }
