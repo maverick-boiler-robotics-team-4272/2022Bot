@@ -2,6 +2,7 @@ package frc.robot.Subsystems;
 
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Subsystems.Limelight.LEDMode;
 
 public class Teleop {
@@ -21,6 +22,8 @@ public class Teleop {
     private boolean shooterStopped = true;
     private boolean fixingHood = false;
     private boolean finishAuto = false;
+
+    private boolean intakeOverride = false;
     
     private Intake intake = Subsystems.getIntake();
     private DriveTrain drivetrain = Subsystems.getDriveTrain();
@@ -114,13 +117,21 @@ public class Teleop {
         double opRTrigger = Teleop.deadzoneEquations(Constants.TRIGGER_DEADZONE, opController.getRightTriggerAxis());
         double opLTrigger = Teleop.deadzoneEquations(Constants.TRIGGER_DEADZONE, opController.getLeftTriggerAxis());
 
+        if(opController.getAButtonPressed()){
+            intakeOverride = !intakeOverride;
+        }
+        SmartDashboard.putBoolean("intake override", intakeOverride);
+
         if(opRTrigger > 0){
             intakeStopped = false;
-            // Subsystems.getIntake().runIntakeComplex(opRTrigger, false);
-            intake.runIntakeComplex(opRTrigger, false);
+
+            if(intakeOverride){
+                intake.runIntakeAndFeed(opRTrigger);
+            }else{
+                intake.runIntakeComplex(opRTrigger, false);
+            }
         }else if(opLTrigger > 0){
             intakeStopped = false;
-            // Subsystems.getIntake().runIntakeComplex(opLTrigger, true);
             intake.runIntakeComplex(opLTrigger, true);
         }else if(!intakeStopped){
             intakeStopped = true;
@@ -171,11 +182,11 @@ public class Teleop {
         }
 
 
-        if(driveController.getRightBumper()){
-            Subsystems.getIntake().runIntakeComplex(0.5, false);
-        }else if(driveController.getRightBumperReleased()){
-            intake.stopIntake();
-        }
+        // if(driveController.getRightBumper()){
+        //     Subsystems.getIntake().runIntakeComplex(0.5, false);
+        // }else if(driveController.getRightBumperReleased()){
+        //     intake.stopIntake();
+        // }
 
         if(driveController.getRightTriggerAxis() > Constants.TRIGGER_DEADZONE){
             shooterStopped = false;
@@ -194,9 +205,9 @@ public class Teleop {
         }
 
         if(driveController.getBackButtonPressed()){
-            Subsystems.getShooter().updateShooter();
-            Subsystems.getShooter().setHood();
-            // fixingHood = true;
+            // Subsystems.getShooter().updateShooter();
+            // Subsystems.getShooter().setHood();
+            fixingHood = true;
         }
 
         if(fixingHood){

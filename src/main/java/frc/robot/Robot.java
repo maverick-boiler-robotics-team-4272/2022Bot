@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Auto.Auto;
 import frc.robot.Auto.Auto.Paths;
 import frc.robot.Subsystems.*;
+import frc.robot.Subsystems.Limelight.LEDMode;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -49,6 +50,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putData("Auto choices", AUTO_CHOOSER);
         SmartDashboard.putNumber("Pigeon Heading", Subsystems.getDriveTrain().pigeon.getYaw());
         Subsystems.getShooter().putShooterDataToDashboard();
+        Limelight.setLEDMode(LEDMode.OFF);
     }
 
     /**
@@ -67,7 +69,8 @@ public class Robot extends TimedRobot {
         Subsystems.getShooter().putShooterDataToDashboard();
         Subsystems.getDriveTrain().putCANCodersToSmartDashboard();
         Subsystems.getIntake().beamBreaksToSmart();
-
+        SmartDashboard.putNumber("Limelight tx", Limelight.getTX());
+        SmartDashboard.putBoolean("Limelight aimed", (Limelight.getTX() < 0.1));
     }
 
     /**
@@ -106,7 +109,7 @@ public class Robot extends TimedRobot {
     /** This function is called once when teleop is enabled. */
     @Override
     public void teleopInit() {
-        auto.stopAuto();
+        // auto.stopAuto();
     }
 
     /** This function is called periodically during operator control. */

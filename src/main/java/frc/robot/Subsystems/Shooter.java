@@ -15,16 +15,16 @@ public class Shooter {
     public enum ShooterPositions{
         //shootAmt, hoodAmt, feedAmt
         FENDER_LOW(
-            1200.0, -15.0, -0.75
+            1300.0, -15.0, -0.75
         ),
         FENDER_HIGH(
             2200.0, -3.5, -0.9 //2250
         ),
         TARMAC(
-            2400.0, -13.75, -0.9 //2300, -12.5
+            2450.0, -13.75, -0.9 //2300, -12.5
         ),
         LAUNCHPAD(
-            2575.0, -22.5, -0.5
+            2615.0, -20, -0.5
         ),
         EJECT(
             1000.0, 0.0, -0.5

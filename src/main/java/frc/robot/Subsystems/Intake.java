@@ -68,6 +68,16 @@ public class Intake {
         
     }
 
+    public void runIntakeAndFeed(double val){
+        intakeMotor.set(val);
+        boolean midBeam = midFeedBeamBreak.get();
+        
+        if(!midBeam){
+            shooterFeedMotor.set(0.0);
+        }else{
+            shooterFeedMotor.set(-0.6);
+        }
+    }
     /**
      * Function to only run the intake, and not the feed
      * @param val speed to run the intake at
