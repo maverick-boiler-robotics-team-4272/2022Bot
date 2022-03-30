@@ -106,7 +106,7 @@ public class DriveTrain {
             backRightModule = new SwerveModule(this.backRightDrive, this.backRightRotation, this.backRightDriveEnc, this.backRightEncoder, Constants.BACK_RIGHT_FORWARD, this.backRightCANCoder, 3);
         }
         initSparks();
-        
+
         this.frontLeftDrive.burnFlash();
         this.frontLeftRotation.burnFlash();
         this.frontRightDrive.burnFlash();
@@ -136,7 +136,7 @@ public class DriveTrain {
         this.updateOdometry();
         setSwerveModuleStates(swerveModuleStates);
     }
-
+    
     public void putCANCodersToSmartDashboard(){
     }
 
