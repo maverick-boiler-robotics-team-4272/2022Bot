@@ -133,7 +133,6 @@ public class Shooter {
         shootin = true;
         if(!Subsystems.getIntake().getShooterBeam()){
             ballOffWheel = true;
-
         }
         if(Subsystems.getIntake().getShooterBeam()){
             ballShooting = true;
@@ -141,14 +140,10 @@ public class Shooter {
 
         if(ballShooting && !Subsystems.getIntake().getShooterBeam() && getHoodAtPosition()){
             Subsystems.getIntake().shotBall();
+            ballShooting = false;
         }
-        /*if(!ballOffWheel){
-            ballOffWheel = Subsystems.getIntake().reverseToMid();
-            return;
-        }*/
 
-        this.shooterMotor.getPIDController().setReference(shooterAmt, ControlType.kSmartVelocity);
-        // SmartDashboard.putNumber("Shooter Velocity", shooterMotor.getEncoder().getVelocity());
+        shooterMotor.getPIDController().setReference(shooterAmt, ControlType.kSmartVelocity);
 
         if(shooterMotor.getEncoder().getVelocity() >= shooterAmt - (Constants.SHOOTER_DEADZONE) &&
             shooterMotor.getEncoder().getVelocity() <= shooterAmt + (Constants.SHOOTER_DEADZONE) &&
@@ -159,7 +154,6 @@ public class Shooter {
 
         if(shooterAtSpeed && ballOffWheel){
             Subsystems.getIntake().feedShooter(feedAmt);
-            // Subsystems.getIntake().resetBall();
         }else{
             Subsystems.getIntake().stopFeedShooter();
         }

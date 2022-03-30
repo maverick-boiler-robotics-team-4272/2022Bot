@@ -342,66 +342,7 @@ public class DriveTrain {
     }
 
     /**
-     * Used when tu
-     * 
-     * 
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     ning the PID on the limelight aiming
+     * Used when tuning the PID on the limelight aiming
      */
     public void resetAimPID(){
         aimController.setPID(SmartDashboard.getNumber("Aim P", 1.0), SmartDashboard.getNumber("Aim I", 0.0), SmartDashboard.getNumber("Aim D", 0.0));
@@ -413,5 +354,15 @@ public class DriveTrain {
     public double aimAtHub(){
         double tx = Limelight.getTX();
         return aimController.calculate(-tx, 0.0);
+    }
+
+    public void setXConfig(){
+
+        frontLeftModule.setHeading(new SwerveModuleState(0.0, Rotation2d.fromDegrees(315)));
+        frontRightModule.setHeading(new SwerveModuleState(0.0, Rotation2d.fromDegrees(45)));
+
+        backLeftModule.setHeading(new SwerveModuleState(0.0, Rotation2d.fromDegrees(45)));
+        backRightModule.setHeading(new SwerveModuleState(0.0, Rotation2d.fromDegrees(315)));
+        
     }
 }

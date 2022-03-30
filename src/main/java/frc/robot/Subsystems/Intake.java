@@ -40,35 +40,6 @@ public class Intake {
     }
 
     /**
-     * Runs intake motors at a value determined by trigger value
-     * 
-     * @param triggerVal
-     */
-    public void runIntakeOld(double triggerVal){
-
-        boolean botBeam = lowFeedBeamBreak.get();
-        boolean midBeam = midFeedBeamBreak.get();
-        boolean shooterBeam = shooterBeamBreak.get();
-        boolean hopperBeam = (lidar.getRawDutyCycle() >= 0.09 || lidar.getRawDutyCycle() <= 0.04);
-        //true if unbroken, false if broken
-
-        if(!hopperBeam && !b1){
-            triggerVal *= 0.7;
-        }
-
-        intakeMotor.set(triggerVal);
-
-        if(midBeam){
-            b1 = false;
-            feedShooter();
-        }else{
-            b1 = true;
-            stopFeedShooter();
-        }
-        
-    }
-
-    /**
      * Run the intake and feed, using beam breaks to figure out when to stop
      * @param triggerVal speed to run intake at
      * @param inverted whether the feed motor is inverted
