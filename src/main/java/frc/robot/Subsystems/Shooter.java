@@ -15,7 +15,7 @@ public class Shooter {
     public enum ShooterPositions{
         //shootAmt, hoodAmt, feedAmt
         FENDER_LOW(
-            1300.0, -15.0, -0.75
+            1500.0, -15.0, -0.75
         ),
         FENDER_HIGH(
             2200.0, -3.5, -0.9 //2250
@@ -102,6 +102,10 @@ public class Shooter {
         shooterPIDController.setSmartMotionMaxVelocity(3000.0, 0);
         shooterPIDController.setSmartMotionMaxAccel(4000.0, 0);
         shooterPIDController.setSmartMotionAllowedClosedLoopError(5.0, 0);
+
+        hoodMotor.burnFlash();
+        shooterMotor.burnFlash();
+        shooterFollowerMotor.burnFlash();
 
     }
 

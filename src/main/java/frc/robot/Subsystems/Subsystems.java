@@ -13,7 +13,6 @@ public class Subsystems {
     public static void initSubsystems(){
         driveTrain = new DriveTrain();
         climber = new Climber();
-        climber.zeroClimbers();
         shooter = new Shooter();
         intake = new Intake();
         pneumatics = new Pneumatics();

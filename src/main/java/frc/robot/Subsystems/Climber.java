@@ -9,6 +9,13 @@ public class Climber {
     //Climber motors, ids 15-18. I can't imagine it taking more than 4 motors, nor can I imagine our robot having 18 motors on it
     private CANSparkMax climberLeft = new CANSparkMax(17, MotorType.kBrushless);
     private CANSparkMax climberRight = new CANSparkMax(7, MotorType.kBrushless);
+
+    public Climber(){
+        zeroClimbers();
+        climberRight.burnFlash();
+        climberLeft.burnFlash();
+    }
+
     /**
      * Runs climber motors with two joystick values
      * @param leftStickAxis - speed to run the left climber at

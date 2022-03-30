@@ -106,6 +106,16 @@ public class DriveTrain {
             backRightModule = new SwerveModule(this.backRightDrive, this.backRightRotation, this.backRightDriveEnc, this.backRightEncoder, Constants.BACK_RIGHT_FORWARD, this.backRightCANCoder, 3);
         }
         initSparks();
+        
+        this.frontLeftDrive.burnFlash();
+        this.frontLeftRotation.burnFlash();
+        this.frontRightDrive.burnFlash();
+        this.frontRightRotation.burnFlash();
+        this.backLeftDrive.burnFlash();
+        this.backLeftRotation.burnFlash();
+        this.backRightDrive.burnFlash();
+        this.backRightRotation.burnFlash();
+        
         swerveOdometry = new SwerveOdometry(swerveKinematics, getPigeonHeading());
     }
 

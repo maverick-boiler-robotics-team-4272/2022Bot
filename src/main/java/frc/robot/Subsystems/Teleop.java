@@ -69,19 +69,22 @@ public class Teleop {
         double rotX;
         if(driveController.getLeftBumper()){
             rotX = Subsystems.getDriveTrain().aimAtHub();
-            // Limelight.setLEDMode(LEDMode.ON);
             System.out.println("Distance: " + Limelight.getDistanceFeet());
         }else{
-            // Limelight.setLEDMode(LEDMode.OFF);;
             rotX = driveController.getRightX();
             rotX = Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, rotX);
         }
+        
+
 
         if(driveController.getLeftBumperPressed()){
             Limelight.setLEDMode(LEDMode.ON);
         }else if(driveController.getLeftBumperReleased()){
             Limelight.setLEDMode(LEDMode.OFF);
         }
+
+        Limelight.setLEDMode(LEDMode.ON);
+
         
         Subsystems.getDriveTrain().drive(driveX * Constants.MAX_SPEED, driveY * Constants.MAX_SPEED, rotX * Constants.MAX_ANGULAR_SPEED, fieldRelative);
 
@@ -107,7 +110,7 @@ public class Teleop {
         }
 
         if(driveController.getXButton()){
-            intake.runIntakeComplex(0.5, false);
+            intake.runIntake(0.6, false, false, false);
         }else if(driveController.getXButtonReleased()){
             intake.stopIntake();
             intake.stopFeedShooter();
@@ -124,15 +127,10 @@ public class Teleop {
 
         if(opRTrigger > 0){
             intakeStopped = false;
-
-            if(intakeOverride){
-                intake.runIntakeAndFeed(opRTrigger);
-            }else{
-                intake.runIntakeComplex(opRTrigger, false);
-            }
+            intake.runIntake(opRTrigger, false, intakeOverride, false);
         }else if(opLTrigger > 0){
             intakeStopped = false;
-            intake.runIntakeComplex(opLTrigger, true);
+            intake.runIntake(opLTrigger, true, intakeOverride, false);
         }else if(!intakeStopped){
             intakeStopped = true;
             Subsystems.getIntake().stopIntake();

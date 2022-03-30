@@ -15,7 +15,7 @@ public class Intake {
     private DigitalInput shooterBeamBreak = new DigitalInput(16); //top feed
     private DigitalInput midFeedBeamBreak = new DigitalInput(15); //mid feed
     private DigitalInput lowFeedBeamBreak = new DigitalInput(14); //close to intake
-    private DutyCycle lidar = new DutyCycle(new DigitalInput(18));
+    private Lidar lidar = new Lidar(18);
 
     private boolean ballInFeed = false;
     private boolean ballInHopper = false;
@@ -35,6 +35,8 @@ public class Intake {
         intakeMotor.setSmartCurrentLimit(45);
         shooterFeedMotor.setSmartCurrentLimit(45);
         shooterFeedMotor.setOpenLoopRampRate(0.5);
+        intakeMotor.burnFlash();
+        shooterFeedMotor.burnFlash();        
     }
 
     /**
@@ -42,18 +44,16 @@ public class Intake {
      * 
      * @param triggerVal
      */
-    public void runIntake(double triggerVal){
+    public void runIntakeOld(double triggerVal){
 
         boolean botBeam = lowFeedBeamBreak.get();
         boolean midBeam = midFeedBeamBreak.get();
         boolean shooterBeam = shooterBeamBreak.get();
-        boolean hopperBeam = (lidar.getOutput() >= 0.09 || lidar.getOutput() <= 0.04);
+        boolean hopperBeam = (lidar.getRawDutyCycle() >= 0.09 || lidar.getRawDutyCycle() <= 0.04);
         //true if unbroken, false if broken
 
         if(!hopperBeam && !b1){
             triggerVal *= 0.7;
-        }else if(!hopperBeam){
-            triggerVal = 0;
         }
 
         intakeMotor.set(triggerVal);
@@ -68,48 +68,22 @@ public class Intake {
         
     }
 
-    public void runIntakeAndFeed(double val){
-        intakeMotor.set(val);
-        boolean midBeam = midFeedBeamBreak.get();
-        
-        if(!midBeam){
-            shooterFeedMotor.set(0.0);
-        }else{
-            shooterFeedMotor.set(-0.6);
-        }
-    }
-    /**
-     * Function to only run the intake, and not the feed
-     * @param val speed to run the intake at
-     */
-    public void runIntakeOnly(double val){
-        intakeMotor.set(val);
-    }
-    
-    public void beamBreaksToSmart(){
-
-        boolean botBeam = !lowFeedBeamBreak.get();
-        boolean midBeam = !midFeedBeamBreak.get();
-        boolean shooterBeam = !shooterBeamBreak.get();
-        boolean hopperBeam = lidar.getOutput() < 0.08 && lidar.getOutput() > 0.01;
-
-        SmartDashboard.putNumber("hopBeamVal", lidar.getOutput());
-        SmartDashboard.putBoolean("botBeam", botBeam);
-        SmartDashboard.putBoolean("midBeam", midBeam);
-        SmartDashboard.putBoolean("shooterBeam", shooterBeam);
-        SmartDashboard.putBoolean("hopperBeam", hopperBeam);
-    }
     /**
      * Run the intake and feed, using beam breaks to figure out when to stop
      * @param triggerVal speed to run intake at
      * @param inverted whether the feed motor is inverted
      */
-    public void runIntakeComplex(double triggerVal, boolean inverted){
+    public void runIntake(double triggerVal, boolean inverted, boolean override, boolean intakeOnly){
 
         boolean midBeam = !midFeedBeamBreak.get();
         boolean shooterBeam = !shooterBeamBreak.get();
-        boolean hopperBeam = lidar.getOutput() < 0.1;
+        boolean hopperBeam = lidar.getRawDutyCycle() < 0.1;
         double feedVal = -0.6;
+
+        if(intakeOnly){
+            intakeMotor.set(triggerVal);
+            return;
+        }
 
         if(inverted){
             intakeMotor.set(-triggerVal);
@@ -117,6 +91,15 @@ public class Intake {
             return;
         }
 
+        if(override){
+            intakeMotor.set(triggerVal);
+            if(midBeam){
+                shooterFeedMotor.set(0.0);
+            }else{
+                shooterFeedMotor.set(feedVal);
+            }
+            return;
+        }
 
         //if no ball then just run norms
         //if ball in hopper, slow intake speed to allow feed succ
@@ -142,57 +125,27 @@ public class Intake {
         if(hopperBeam){
             triggerVal = 0.2;
         }
-
-
         
         intakeMotor.set(triggerVal);
 
         shooterFeedMotor.set(feedVal);
-
-        /////////////////////////// 3 - 22 CODE ///////////////////////////////////////
-        /*
-
-        //intake normally if no balls
-        //if there is a ball in hopper then slow down intake to allow feed to grab ball
-        //if ball is in feed go up to shooter beam then back up to mid to make sure the ball doesn't jam the intake
-        //then slowly SLOWLY run the feed to try and get both balls in the feed until the shooter beam is set off
-
-        if(hopperBeam){//slow down intake if ball in hopper
-            triggerVal *= 0.2;
-        }
-        
-        if(shooterBeam && !b1){//detects ball at shooter beam and sets b1 to true
-            b1 = true;
-        }
-
-        if(b1 && !b1Mid && !midBeam){//ball at shooter reverse feed til midBeam
-            feedVal = 0.3;
-        }else if(b1 && !b1Mid && midBeam){
-            b1Mid = true;
-            feedVal = 0;
-        }
-
-        if(b1Mid && !b2 && hopperBeam){ //if b1 has been put to mid and b2 doesn't exist yet and there's a ball in the hopper then b2 is true
-            b2 = true;
-        }else if(b1Mid && b2){ //if b1 is mid and b2 is there then just move feed slowly
-            triggerVal *= 0.15;
-            feedVal = -0.2;
-        }else if(b1Mid){
-            feedVal = 0;
-        }
-
-        if(shooterBeam && b1 && b2){
-            feedVal = 0;
-            triggerVal = 0;
-        }
-
-        shooterFeedMotor.set(feedVal);
-
-        intakeMotor.set(triggerVal);
-
-        */
         
     }
+    
+    public void beamBreaksToSmart(){
+
+        boolean botBeam = !lowFeedBeamBreak.get();
+        boolean midBeam = !midFeedBeamBreak.get();
+        boolean shooterBeam = !shooterBeamBreak.get();
+        boolean hopperBeam = lidar.getRawDutyCycle() < 0.08 && lidar.getRawDutyCycle() > 0.01;
+
+        SmartDashboard.putNumber("hopBeamVal", lidar.getRawDutyCycle());
+        SmartDashboard.putBoolean("botBeam", botBeam);
+        SmartDashboard.putBoolean("midBeam", midBeam);
+        SmartDashboard.putBoolean("shooterBeam", shooterBeam);
+        SmartDashboard.putBoolean("hopperBeam", hopperBeam);
+    }
+    
 
     public int getBallCount(){
         int count = 0;
@@ -271,7 +224,7 @@ public class Intake {
         boolean botBeam = !lowFeedBeamBreak.get();
         boolean midBeam = !midFeedBeamBreak.get();
         boolean shooterBeam = !shooterBeamBreak.get();
-        boolean hopperBeam = lidar.getOutput() < 0.12 && lidar.getOutput() > 0.01;
+        boolean hopperBeam = lidar.getRawDutyCycle() < 0.12 && lidar.getRawDutyCycle() > 0.01;
 
         return (botBeam || midBeam || shooterBeam || hopperBeam);
     }

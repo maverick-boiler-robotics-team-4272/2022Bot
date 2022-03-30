@@ -24,10 +24,10 @@ public class Auto {
         new Setpoint(0.0, 0.1,
             () -> Subsystems.getPneumatics().intakeOut(),
             () -> Subsystems.getShooter().setShooter(ShooterPositions.TARMAC),
-            () -> Subsystems.getIntake().runIntake(0.7)),
+            () -> Subsystems.getIntake().runIntakeOld(0.7)),
         new Setpoint(0.1, 2.0,
             () -> Setpoint.noop(),
-            () -> Subsystems.getIntake().runIntake(0.7),
+            () -> Subsystems.getIntake().runIntakeOld(0.7),
             () -> Subsystems.getIntake().stopIntake())
         ),
         TERMINAL_3_BALL(1,
@@ -69,18 +69,18 @@ public class Auto {
         new Setpoint(0.1, 0.1, 
             () -> Subsystems.getPneumatics().intakeOut(), 
             () -> Setpoint.noop(), 
-            () -> Subsystems.getIntake().runIntake(0.75)),
+            () -> Subsystems.getIntake().runIntakeOld(0.75)),
         new Setpoint(1.0, 1.75, 
             () -> Subsystems.getShooter().setShooter(ShooterPositions.TARMAC), 
-            () -> Subsystems.getIntake().runIntake(0.75), 
-            () -> Subsystems.getIntake().runIntake(0.0)),
+            () -> Subsystems.getIntake().runIntakeOld(0.75), 
+            () -> Subsystems.getIntake().runIntakeOld(0.0)),
         new Setpoint(2.75, 1.25, 
-            () -> Subsystems.getIntake().runIntake(0.2),  
+            () -> Subsystems.getIntake().runIntakeOld(0.2),  
             () ->Subsystems.getShooter().revShooter(), 
             () ->Subsystems.getIntake().stopIntake()),
         new Setpoint(5.5, 0.5, 
             () -> Subsystems.getIntake().reverseToMid(), 
-            () -> Subsystems.getIntake().runIntakeOnly(0.75), 
+            () -> Subsystems.getIntake().runIntake(0.75, false, false, true), 
             () -> Subsystems.getShooter().shoot()),
         new Setpoint(5.0, 4.0, 
             () -> Subsystems.getShooter().revShooter(), 
@@ -223,7 +223,7 @@ public class Auto {
     }
 
     public void stopAuto(){
-        Subsystems.getIntake().runIntake(0.0);
+        Subsystems.getIntake().runIntakeOld(0.0);
         Subsystems.getShooter().stopShooterAndFeed();
     }
 
@@ -245,16 +245,16 @@ public class Auto {
             Subsystems.getShooter().setShooter(ShooterPositions.AUTO_TARMAC);
             Subsystems.getPneumatics().intakeOut();
         }else if(currTime < 4.9 && currTime > 3.0){
-            Subsystems.getIntake().runIntake(0.45);
+            Subsystems.getIntake().runIntakeOld(0.45);
             Subsystems.getShooter().revShooter();
         }else if(currTime > 5.0 && currTime < 6.75){
-            Subsystems.getIntake().runIntake(0.45);
+            Subsystems.getIntake().runIntakeOld(0.45);
             Subsystems.getShooter().revShooter();
         }else if(currTime < 6.8){
             Subsystems.getIntake().stopIntake();
             Subsystems.getShooter().shoot();
         }else if(currTime > 6.9){
-            Subsystems.getIntake().runIntakeOnly(0.15);
+            Subsystems.getIntake().runIntake(0.25, false, false, true);
             Subsystems.getShooter().shoot();
         }
     }
@@ -265,15 +265,13 @@ public class Auto {
         if(currTime < 1.8 && currTime > 1.5){
             Subsystems.getShooter().stopShooterAndFeed();
         }else if(currTime < 3.5){
-            Subsystems.getIntake().runIntake(0.5);
+            Subsystems.getIntake().runIntake(0.6, false, false, false);
             Subsystems.getShooter().setShooter(ShooterPositions.AUTO_TARMAC);
             Subsystems.getShooter().revShooter();
         }else if(currTime < 5.75){
-            Subsystems.getIntake().runIntake(0.5);
+            Subsystems.getIntake().runIntake(0.6, false, false, false);
             Subsystems.getShooter().revShooter();
-        }/*else if(currTime < 4.7 && currTime > 4.6){
-            Subsystems.getIntake().stopIntake();
-        }*/else if(currTime > 5.5){
+        }else if(currTime > 5.5){
             Subsystems.getShooter().shoot();
         }
     }
