@@ -59,7 +59,7 @@ public class DriveTrain {
     private CANCoder frontLeftCANCoder = new CANCoder(21);
     private CANCoder backLeftCANCoder = new CANCoder(23);
     private CANCoder backRightCANCoder = new CANCoder(24);
-
+                                                            //0.005
     private PIDController aimController = new PIDController(0.01, 0.0, 0.0);
 
     public final BasePigeon pigeon;
@@ -353,16 +353,17 @@ public class DriveTrain {
      */
     public double aimAtHub(){
         double tx = Limelight.getTX();
-        return aimController.calculate(-tx, 0.0);
+        return aimController.calculate(tx, 0.0);
     }
 
     public void setXConfig(){
+        SwerveModuleState[] xStates = {
+            new SwerveModuleState(0.01, Rotation2d.fromDegrees(135)),
+            new SwerveModuleState(0.01, Rotation2d.fromDegrees(45)),
+            new SwerveModuleState(0.01, Rotation2d.fromDegrees(45)),
+            new SwerveModuleState(0.01, Rotation2d.fromDegrees(135))
+        };
 
-        frontLeftModule.setHeading(new SwerveModuleState(0.0, Rotation2d.fromDegrees(315)));
-        frontRightModule.setHeading(new SwerveModuleState(0.0, Rotation2d.fromDegrees(45)));
-
-        backLeftModule.setHeading(new SwerveModuleState(0.0, Rotation2d.fromDegrees(45)));
-        backRightModule.setHeading(new SwerveModuleState(0.0, Rotation2d.fromDegrees(315)));
-        
+        setSwerveModuleStates(xStates);
     }
 }

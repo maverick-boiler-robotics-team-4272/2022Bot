@@ -14,4 +14,5 @@ public abstract class Setpoint {
 
     public abstract void inTime();
     public abstract void outTime();
+    public abstract boolean isInTime(double currentTime);
 }

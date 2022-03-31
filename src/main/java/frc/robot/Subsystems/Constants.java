@@ -100,7 +100,7 @@ public class Constants {
 
     public static final double RAMP_UP_DEADZONE = 1.0;
     public static final double FIRE_DEADZONE = 5.0;
-    public static final double LIMELIGHT_DEADZONE = 0.1;
+    public static final double LIMELIGHT_DEADZONE = 5.0;
 
     public static final double HOOD_MAX = 0.0;
     public static final double HOOD_MIN = -20.0;

@@ -19,11 +19,11 @@ public class Limelight {
     };
 
     public static double getTX(){
-        return table.getEntry("tx").getDouble(0.0);
+        return table.getEntry("ty").getDouble(1.0);
     }
 
     public static double getTY(){
-        return table.getEntry("ty").getDouble(0.0);
+        return table.getEntry("tx").getDouble(0.0);
     }
 
     public static double getDistanceFeet(){
@@ -32,5 +32,13 @@ public class Limelight {
 
     public static void setLEDMode(LEDMode mode){
         table.getEntry("ledMode").setNumber(mode.tableVal);
+    }
+
+    public static boolean isValidTarget(){
+        return ((int) table.getEntry("tv").getDouble(0.0)) != 0;
+    }
+
+    public static boolean getAimed(){
+        return (Math.abs(Limelight.getTX()) < Constants.LIMELIGHT_DEADZONE && Limelight.isValidTarget());
     }
 }

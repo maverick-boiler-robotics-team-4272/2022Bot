@@ -25,7 +25,10 @@ public class WhileTrueSetpoint extends Setpoint {
         }
     }
 
-    public boolean isInTime(){
+    /**
+     * current time not used here because this setpoint only runs while a supplier returns true
+     */
+    public boolean isInTime(double currentTime){
         return duringCondition.get();
     }
 }

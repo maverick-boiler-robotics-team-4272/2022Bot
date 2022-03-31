@@ -70,7 +70,7 @@ public class Robot extends TimedRobot {
         Subsystems.getDriveTrain().putCANCodersToSmartDashboard();
         Subsystems.getIntake().beamBreaksToSmart();
         SmartDashboard.putNumber("Limelight tx", Limelight.getTX());
-        SmartDashboard.putBoolean("Limelight aimed", (Limelight.getTX() < 0.1));
+        SmartDashboard.putBoolean("Limelight aimed", Limelight.getAimed());
     }
 
     /**

@@ -1,7 +1,6 @@
 package frc.robot.Subsystems;
 
 
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Subsystems.Limelight.LEDMode;
@@ -10,8 +9,6 @@ public class Teleop {
     //Xbox controllers
     private XboxController driveController = new XboxController(0);
     public XboxController opController = new XboxController(1);
-
-    SlewRateLimiter slewRateLimiter = new SlewRateLimiter(0.5);
     
     private double percentTop = .8;
     private double percentBottom = .8;
@@ -68,37 +65,40 @@ public class Teleop {
         double angle = Math.atan2(driveY, driveX);
         hyp = deadzoneEquations(Constants.JSTICK_DEADZONE, hyp);
 
-        driveX = slewRateLimiter.calculate(Math.cos(angle) * hyp);
-        driveY = slewRateLimiter.calculate(Math.sin(angle) * hyp);
+        driveX = Math.cos(angle) * hyp;
+        driveY = Math.sin(angle) * hyp;
 
         double rotX;
 
         if(driveController.getLeftBumperPressed()){
             Limelight.setLEDMode(LEDMode.ON);
+            drivetrain.setXConfig();
+            translating = false;
         }else if(driveController.getLeftBumperReleased()){
+            translating = true;
             Limelight.setLEDMode(LEDMode.OFF);
         }
 
+        SmartDashboard.putNumber("Limelight distance", Limelight.getDistanceFeet());
+
         if(driveController.getLeftTriggerAxis() > Constants.TRIGGER_DEADZONE){
+            Limelight.setLEDMode(LEDMode.ON);
             rotX = drivetrain.aimAtHub();
             shooter.revShooter();
-            System.out.println("Distance: " + Limelight.getDistanceFeet());
-            if(Limelight.getTX() < Constants.LIMELIGHT_DEADZONE){
+            if(Limelight.getAimed()){
                 translating = false;
                 drivetrain.setXConfig();
             }else{
                 translating = true;
             }
         }else{
+            Limelight.setLEDMode(LEDMode.OFF);
             rotX = driveController.getRightX();
             rotX = Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, rotX);
             translating = true;
         }
-        
 
-        Limelight.setLEDMode(LEDMode.ON);
-
-        if(translating || driveController.getRightBumper()){
+        if(translating && !driveController.getRightBumper()){
             drivetrain.drive(driveX * Constants.MAX_SPEED, driveY * Constants.MAX_SPEED, rotX * Constants.MAX_ANGULAR_SPEED, fieldRelative);
         }
 
@@ -194,11 +194,11 @@ public class Teleop {
         }
 
 
-        // if(driveController.getRightBumper()){
-        //     Subsystems.getIntake().runIntakeComplex(0.5, false);
-        // }else if(driveController.getRightBumperReleased()){
-        //     intake.stopIntake();
-        // }
+        if(driveController.getRightBumper()){
+            Subsystems.getIntake().runIntake(0.6, false, false, false);
+        }else if(driveController.getRightBumperReleased()){
+            intake.stopIntake();
+        }
 
         if(driveController.getRightTriggerAxis() > Constants.TRIGGER_DEADZONE){
             shooterStopped = false;
