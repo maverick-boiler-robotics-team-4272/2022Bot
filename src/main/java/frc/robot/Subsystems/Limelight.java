@@ -51,4 +51,14 @@ public class Limelight {
     public static boolean getAimed(){
         return (Math.abs(Limelight.getTX()) < Constants.LIMELIGHT_DEADZONE && Limelight.isValidTarget());
     }
+
+    public static double getHoodAngle(){
+        double x = getTY();
+        return Constants.HOOD_ANGLE_A * Math.pow(x, 2.0) + Constants.HOOD_ANGLE_B * x + Constants.HOOD_ANGLE_C;
+    }
+
+    public static double getFlywheelSpeed(){
+        double x = getTY();
+        return Constants.FLYWHEEL_SPEED_A * Math.pow(x, 2.0) + Constants.FLYWHEEL_SPEED_B * x + Constants.FLYWHEEL_SPEED_C;
+    }
 }

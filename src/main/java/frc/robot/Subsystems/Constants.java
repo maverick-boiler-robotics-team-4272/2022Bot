@@ -114,4 +114,35 @@ public class Constants {
     public static final double LIMELIGHT_HEIGHT = 2.75;
     public static final double GOAL_HEIGHT = 8.5;
 
+    //Limelight calibration
+
+    //place robot, and then measure from limelight for these values
+    private static final double PHI_A = 0;
+    private static final double PHI_B = 0;
+    private static final double PHI_C = 0;
+
+    //tuned hood angles
+    private static final double THETA_A = 0;
+    private static final double THETA_B = 0;
+    private static final double THETA_C = 0;
+
+    //tuned flywheel speeds
+    private static final double OMEGA_A = 0;
+    private static final double OMEGA_B = 0;
+    private static final double OMEGA_C = 0;
+
+
+    //y = ax^2 + bx + c
+    //a, b, and c values
+
+    public static final double HOOD_ANGLE_A =   THETA_A / ((PHI_A - PHI_B) * (PHI_A - PHI_C)) - THETA_B / ((PHI_A - PHI_B) * (PHI_B - PHI_C)) + THETA_C / ((PHI_A - PHI_C) * (PHI_B - PHI_C));
+    public static final double HOOD_ANGLE_B = - THETA_A / ((PHI_A - PHI_B) * (PHI_A - PHI_C)) + THETA_B / ((PHI_A - PHI_B) * (PHI_B - PHI_C)) + THETA_C / ((PHI_A - PHI_C) * (PHI_C - PHI_B));
+    public static final double HOOD_ANGLE_C =   THETA_A * PHI_B * PHI_C / ((PHI_A - PHI_B) * (PHI_A - PHI_C)) - THETA_B * PHI_A * PHI_C / ((PHI_A - PHI_B) * (PHI_B - PHI_C)) + THETA_C * PHI_A * PHI_B / ((PHI_A - PHI_C) * (PHI_B - PHI_C));
+
+    public static final double FLYWHEEL_SPEED_A =   OMEGA_A / ((PHI_A - PHI_B) * (PHI_A - PHI_C)) - OMEGA_B / ((PHI_A - PHI_B) * (PHI_B - PHI_C)) + OMEGA_C / ((PHI_A - PHI_C) * (PHI_B - PHI_C));
+    public static final double FLYWHEEL_SPEED_B = - OMEGA_A / ((PHI_A - PHI_B) * (PHI_A - PHI_C)) + OMEGA_B / ((PHI_A - PHI_B) * (PHI_B - PHI_C)) + OMEGA_C / ((PHI_A - PHI_C) * (PHI_C - PHI_B));
+    public static final double FLYWHEEL_SPEED_C =   OMEGA_A * PHI_B * PHI_C / ((PHI_A - PHI_B) * (PHI_A - PHI_C)) - OMEGA_B * PHI_A * PHI_C / ((PHI_A - PHI_B) * (PHI_B - PHI_C)) + OMEGA_C * PHI_A * PHI_B / ((PHI_A - PHI_C) * (PHI_B - PHI_C));
+
+
+
 }
