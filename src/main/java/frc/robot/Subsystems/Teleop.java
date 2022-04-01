@@ -76,7 +76,7 @@ public class Teleop {
             translating = false;
         }else if(driveController.getLeftBumperReleased()){
             translating = true;
-            Limelight.setLEDMode(LEDMode.OFF);
+            //Limelight.setLEDMode(LEDMode.OFF);
         }
 
         SmartDashboard.putNumber("Limelight distance", Limelight.getDistanceFeet());
@@ -84,21 +84,23 @@ public class Teleop {
         if(driveController.getLeftTriggerAxis() > Constants.TRIGGER_DEADZONE){
             Limelight.setLEDMode(LEDMode.ON);
             rotX = drivetrain.aimAtHub();
-            shooter.revShooter();
+            //shooter.revShooter();
             if(Limelight.getAimed()){
                 translating = false;
                 drivetrain.setXConfig();
+                shooter.shoot();
             }else{
                 translating = true;
+                shooter.revShooter();
             }
         }else{
-            Limelight.setLEDMode(LEDMode.OFF);
+            //Limelight.setLEDMode(LEDMode.OFF);
             rotX = driveController.getRightX();
             rotX = Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, rotX);
             translating = true;
         }
 
-        if(translating && !driveController.getRightBumper()){
+        if(translating || driveController.getRightBumper()){
             drivetrain.drive(driveX * Constants.MAX_SPEED, driveY * Constants.MAX_SPEED, rotX * Constants.MAX_ANGULAR_SPEED, fieldRelative);
         }
 
@@ -162,17 +164,7 @@ public class Teleop {
         double lClimbSpeed = Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, opController.getLeftY());
         double rClimbSpeed = Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, opController.getRightY());
 
-
-        if(opController.getRightBumper()){
-            if(Math.abs(lClimbSpeed) > Math.abs(rClimbSpeed)){
-                rClimbSpeed = lClimbSpeed;
-            }else{
-                lClimbSpeed = rClimbSpeed;
-            }
-            Subsystems.getClimber().runClimbers(rClimbSpeed, lClimbSpeed);
-        }else{
-            Subsystems.getClimber().runClimbers(rClimbSpeed, lClimbSpeed);
-        }
+        Subsystems.getClimber().runClimbers(rClimbSpeed, lClimbSpeed);
         
         if(opController.getLeftBumperPressed()){
             climber.disableSoftLimits();            
@@ -190,12 +182,14 @@ public class Teleop {
         }
 
         if(opController.getXButtonPressed()){
-            Subsystems.getPneumatics().toggleClimbSafety();
+            intake.mechanicalProblemsBeingFixedInCode();
+        }else if(opController.getXButtonReleased()){
+            intake.mechanicalProblemsFixedInCode();
         }
 
 
         if(driveController.getRightBumper()){
-            Subsystems.getIntake().runIntake(0.6, false, false, false);
+            Subsystems.getIntake().runIntake(0.6, false, true, false);
         }else if(driveController.getRightBumperReleased()){
             intake.stopIntake();
         }
@@ -219,7 +213,11 @@ public class Teleop {
         if(driveController.getBackButtonPressed()){
             // Subsystems.getShooter().updateShooter();
             // Subsystems.getShooter().setHood();
-            fixingHood = true;
+            if(fixingHood){
+                fixingHood = false;
+            }else{
+                fixingHood = true;
+            }
         }
 
         if(fixingHood){

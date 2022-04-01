@@ -48,7 +48,7 @@ public class Intake {
 
         boolean midBeam = !midFeedBeamBreak.get();
         boolean shooterBeam = !shooterBeamBreak.get();
-        boolean hopperBeam = lidar.getRawDutyCycle() < 0.1;
+        boolean hopperBeam = lidar.getRawDutyCycle() < 0.1 && lidar.getRawDutyCycle() > 0.1;
         double feedVal = -0.6;
 
         if(intakeOnly){
@@ -254,5 +254,13 @@ public class Intake {
      */
     public void setIntakeCurrentLimit(int lim){
         this.intakeMotor.setSmartCurrentLimit(lim);
+    }
+
+    public void mechanicalProblemsBeingFixedInCode(){
+        setIntakeCurrentLimit(80);
+    }
+
+    public void mechanicalProblemsFixedInCode(){
+        setIntakeCurrentLimit(45);
     }
 }

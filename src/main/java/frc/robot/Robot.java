@@ -42,6 +42,7 @@ public class Robot extends TimedRobot {
         auto = new Auto();
         teleop = new Teleop();
         Paths[] paths = Paths.values();
+        SmartDashboard.putNumber("Limelight Ground Angle", 45.0);
         SmartDashboard.putNumber("Wheel Distance", Constants.WHEEL_DIST);
         for(int pathInd = 0; pathInd < paths.length; pathInd++){
             AUTO_CHOOSER.addOption(paths[pathInd].name(), paths[pathInd]);
@@ -50,7 +51,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putData("Auto choices", AUTO_CHOOSER);
         SmartDashboard.putNumber("Pigeon Heading", Subsystems.getDriveTrain().pigeon.getYaw());
         Subsystems.getShooter().putShooterDataToDashboard();
-        Limelight.setLEDMode(LEDMode.OFF);
+        Limelight.setLEDMode(LEDMode.ON);
     }
 
     /**
@@ -66,11 +67,14 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotPeriodic() {
+        Limelight.setLEDMode(LEDMode.ON);
+
         Subsystems.getShooter().putShooterDataToDashboard();
         Subsystems.getDriveTrain().putCANCodersToSmartDashboard();
         Subsystems.getIntake().beamBreaksToSmart();
         SmartDashboard.putNumber("Limelight tx", Limelight.getTX());
         SmartDashboard.putBoolean("Limelight aimed", Limelight.getAimed());
+        SmartDashboard.putNumber("Limelight Distance", Limelight.getDistanceFeet() * 12.0 - 6.0);
     }
 
     /**

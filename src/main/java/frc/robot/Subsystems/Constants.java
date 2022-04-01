@@ -109,4 +109,9 @@ public class Constants {
     public static final double SHOOTER_MIN = 0.0;
 
     public static final float CLIMBER_SOFT_LIMIT = -310.f;
+
+    public static final double LIMELIGHT_ANGLE = 45;
+    public static final double LIMELIGHT_HEIGHT = 2.75;
+    public static final double GOAL_HEIGHT = 8.5;
+
 }

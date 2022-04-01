@@ -18,10 +18,10 @@ public class Shooter {
             1500.0, -15.0, -0.75
         ),
         FENDER_HIGH(
-            2200.0, -3.5, -0.9 //2250
+            2200.0, -3.5, -0.7 //2250
         ),
         TARMAC(
-            2450.0, -13.75, -0.9 //2300, -12.5
+            2275.0, -16.0, -0.9 //2300, -12.5
         ),
         LAUNCHPAD(
             2615.0, -20, -0.5
@@ -67,9 +67,13 @@ public class Shooter {
     
     private boolean shooterAtSpeed = false;
     public Shooter(){
+
+        hoodMotor.restoreFactoryDefaults();
+        shooterMotor.restoreFactoryDefaults();
+        shooterFollowerMotor.restoreFactoryDefaults();
+
         this.hoodMotor.getEncoder().setPositionConversionFactor(1);
 
-        
         hoodPIDController.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
         hoodPIDController.setP(0.0000001);
         hoodPIDController.setI(0.0);

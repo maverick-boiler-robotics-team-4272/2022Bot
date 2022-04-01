@@ -2,6 +2,7 @@ package frc.robot.Subsystems;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Limelight {
     private static final NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
@@ -27,10 +28,19 @@ public class Limelight {
     }
 
     public static double getDistanceFeet(){
-        return (8.5 - 29.0 / 12.0) / Math.tan((50.0 + Limelight.getTY()) * Math.PI / 180.0);
+        return (Constants.GOAL_HEIGHT - Constants.LIMELIGHT_HEIGHT) / Math.tan((SmartDashboard.getNumber("Limelight Ground Angle", 0.0) + Limelight.getTY()) * Math.PI / 180.0);
     }
 
     public static void setLEDMode(LEDMode mode){
+        boolean light;
+        if(mode.equals(LEDMode.OFF)){
+            light = false;
+        }else{
+            light = true;
+        }
+
+        SmartDashboard.putBoolean("Limelight light", light);
+
         table.getEntry("ledMode").setNumber(mode.tableVal);
     }
 
