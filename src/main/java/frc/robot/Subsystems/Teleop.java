@@ -83,6 +83,10 @@ public class Teleop {
 
         if(driveController.getLeftTriggerAxis() > Constants.TRIGGER_DEADZONE){
             Limelight.setLEDMode(LEDMode.ON);
+
+            // 3 point shooter calibration code.
+            // shooter.setShooter(Limelight.getFlywheelSpeed(), Limelight.getHoodAngle(), -0.5);
+            
             rotX = drivetrain.aimAtHub();
             //shooter.revShooter();
             if(Limelight.getAimed()){

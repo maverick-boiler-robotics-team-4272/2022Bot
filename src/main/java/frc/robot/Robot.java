@@ -72,9 +72,13 @@ public class Robot extends TimedRobot {
         Subsystems.getShooter().putShooterDataToDashboard();
         Subsystems.getDriveTrain().putCANCodersToSmartDashboard();
         Subsystems.getIntake().beamBreaksToSmart();
-        SmartDashboard.putNumber("Limelight tx", Limelight.getTX());
+        SmartDashboard.putNumber("Limelight tx", Limelight.getTY());
+        SmartDashboard.putNumber("Limelight ty", Limelight.getTX());
         SmartDashboard.putBoolean("Limelight aimed", Limelight.getAimed());
         SmartDashboard.putNumber("Limelight Distance", Limelight.getDistanceFeet() * 12.0 - 6.0);
+
+        SmartDashboard.putNumber("Limelight Hood Ang", Limelight.getHoodAngle());
+        SmartDashboard.putNumber("Limelight Shooter Val", Limelight.getFlywheelSpeed());
     }
 
     /**

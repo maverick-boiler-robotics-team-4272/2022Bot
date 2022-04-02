@@ -19,16 +19,16 @@ public class Limelight {
         }
     };
 
-    public static double getTX(){
+    public static double getTY(){
         return table.getEntry("ty").getDouble(1.0);
     }
 
-    public static double getTY(){
+    public static double getTX(){
         return table.getEntry("tx").getDouble(0.0);
     }
 
     public static double getDistanceFeet(){
-        return (Constants.GOAL_HEIGHT - Constants.LIMELIGHT_HEIGHT) / Math.tan((SmartDashboard.getNumber("Limelight Ground Angle", 0.0) + Limelight.getTY()) * Math.PI / 180.0);
+        return (Constants.GOAL_HEIGHT - Constants.LIMELIGHT_HEIGHT) / Math.tan((SmartDashboard.getNumber("Limelight Ground Angle", 0.0) + Limelight.getTX()) * Math.PI / 180.0);
     }
 
     public static void setLEDMode(LEDMode mode){
@@ -49,16 +49,16 @@ public class Limelight {
     }
 
     public static boolean getAimed(){
-        return (Math.abs(Limelight.getTX()) < Constants.LIMELIGHT_DEADZONE && Limelight.isValidTarget());
+        return (Math.abs(Limelight.getTY()) < Constants.LIMELIGHT_DEADZONE && Limelight.isValidTarget());
     }
 
     public static double getHoodAngle(){
-        double x = getTY();
+        double x = getTX();
         return Constants.HOOD_ANGLE_A * Math.pow(x, 2.0) + Constants.HOOD_ANGLE_B * x + Constants.HOOD_ANGLE_C;
     }
 
     public static double getFlywheelSpeed(){
-        double x = getTY();
+        double x = getTX();
         return Constants.FLYWHEEL_SPEED_A * Math.pow(x, 2.0) + Constants.FLYWHEEL_SPEED_B * x + Constants.FLYWHEEL_SPEED_C;
     }
 }

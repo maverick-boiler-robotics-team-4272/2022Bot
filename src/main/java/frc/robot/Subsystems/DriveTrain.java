@@ -352,7 +352,7 @@ public class DriveTrain {
      * @return 
      */
     public double aimAtHub(){
-        double tx = Limelight.getTX();
+        double tx = Limelight.getTY();
         return aimController.calculate(tx, 0.0);
     }
 

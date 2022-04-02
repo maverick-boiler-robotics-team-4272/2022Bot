@@ -1,5 +1,6 @@
 package frc.robot.Subsystems;
 
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
@@ -14,9 +15,10 @@ public class Pneumatics {
     private DoubleSolenoid extraSolenoids = new DoubleSolenoid(41, PneumaticsModuleType.REVPH, 4, 5);
 
 
+
     public Pneumatics(){
         extraSolenoids.set(Value.kReverse);
-        climberSolenoid.set(Value.kReverse);
+        climberSolenoid.set(Value.kForward);
 
         intakeSolenoid.set(Value.kForward);
         climbSafetySolenoid.set(false);

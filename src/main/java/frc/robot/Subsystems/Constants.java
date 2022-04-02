@@ -100,7 +100,6 @@ public class Constants {
 
     public static final double RAMP_UP_DEADZONE = 1.0;
     public static final double FIRE_DEADZONE = 5.0;
-    public static final double LIMELIGHT_DEADZONE = 5.0;
 
     public static final double HOOD_MAX = 0.0;
     public static final double HOOD_MIN = -20.0;
@@ -110,6 +109,7 @@ public class Constants {
 
     public static final float CLIMBER_SOFT_LIMIT = -310.f;
 
+    public static final double LIMELIGHT_DEADZONE = 4.0;
     public static final double LIMELIGHT_ANGLE = 45;
     public static final double LIMELIGHT_HEIGHT = 2.75;
     public static final double GOAL_HEIGHT = 8.5;
@@ -117,19 +117,19 @@ public class Constants {
     //Limelight calibration
 
     //place robot, and then measure from limelight for these values
-    private static final double PHI_A = 0;
-    private static final double PHI_B = 0;
-    private static final double PHI_C = 0;
+    private static final double PHI_A = -7.6;
+    private static final double PHI_B = -18.6;
+    private static final double PHI_C = -23.4;
 
     //tuned hood angles
-    private static final double THETA_A = 0;
-    private static final double THETA_B = 0;
-    private static final double THETA_C = 0;
+    private static final double THETA_A = -16.0;
+    private static final double THETA_B = -20.0;
+    private static final double THETA_C = -22.0;
 
     //tuned flywheel speeds
-    private static final double OMEGA_A = 0;
-    private static final double OMEGA_B = 0;
-    private static final double OMEGA_C = 0;
+    private static final double OMEGA_A = 2200.0;
+    private static final double OMEGA_B = 2615.0;
+    private static final double OMEGA_C = 2900.0;
 
 
     //y = ax^2 + bx + c

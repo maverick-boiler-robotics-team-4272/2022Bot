@@ -21,7 +21,7 @@ public class Shooter {
             2200.0, -3.5, -0.7 //2250
         ),
         TARMAC(
-            2275.0, -16.0, -0.9 //2300, -12.5
+            2325.0, -16.0, -0.9 //2300, -12.5
         ),
         LAUNCHPAD(
             2615.0, -20, -0.5
@@ -151,7 +151,8 @@ public class Shooter {
 
         if(shooterMotor.getEncoder().getVelocity() >= shooterAmt - (Constants.SHOOTER_DEADZONE) &&
             shooterMotor.getEncoder().getVelocity() <= shooterAmt + (Constants.SHOOTER_DEADZONE) &&
-            shooterAmt > 500){
+            shooterAmt > 500 &&
+            getHoodAtPosition()){
             shooterAtSpeed = true;
         }
         
