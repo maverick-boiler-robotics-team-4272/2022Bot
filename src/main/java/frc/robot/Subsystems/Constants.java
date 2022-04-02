@@ -136,11 +136,11 @@ public class Constants {
     //a, b, and c values
 
     public static final double HOOD_ANGLE_A =   THETA_A / ((PHI_A - PHI_B) * (PHI_A - PHI_C)) - THETA_B / ((PHI_A - PHI_B) * (PHI_B - PHI_C)) + THETA_C / ((PHI_A - PHI_C) * (PHI_B - PHI_C));
-    public static final double HOOD_ANGLE_B = - THETA_A / ((PHI_A - PHI_B) * (PHI_A - PHI_C)) + THETA_B / ((PHI_A - PHI_B) * (PHI_B - PHI_C)) + THETA_C / ((PHI_A - PHI_C) * (PHI_C - PHI_B));
+    public static final double HOOD_ANGLE_B = - THETA_A * (PHI_B + PHI_C) / ((PHI_A - PHI_B) * (PHI_A - PHI_C)) + THETA_B * (PHI_A + PHI_C) / ((PHI_A - PHI_B) * (PHI_B - PHI_C)) + THETA_C * (PHI_A + PHI_B)/ ((PHI_A - PHI_C) * (PHI_C - PHI_B));
     public static final double HOOD_ANGLE_C =   THETA_A * PHI_B * PHI_C / ((PHI_A - PHI_B) * (PHI_A - PHI_C)) - THETA_B * PHI_A * PHI_C / ((PHI_A - PHI_B) * (PHI_B - PHI_C)) + THETA_C * PHI_A * PHI_B / ((PHI_A - PHI_C) * (PHI_B - PHI_C));
 
     public static final double FLYWHEEL_SPEED_A =   OMEGA_A / ((PHI_A - PHI_B) * (PHI_A - PHI_C)) - OMEGA_B / ((PHI_A - PHI_B) * (PHI_B - PHI_C)) + OMEGA_C / ((PHI_A - PHI_C) * (PHI_B - PHI_C));
-    public static final double FLYWHEEL_SPEED_B = - OMEGA_A / ((PHI_A - PHI_B) * (PHI_A - PHI_C)) + OMEGA_B / ((PHI_A - PHI_B) * (PHI_B - PHI_C)) + OMEGA_C / ((PHI_A - PHI_C) * (PHI_C - PHI_B));
+    public static final double FLYWHEEL_SPEED_B = - OMEGA_A * (PHI_B + PHI_C) / ((PHI_A - PHI_B) * (PHI_A - PHI_C)) + OMEGA_B * (PHI_A + PHI_C) / ((PHI_A - PHI_B) * (PHI_B - PHI_C)) + OMEGA_C * (PHI_A + PHI_B) / ((PHI_A - PHI_C) * (PHI_C - PHI_B));
     public static final double FLYWHEEL_SPEED_C =   OMEGA_A * PHI_B * PHI_C / ((PHI_A - PHI_B) * (PHI_A - PHI_C)) - OMEGA_B * PHI_A * PHI_C / ((PHI_A - PHI_B) * (PHI_B - PHI_C)) + OMEGA_C * PHI_A * PHI_B / ((PHI_A - PHI_C) * (PHI_B - PHI_C));
 
 
