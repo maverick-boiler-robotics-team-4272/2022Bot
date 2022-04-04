@@ -263,4 +263,12 @@ public class Intake {
     public void mechanicalProblemsFixedInCode(){
         setIntakeCurrentLimit(45);
     }
+
+    public boolean getB1(){
+        return b1;
+    }
+
+    public boolean getB2(){
+        return b2;
+    }
 }

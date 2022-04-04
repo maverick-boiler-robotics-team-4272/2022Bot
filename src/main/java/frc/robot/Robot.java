@@ -75,6 +75,9 @@ public class Robot extends TimedRobot {
         SmartDashboard.putNumber("Limelight tx", Limelight.getTX());
         SmartDashboard.putBoolean("Limelight aimed", Limelight.getAimed());
         SmartDashboard.putNumber("Limelight Distance", Limelight.getDistanceFeet() * 12.0 - 6.0);
+
+        SmartDashboard.putBoolean("B1", Subsystems.getIntake().getB1());
+        SmartDashboard.putBoolean("B2", Subsystems.getIntake().getB2());
     }
 
     /**
