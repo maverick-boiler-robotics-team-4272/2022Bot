@@ -72,8 +72,14 @@ public class Teleop {
 
         if(driveController.getLeftBumperPressed()){
             Limelight.setLEDMode(LEDMode.ON);
-            drivetrain.setXConfig();
-            translating = false;
+            rotX = drivetrain.aimAtHub();
+
+            if(Limelight.getAimed()){
+                drivetrain.setXConfig();
+                translating = false;
+            }else{
+                translating = true;
+            }
         }else if(driveController.getLeftBumperReleased()){
             translating = true;
             //Limelight.setLEDMode(LEDMode.OFF);
@@ -85,7 +91,7 @@ public class Teleop {
             Limelight.setLEDMode(LEDMode.ON);
 
             // 3 point shooter calibration code.
-            // shooter.setShooter(Limelight.getFlywheelSpeed(), Limelight.getHoodAngle(), -0.5);
+            shooter.setShooter(Limelight.getFlywheelSpeed(), Limelight.getHoodAngle(), -0.8);
             
             rotX = drivetrain.aimAtHub();
             //shooter.revShooter();
@@ -98,7 +104,7 @@ public class Teleop {
                 shooter.revShooter();
             }
         }else{
-            //Limelight.setLEDMode(LEDMode.OFF);
+            Limelight.setLEDMode(LEDMode.OFF);
             rotX = driveController.getRightX();
             rotX = Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, rotX);
             translating = true;
@@ -129,11 +135,8 @@ public class Teleop {
             pneumatics.toggleIntake();
         }
 
-        if(driveController.getXButton()){
-            intake.runIntake(0.6, false, false, false);
-        }else if(driveController.getXButtonReleased()){
-            intake.stopIntake();
-            intake.stopFeedShooter();
+        if(driveController.getXButtonPressed()){
+            shooter.reBurnFlash();
         }
         
         ///////////////////////// Intake ////////////////////
@@ -174,6 +177,10 @@ public class Teleop {
             climber.disableSoftLimits();            
         }else if(opController.getLeftBumperReleased()){
             climber.zeroClimbers();
+        }
+
+        if(opController.getRightBumperPressed()){
+            shooter.resetPID();
         }
 
         //////////////////// Pneumatics //////////////////

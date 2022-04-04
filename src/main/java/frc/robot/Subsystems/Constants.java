@@ -117,19 +117,20 @@ public class Constants {
     //Limelight calibration
 
     //place robot, and then measure from limelight for these values
-    private static final double PHI_A = -7.6;
-    private static final double PHI_B = -18.6;
-    private static final double PHI_C = -23.4;
+    private static final double PHI_A = 4.48;
+    private static final double PHI_B = -7.85;
+    private static final double PHI_C = -15.41;
 
     //tuned hood angles
-    private static final double THETA_A = -16.0;
-    private static final double THETA_B = -20.0;
-    private static final double THETA_C = -22.0;
+
+    private static final double THETA_A = -14.0;
+    private static final double THETA_B = -16.0;
+    private static final double THETA_C = -17.25;
 
     //tuned flywheel speeds
-    private static final double OMEGA_A = 2200.0;
-    private static final double OMEGA_B = 2615.0;
-    private static final double OMEGA_C = 2900.0;
+    private static final double OMEGA_A = 2125.0;
+    private static final double OMEGA_B = 2325.0;
+    private static final double OMEGA_C = 2495.0;
 
 
     //y = ax^2 + bx + c

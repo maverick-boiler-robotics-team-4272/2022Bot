@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -42,16 +43,13 @@ public class Robot extends TimedRobot {
         auto = new Auto();
         teleop = new Teleop();
         Paths[] paths = Paths.values();
-        SmartDashboard.putNumber("Limelight Ground Angle", 45.0);
-        SmartDashboard.putNumber("Wheel Distance", Constants.WHEEL_DIST);
         for(int pathInd = 0; pathInd < paths.length; pathInd++){
             AUTO_CHOOSER.addOption(paths[pathInd].name(), paths[pathInd]);
         }
         AUTO_CHOOSER.setDefaultOption("TERMINAL_5_BALL", Paths.TERMINAL_5_BALL);
         SmartDashboard.putData("Auto choices", AUTO_CHOOSER);
-        SmartDashboard.putNumber("Pigeon Heading", Subsystems.getDriveTrain().pigeon.getYaw());
         Subsystems.getShooter().putShooterDataToDashboard();
-        Limelight.setLEDMode(LEDMode.ON);
+        Limelight.setLEDMode(LEDMode.OFF);
     }
 
     /**
@@ -67,18 +65,22 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotPeriodic() {
-        Limelight.setLEDMode(LEDMode.ON);
 
         Subsystems.getShooter().putShooterDataToDashboard();
-        Subsystems.getDriveTrain().putCANCodersToSmartDashboard();
-        Subsystems.getIntake().beamBreaksToSmart();
-        SmartDashboard.putNumber("Limelight tx", Limelight.getTY());
-        SmartDashboard.putNumber("Limelight ty", Limelight.getTX());
+        // Subsystems.getDriveTrain().putCANCodersToSmartDashboard();
+        // Subsystems.getIntake().beamBreaksToSmart();
+        SmartDashboard.putNumber("Limelight X Error", Limelight.getTY());
+        SmartDashboard.putNumber("Limelight Y Error", Limelight.getTX());
         SmartDashboard.putBoolean("Limelight aimed", Limelight.getAimed());
         SmartDashboard.putNumber("Limelight Distance", Limelight.getDistanceFeet() * 12.0 - 6.0);
 
         SmartDashboard.putNumber("Limelight Hood Ang", Limelight.getHoodAngle());
         SmartDashboard.putNumber("Limelight Shooter Val", Limelight.getFlywheelSpeed());
+
+        SmartDashboard.putNumber("Battery Voltage", RobotController.getBatteryVoltage());
+
+        SmartDashboard.putBoolean("B1", Subsystems.getIntake().getB1());
+        SmartDashboard.putBoolean("B2", Subsystems.getIntake().getB2());
     }
 
     /**

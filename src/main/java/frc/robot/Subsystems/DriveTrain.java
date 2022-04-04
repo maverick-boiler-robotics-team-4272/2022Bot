@@ -89,9 +89,7 @@ public class DriveTrain {
             pigeon = new Pigeon2(25);
         }
         this.pigeon.setYaw(0.0);
-        // SmartDashboard.putNumber("Aim P", aimController.getP());
-        // SmartDashboard.putNumber("Aim I", aimController.getI());
-        // SmartDashboard.putNumber("Aim D", aimController.getD());
+        
         if(Constants.TALON_BOT){
             frontRightModule = new SwerveModule(this.frontRightDrive, this.frontRightTalon, this.frontRightDriveEnc, 0.0, Constants.FRONT_RIGHT_INDEX);
             frontLeftModule = new SwerveModule(this.frontLeftDrive, this.frontLeftTalon, this.frontLeftDriveEnc, 0.0, Constants.FRONT_LEFT_INDEX);

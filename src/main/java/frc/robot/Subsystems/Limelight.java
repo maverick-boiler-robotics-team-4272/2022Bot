@@ -32,15 +32,6 @@ public class Limelight {
     }
 
     public static void setLEDMode(LEDMode mode){
-        boolean light;
-        if(mode.equals(LEDMode.OFF)){
-            light = false;
-        }else{
-            light = true;
-        }
-
-        SmartDashboard.putBoolean("Limelight light", light);
-
         table.getEntry("ledMode").setNumber(mode.tableVal);
     }
 
