@@ -234,7 +234,6 @@ public class Teleop {
         if(fixingHood){
             fixingHood = shooter.fixHood();
         }
-
         
     }
 

@@ -8,6 +8,7 @@ import com.revrobotics.SparkMaxLimitSwitch.Type;
 import com.revrobotics.SparkMaxPIDController.AccelStrategy;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Utilities.ShuffleboardTable;
 
 public class Shooter {    
     
@@ -53,6 +54,7 @@ public class Shooter {
     private double hoodAmt;
     private double shooterAmt;
     private double feedAmt;
+
     //Shooter motor. ids 5, 6(follower)
     private CANSparkMax shooterMotor = new CANSparkMax(5, MotorType.kBrushless);
     private CANSparkMax shooterFollowerMotor = new CANSparkMax(15, MotorType.kBrushless);
@@ -90,15 +92,6 @@ public class Shooter {
         this.shooterMotor.setInverted(true);
         //System.out.println(hoodMotor.getForwardLimitSwitch(Type.kNormallyClosed).toString());
         shooterFollowerMotor.follow(shooterMotor, true);
-        
-        
-        SmartDashboard.putNumber("Shooter Velocity Set", 0.0);
-        SmartDashboard.putNumber("Hood Setpoint", 0.0);
-        // SmartDashboard.putNumber("Feed Setpoint", 0.0);
-        SmartDashboard.putNumber("Shooter Motor P", 0.0001);
-        SmartDashboard.putNumber("Shooter Motor I", 0.000000002);
-        SmartDashboard.putNumber("Shooter Motor D", 0.0);
-        SmartDashboard.putNumber("Shooter Motor F", 0.00018);
         shooterPIDController.setP(0.0004);
         shooterPIDController.setI(0.00000004);
         shooterPIDController.setD(0.0);
@@ -111,7 +104,6 @@ public class Shooter {
         hoodMotor.burnFlash();
         shooterMotor.burnFlash();
         shooterFollowerMotor.burnFlash();
-
     }
 
     /**
@@ -210,7 +202,7 @@ public class Shooter {
      */
     public void putShooterDataToDashboard(){
         // SmartDashboard.putNumber("Hood Position", hoodMotor.getEncoder().getPosition());
-        SmartDashboard.putNumber("Hood Error", hoodAmt - hoodMotor.getEncoder().getPosition());
+        // SmartDashboard.putNumber("Hood Error", hoodAmt - hoodMotor.getEncoder().getPosition());
         // SmartDashboard.putNumber("Hood Velocity", hoodMotor.getEncoder().getVelocity());
         SmartDashboard.putNumber("Shooter Velocity", shooterMotor.getEncoder().getVelocity());
         SmartDashboard.putNumber("Shooter Error", shooterAmt - shooterMotor.getEncoder().getVelocity());
@@ -231,7 +223,6 @@ public class Shooter {
     public void setShooter(int pov){
         int index = pov / 90;
         //putShooterDataToDashboard();
-        SmartDashboard.putNumber("Shooter Index", index);
         ShooterPositions[] shooterSetpoints = ShooterPositions.values();
         setShooter(shooterSetpoints[index].shootAmt, shooterSetpoints[index].hoodAmt, shooterSetpoints[index].feedAmt);
     }
@@ -273,6 +264,15 @@ public class Shooter {
         shooterAmt = SmartDashboard.getNumber("Shooter Velocity Set", 0.0);
         hoodAmt = SmartDashboard.getNumber("Hood Setpoint", 0.0);
         feedAmt = -0.6;
+
+        Constants.THETA_A = SmartDashboard.getNumber("Theta A", Constants.THETA_A);
+        Constants.THETA_B = SmartDashboard.getNumber("Theta B", Constants.THETA_B);
+        Constants.THETA_C = SmartDashboard.getNumber("Theta C", Constants.THETA_C);
+
+        Constants.OMEGA_A = SmartDashboard.getNumber("Omega A", Constants.OMEGA_A);
+        Constants.OMEGA_B = SmartDashboard.getNumber("Omega B", Constants.OMEGA_B);
+        Constants.OMEGA_C = SmartDashboard.getNumber("Omega C", Constants.OMEGA_C);
+
     }
 
     /**

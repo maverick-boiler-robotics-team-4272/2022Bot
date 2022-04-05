@@ -12,6 +12,7 @@ import frc.robot.Auto.Auto;
 import frc.robot.Auto.Auto.Paths;
 import frc.robot.Subsystems.*;
 import frc.robot.Subsystems.Limelight.LEDMode;
+import frc.robot.Utilities.ShuffleboardTable;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -50,6 +51,14 @@ public class Robot extends TimedRobot {
         SmartDashboard.putData("Auto choices", AUTO_CHOOSER);
         Subsystems.getShooter().putShooterDataToDashboard();
         Limelight.setLEDMode(LEDMode.OFF);
+
+        SmartDashboard.putNumber("Theta A", Constants.THETA_A);
+        SmartDashboard.putNumber("Theta B", Constants.THETA_B);
+        SmartDashboard.putNumber("Theta C", Constants.THETA_C);
+
+        SmartDashboard.putNumber("Omega A", Constants.OMEGA_A);
+        SmartDashboard.putNumber("Omega B", Constants.OMEGA_B);
+        SmartDashboard.putNumber("Omega C", Constants.OMEGA_C);
     }
 
     /**
@@ -67,7 +76,6 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
 
         Subsystems.getShooter().putShooterDataToDashboard();
-        // Subsystems.getDriveTrain().putCANCodersToSmartDashboard();
         // Subsystems.getIntake().beamBreaksToSmart();
         SmartDashboard.putNumber("Limelight X Error", Limelight.getTY());
         SmartDashboard.putNumber("Limelight Y Error", Limelight.getTX());
@@ -77,10 +85,10 @@ public class Robot extends TimedRobot {
         SmartDashboard.putNumber("Limelight Hood Ang", Limelight.getHoodAngle());
         SmartDashboard.putNumber("Limelight Shooter Val", Limelight.getFlywheelSpeed());
 
-        SmartDashboard.putNumber("Battery Voltage", RobotController.getBatteryVoltage());
+        // SmartDashboard.putNumber("Battery Voltage", RobotController.getBatteryVoltage());
 
-        SmartDashboard.putBoolean("B1", Subsystems.getIntake().getB1());
-        SmartDashboard.putBoolean("B2", Subsystems.getIntake().getB2());
+        // SmartDashboard.putBoolean("B1", Subsystems.getIntake().getB1());
+        // SmartDashboard.putBoolean("B2", Subsystems.getIntake().getB2());
     }
 
     /**

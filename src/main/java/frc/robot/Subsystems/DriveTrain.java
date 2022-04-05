@@ -176,7 +176,6 @@ public class DriveTrain {
      */
     public void updateOdometry(){
         swerveOdometry.update(getPigeonHeading(), getSwerveModuleStates());
-        // SmartDashboard.putString("Robot Pose", swerveOdometry.getPoseMeters().toString());
     }
 
     /**
