@@ -110,11 +110,11 @@ public class Intake {
         boolean shooterBeam = !shooterBeamBreak.get();
         boolean hopperBeam = lidar.getRawDutyCycle() < 0.08 && lidar.getRawDutyCycle() > 0.01;
 
-        // SmartDashboard.putNumber("hopBeamVal", lidar.getRawDutyCycle());
+        SmartDashboard.putNumber("hopBeamVal", lidar.getRawDutyCycle());
         // SmartDashboard.putBoolean("botBeam", botBeam);
         // SmartDashboard.putBoolean("midBeam", midBeam);
         // SmartDashboard.putBoolean("shooterBeam", shooterBeam);
-        // SmartDashboard.putBoolean("hopperBeam", hopperBeam);
+        SmartDashboard.putBoolean("hopperBeam", hopperBeam);
     }
     
 

@@ -103,11 +103,14 @@ public class Teleop {
                 translating = true;
                 shooter.revShooter();
             }
-        }else{
+        }else if(!driveController.getLeftBumper()){
             Limelight.setLEDMode(LEDMode.OFF);
             rotX = driveController.getRightX();
             rotX = Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, rotX);
             translating = true;
+        }else{
+            rotX = driveController.getRightX();
+            rotX = Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, rotX);
         }
 
         if(translating || driveController.getRightBumper()){
@@ -200,7 +203,7 @@ public class Teleop {
 
 
         if(driveController.getRightBumper()){
-            Subsystems.getIntake().runIntake(0.6, false, true, false);
+            Subsystems.getIntake().runIntake(0.6, false, false, false);
         }else if(driveController.getRightBumperReleased()){
             intake.stopIntake();
         }

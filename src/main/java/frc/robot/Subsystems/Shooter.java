@@ -110,17 +110,17 @@ public class Shooter {
      * Resets pid values
      */
     public void resetPID(){
-        hoodPIDController.setP(SmartDashboard.getNumber("Rotation Motor P", 0.0001));
-        hoodPIDController.setI(SmartDashboard.getNumber("Rotation Motor I", 0.0));
-        hoodPIDController.setD(SmartDashboard.getNumber("Rotation Motor D", 0.0));
-        hoodPIDController.setFF(SmartDashboard.getNumber("Rotation Motor F", 0.001));
-        hoodPIDController.setSmartMotionMaxAccel(SmartDashboard.getNumber("Rotation Motor ACC", 100.0), 0);
-        hoodPIDController.setSmartMotionMaxVelocity(SmartDashboard.getNumber("Rotation Motor MAX VEL", 300.0), 0);
+        // hoodPIDController.setP(SmartDashboard.getNumber("Rotation Motor P", 0.0001));
+        // hoodPIDController.setI(SmartDashboard.getNumber("Rotation Motor I", 0.0));
+        // hoodPIDController.setD(SmartDashboard.getNumber("Rotation Motor D", 0.0));
+        // hoodPIDController.setFF(SmartDashboard.getNumber("Rotation Motor F", 0.001));
+        // hoodPIDController.setSmartMotionMaxAccel(SmartDashboard.getNumber("Rotation Motor ACC", 100.0), 0);
+        // hoodPIDController.setSmartMotionMaxVelocity(SmartDashboard.getNumber("Rotation Motor MAX VEL", 300.0), 0);
 
-        shooterPIDController.setP(SmartDashboard.getNumber("Shooter Motor P", 1.0));
-        shooterPIDController.setI(SmartDashboard.getNumber("Shooter Motor I", 0.0));
-        shooterPIDController.setD(SmartDashboard.getNumber("Shooter Motor D", 0.0));
-        shooterPIDController.setFF(SmartDashboard.getNumber("Shooter Motor F", 0.0));
+        shooterPIDController.setP(Constants.TUNING_TABLE.getNumber("Shooter Motor P", 1.0));
+        shooterPIDController.setI(Constants.TUNING_TABLE.getNumber("Shooter Motor I", 0.0));
+        shooterPIDController.setD(Constants.TUNING_TABLE.getNumber("Shooter Motor D", 0.0));
+        shooterPIDController.setFF(Constants.TUNING_TABLE.getNumber("Shooter Motor F", 0.0));
     }
 
     /**
@@ -183,7 +183,6 @@ public class Shooter {
      * Pushes the hood down until it hits the limit switch to 0 it
      */
     public boolean fixHood(){
-        System.out.println("LIM SWITCH: " + hoodMotor.getForwardLimitSwitch(Type.kNormallyOpen).isPressed());
         if(!hoodMotor.getForwardLimitSwitch(Type.kNormallyOpen).isPressed()){
             hoodMotor.set(0.1);
             return true;
@@ -331,13 +330,13 @@ public class Shooter {
         shooterFollowerMotor.follow(shooterMotor, true);
         
         
-        SmartDashboard.putNumber("Shooter Velocity Set", 0.0);
-        SmartDashboard.putNumber("Hood Setpoint", 0.0);
+        Constants.TUNING_TABLE.putNumber("Shooter Velocity Set", 0.0);
+        Constants.TUNING_TABLE.putNumber("Hood Setpoint", 0.0);
         // SmartDashboard.putNumber("Feed Setpoint", 0.0);
-        SmartDashboard.putNumber("Shooter Motor P", 0.0001);
-        SmartDashboard.putNumber("Shooter Motor I", 0.000000002);
-        SmartDashboard.putNumber("Shooter Motor D", 0.0);
-        SmartDashboard.putNumber("Shooter Motor F", 0.00018);
+        Constants.TUNING_TABLE.putNumber("Shooter Motor P", 0.0001);
+        Constants.TUNING_TABLE.putNumber("Shooter Motor I", 0.000000002);
+        Constants.TUNING_TABLE.putNumber("Shooter Motor D", 0.0);
+        Constants.TUNING_TABLE.putNumber("Shooter Motor F", 0.00018);
         shooterPIDController.setP(0.0001);
         shooterPIDController.setI(0.000000002);
         shooterPIDController.setD(0.0);

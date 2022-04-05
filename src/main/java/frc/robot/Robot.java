@@ -40,6 +40,12 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotInit() {
+
+        ShuffleboardTable testing = new ShuffleboardTable("testing");
+
+        testing.putBoolean("testing bool", false);
+
+        Constants.TUNING_TABLE = new ShuffleboardTable("tuning");
         Subsystems.initSubsystems();
         auto = new Auto();
         teleop = new Teleop();
@@ -52,13 +58,13 @@ public class Robot extends TimedRobot {
         Subsystems.getShooter().putShooterDataToDashboard();
         Limelight.setLEDMode(LEDMode.OFF);
 
-        SmartDashboard.putNumber("Theta A", Constants.THETA_A);
-        SmartDashboard.putNumber("Theta B", Constants.THETA_B);
-        SmartDashboard.putNumber("Theta C", Constants.THETA_C);
+        Constants.TUNING_TABLE.putNumber("Theta A", Constants.THETA_A);
+        Constants.TUNING_TABLE.putNumber("Theta B", Constants.THETA_B);
+        Constants.TUNING_TABLE.putNumber("Theta C", Constants.THETA_C);
 
-        SmartDashboard.putNumber("Omega A", Constants.OMEGA_A);
-        SmartDashboard.putNumber("Omega B", Constants.OMEGA_B);
-        SmartDashboard.putNumber("Omega C", Constants.OMEGA_C);
+        Constants.TUNING_TABLE.putNumber("Omega A", Constants.OMEGA_A);
+        Constants.TUNING_TABLE.putNumber("Omega B", Constants.OMEGA_B);
+        Constants.TUNING_TABLE.putNumber("Omega C", Constants.OMEGA_C);
     }
 
     /**

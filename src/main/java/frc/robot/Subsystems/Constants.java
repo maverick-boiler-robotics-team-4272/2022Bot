@@ -1,6 +1,7 @@
 package frc.robot.Subsystems;
 
 import edu.wpi.first.math.util.Units;
+import frc.robot.Utilities.ShuffleboardTable;
 
 public class Constants {
     public static final double TALON_FRONT_RIGHT_P = 0.0039;
@@ -128,7 +129,7 @@ public class Constants {
     public static double THETA_C = -17.25;
 
     //tuned flywheel speeds
-    public static double OMEGA_A = 2050.0;
+    public static double OMEGA_A = 2000.0;
     public static double OMEGA_B = 2325.0;
     public static double OMEGA_C = 2495.0;
 
@@ -143,5 +144,7 @@ public class Constants {
     public static final double FLYWHEEL_SPEED_A =   OMEGA_A / ((PHI_A - PHI_B) * (PHI_A - PHI_C)) - OMEGA_B / ((PHI_A - PHI_B) * (PHI_B - PHI_C)) + OMEGA_C / ((PHI_A - PHI_C) * (PHI_B - PHI_C));
     public static final double FLYWHEEL_SPEED_B = - OMEGA_A * (PHI_B + PHI_C) / ((PHI_A - PHI_B) * (PHI_A - PHI_C)) + OMEGA_B * (PHI_A + PHI_C) / ((PHI_A - PHI_B) * (PHI_B - PHI_C)) + OMEGA_C * (PHI_A + PHI_B) / ((PHI_A - PHI_C) * (PHI_C - PHI_B));
     public static final double FLYWHEEL_SPEED_C =   OMEGA_A * PHI_B * PHI_C / ((PHI_A - PHI_B) * (PHI_A - PHI_C)) - OMEGA_B * PHI_A * PHI_C / ((PHI_A - PHI_B) * (PHI_B - PHI_C)) + OMEGA_C * PHI_A * PHI_B / ((PHI_A - PHI_C) * (PHI_B - PHI_C));
+
+    public static ShuffleboardTable TUNING_TABLE;
 
 }
