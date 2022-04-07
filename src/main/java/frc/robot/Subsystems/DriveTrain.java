@@ -22,6 +22,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Auto.SwerveOdometry;
+import frc.robot.Subsystems.Limelight.LEDMode;
 
 public class DriveTrain {
 
@@ -91,17 +92,17 @@ public class DriveTrain {
         this.pigeon.setYaw(0.0);
         
         if(Constants.TALON_BOT){
-            frontRightModule = new SwerveModule(this.frontRightDrive, this.frontRightTalon, this.frontRightDriveEnc, 0.0, Constants.FRONT_RIGHT_INDEX);
-            frontLeftModule = new SwerveModule(this.frontLeftDrive, this.frontLeftTalon, this.frontLeftDriveEnc, 0.0, Constants.FRONT_LEFT_INDEX);
-            backLeftModule = new SwerveModule(this.backLeftDrive, this.backLeftTalon, this.backLeftDriveEnc, 0.0, Constants.BACK_LEFT_INDEX);
-            backRightModule = new SwerveModule(this.backRightDrive, this.backRightTalon, this.backRightDriveEnc, 0.0, Constants.BACK_RIGHT_INDEX);
+            frontRightModule = new SwerveModule(this.frontRightDrive, this.frontRightTalon, this.frontRightDriveEnc, 0.0);
+            frontLeftModule = new SwerveModule(this.frontLeftDrive, this.frontLeftTalon, this.frontLeftDriveEnc, 0.0);
+            backLeftModule = new SwerveModule(this.backLeftDrive, this.backLeftTalon, this.backLeftDriveEnc, 0.0);
+            backRightModule = new SwerveModule(this.backRightDrive, this.backRightTalon, this.backRightDriveEnc, 0.0);
             this.initTalons();
         }else{
             // putCANCodersToSmartDashboard();
-            frontRightModule = new SwerveModule(this.frontRightDrive, this.frontRightRotation, this.frontRightDriveEnc, this.frontRightEncoder, Constants.FRONT_RIGHT_FORWARD, this.frontRightCANCoder, 0);
-            frontLeftModule = new SwerveModule(this.frontLeftDrive, this.frontLeftRotation, this.frontLeftDriveEnc, this.frontLeftEncoder, Constants.FRONT_LEFT_FORWARD, this.frontLeftCANCoder, 1);
-            backLeftModule = new SwerveModule(this.backLeftDrive, this.backLeftRotation, this.backLeftDriveEnc, this.backLeftEncoder, Constants.BACK_LEFT_FORWARD, this.backLeftCANCoder, 2);
-            backRightModule = new SwerveModule(this.backRightDrive, this.backRightRotation, this.backRightDriveEnc, this.backRightEncoder, Constants.BACK_RIGHT_FORWARD, this.backRightCANCoder, 3);
+            frontRightModule = new SwerveModule(this.frontRightDrive, this.frontRightRotation, this.frontRightDriveEnc, this.frontRightEncoder, Constants.FRONT_RIGHT_FORWARD);
+            frontLeftModule = new SwerveModule(this.frontLeftDrive, this.frontLeftRotation, this.frontLeftDriveEnc, this.frontLeftEncoder, Constants.FRONT_LEFT_FORWARD);
+            backLeftModule = new SwerveModule(this.backLeftDrive, this.backLeftRotation, this.backLeftDriveEnc, this.backLeftEncoder, Constants.BACK_LEFT_FORWARD);
+            backRightModule = new SwerveModule(this.backRightDrive, this.backRightRotation, this.backRightDriveEnc, this.backRightEncoder, Constants.BACK_RIGHT_FORWARD);
         }
         initSparks();
 
@@ -353,6 +354,9 @@ public class DriveTrain {
         return aimController.calculate(tx, 0.0);
     }
 
+    /**
+     * Sets wheels to be in an 'X' configuration to stop rotation
+     */
     public void setXConfig(){
         SwerveModuleState[] xStates = {
             new SwerveModuleState(0.01, Rotation2d.fromDegrees(135)),

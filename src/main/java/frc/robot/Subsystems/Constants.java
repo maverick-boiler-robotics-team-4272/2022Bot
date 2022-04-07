@@ -97,7 +97,11 @@ public class Constants {
     public static final double TRIGGER_DEADZONE = 0.1;
     public static final double JSTICK_DEADZONE = 0.15;
 
-    public static final double SHOOTER_DEADZONE = 100.0;
+    public static final double SHOOTER_DEADZONE = 50.0;
+    public static final double SHOOTER_FEED_DEADZONE = 100.0;
+
+    public static final int INTAKE_STUCK_CURRENT_LIMIT = 80;
+    public static final int INTAKE_UN_STUCK_CURRENT_LIMIT = 45;
 
     public static final double RAMP_UP_DEADZONE = 1.0;
     public static final double FIRE_DEADZONE = 5.0;
@@ -129,7 +133,7 @@ public class Constants {
     public static double THETA_C = -17.25;
 
     //tuned flywheel speeds
-    public static double OMEGA_A = 2000.0;
+    public static double OMEGA_A = 2100.0;
     public static double OMEGA_B = 2325.0;
     public static double OMEGA_C = 2495.0;
 
@@ -146,5 +150,4 @@ public class Constants {
     public static final double FLYWHEEL_SPEED_C =   OMEGA_A * PHI_B * PHI_C / ((PHI_A - PHI_B) * (PHI_A - PHI_C)) - OMEGA_B * PHI_A * PHI_C / ((PHI_A - PHI_B) * (PHI_B - PHI_C)) + OMEGA_C * PHI_A * PHI_B / ((PHI_A - PHI_C) * (PHI_B - PHI_C));
 
     public static ShuffleboardTable TUNING_TABLE;
-
 }

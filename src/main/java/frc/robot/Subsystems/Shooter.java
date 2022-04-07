@@ -8,7 +8,6 @@ import com.revrobotics.SparkMaxLimitSwitch.Type;
 import com.revrobotics.SparkMaxPIDController.AccelStrategy;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Utilities.ShuffleboardTable;
 
 public class Shooter {    
     
@@ -63,11 +62,11 @@ public class Shooter {
     private SparkMaxPIDController hoodPIDController = hoodMotor.getPIDController();
 
     private boolean ballOffWheel = false;
-    private boolean shootin = false;
 
     private boolean ballShooting = false;
     
     private boolean shooterAtSpeed = false;
+
     public Shooter(){
 
         hoodMotor.restoreFactoryDefaults();
@@ -127,7 +126,6 @@ public class Shooter {
      * Starts the shooter wheel based on the shooter amount variable that is determined by the dpad
      */
     public void shoot(){
-        shootin = true;
         if(!Subsystems.getIntake().getShooterBeam()){
             ballOffWheel = true;
         }
@@ -147,8 +145,14 @@ public class Shooter {
             shooterAmt > 500 &&
             getHoodAtPosition()){
             shooterAtSpeed = true;
+            System.out.println("Running Feed");
         }
-        
+
+        if(shooterMotor.getEncoder().getVelocity() < shooterAmt - (Constants.SHOOTER_FEED_DEADZONE) ||
+        shooterMotor.getEncoder().getVelocity() > shooterAmt + (Constants.SHOOTER_FEED_DEADZONE)){
+            shooterAtSpeed = false;
+            System.out.println("Stopping Feed!");
+        }        
 
         if(shooterAtSpeed && ballOffWheel){
             Subsystems.getIntake().feedShooter(feedAmt);
@@ -168,7 +172,6 @@ public class Shooter {
         Subsystems.getIntake().resetBall();
         shooterAtSpeed = false;
         ballOffWheel = false;
-        shootin = false;
     }
 
     /**
@@ -200,16 +203,16 @@ public class Shooter {
      * Pushes hood and shooter data to Smart Dashboard
      */
     public void putShooterDataToDashboard(){
-        // SmartDashboard.putNumber("Hood Position", hoodMotor.getEncoder().getPosition());
-        // SmartDashboard.putNumber("Hood Error", hoodAmt - hoodMotor.getEncoder().getPosition());
-        // SmartDashboard.putNumber("Hood Velocity", hoodMotor.getEncoder().getVelocity());
-        SmartDashboard.putNumber("Shooter Velocity", shooterMotor.getEncoder().getVelocity());
-        SmartDashboard.putNumber("Shooter Error", shooterAmt - shooterMotor.getEncoder().getVelocity());
-        // //SmartDashboard.putNumber("Hood Setpoint", 0.0);
-        // SmartDashboard.putNumber("Shooter Percent", 0.0);
+        Constants.TUNING_TABLE.putNumber("Hood Position", hoodMotor.getEncoder().getPosition());
+        Constants.TUNING_TABLE.putNumber("Hood Error", hoodAmt - hoodMotor.getEncoder().getPosition());
+        Constants.TUNING_TABLE.putNumber("Hood Velocity", hoodMotor.getEncoder().getVelocity());
+        Constants.TUNING_TABLE.putNumber("Shooter Velocity", shooterMotor.getEncoder().getVelocity());
+        Constants.TUNING_TABLE.putNumber("Shooter Error", shooterAmt - shooterMotor.getEncoder().getVelocity());
+        Constants.TUNING_TABLE.putNumber("Hood Setpoint", 0.0);
+        Constants.TUNING_TABLE.putNumber("Shooter Percent", 0.0);
         
-        SmartDashboard.putNumber("Shooter Setpoint", shooterAmt);
-        // SmartDashboard.putNumber("Hood Setpoint", hoodAmt);
+        Constants.TUNING_TABLE.putNumber("Shooter Setpoint", shooterAmt);
+        Constants.TUNING_TABLE.putNumber("Hood Setpoint", hoodAmt);
 
     }
 

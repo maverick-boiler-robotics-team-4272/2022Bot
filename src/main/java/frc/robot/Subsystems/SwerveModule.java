@@ -2,7 +2,6 @@ package frc.robot.Subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.ctre.phoenix.sensors.CANCoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.ControlType;
@@ -17,12 +16,9 @@ public class SwerveModule {
     private CANSparkMax turningMotor;
     private WPI_TalonSRX talonMotor;
     private double offset;
-    private CANCoder canCoder;
 
     private RelativeEncoder driveEncoder;
     private RelativeEncoder turningEncoder;
-
-    private final int moduleId;
 
     /**
      * Constructs a new swerve module object
@@ -37,16 +33,12 @@ public class SwerveModule {
             CANSparkMax turningMotor,
             RelativeEncoder driveEncoder,
             RelativeEncoder turningEncoder,
-            double offset,
-            CANCoder canCoder,
-            int moduleId) {
+            double offset) {
         this.driveMotor = driveMotor;
         this.driveEncoder = driveEncoder;
         this.turningMotor = turningMotor;
         this.turningEncoder = turningEncoder;
         this.offset = offset;
-        this.canCoder = canCoder;
-        this.moduleId = moduleId;
 
         driveEncoder.setVelocityConversionFactor(Constants.RAD_PER_ROT * Units.inchesToMeters(Constants.NEO_WHEEL_RADIUS)
         / Constants.NEO_DRIVE_GEAR_RATIO / Constants.SECONDS_PER_MINUTE);
@@ -64,13 +56,11 @@ public class SwerveModule {
             CANSparkMax driveMotor,
             WPI_TalonSRX turningMotor,
             RelativeEncoder driveEncoder,
-            double offset,
-            int moduleId) {
+            double offset) {
         this.driveMotor = driveMotor;
         this.talonMotor = turningMotor;
         this.driveEncoder = driveEncoder;
         this.offset = offset;
-        this.moduleId = moduleId;
         driveEncoder.setVelocityConversionFactor(Constants.RAD_PER_ROT * Units.inchesToMeters(Constants.TALON_WHEEL_RADIUS)
         / Constants.TALON_GEAR_RATIO / Constants.SECONDS_PER_MINUTE);
     }

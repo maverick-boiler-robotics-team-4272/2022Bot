@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -31,6 +30,8 @@ public class Robot extends TimedRobot {
     public Teleop teleop;
     public Auto auto;
 
+    public ShuffleboardTable tuningTable = new ShuffleboardTable("Tuning");
+
     //Deadzone constants
 
     /**
@@ -40,12 +41,8 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotInit() {
-
-        ShuffleboardTable testing = new ShuffleboardTable("testing");
-
-        testing.putBoolean("testing bool", false);
-
         Constants.TUNING_TABLE = new ShuffleboardTable("tuning");
+
         Subsystems.initSubsystems();
         auto = new Auto();
         teleop = new Teleop();
@@ -55,7 +52,9 @@ public class Robot extends TimedRobot {
         }
         AUTO_CHOOSER.setDefaultOption("TERMINAL_5_BALL", Paths.TERMINAL_5_BALL);
         SmartDashboard.putData("Auto choices", AUTO_CHOOSER);
+        
         Subsystems.getShooter().putShooterDataToDashboard();
+
         Limelight.setLEDMode(LEDMode.OFF);
 
         Constants.TUNING_TABLE.putNumber("Theta A", Constants.THETA_A);
@@ -65,6 +64,8 @@ public class Robot extends TimedRobot {
         Constants.TUNING_TABLE.putNumber("Omega A", Constants.OMEGA_A);
         Constants.TUNING_TABLE.putNumber("Omega B", Constants.OMEGA_B);
         Constants.TUNING_TABLE.putNumber("Omega C", Constants.OMEGA_C);
+
+        Subsystems.getIntake().beamBreaksToSmart();
     }
 
     /**
@@ -83,13 +84,13 @@ public class Robot extends TimedRobot {
 
         Subsystems.getShooter().putShooterDataToDashboard();
         // Subsystems.getIntake().beamBreaksToSmart();
-        SmartDashboard.putNumber("Limelight X Error", Limelight.getTY());
-        SmartDashboard.putNumber("Limelight Y Error", Limelight.getTX());
-        SmartDashboard.putBoolean("Limelight aimed", Limelight.getAimed());
-        SmartDashboard.putNumber("Limelight Distance", Limelight.getDistanceFeet() * 12.0 - 6.0);
+        // SmartDashboard.putNumber("Limelight X Error", Limelight.getTY());
+        // SmartDashboard.putNumber("Limelight Y Error", Limelight.getTX());
+        // SmartDashboard.putBoolean("Limelight aimed", Limelight.getAimed());
+        // SmartDashboard.putNumber("Limelight Distance", Limelight.getDistanceFeet() * 12.0 - 6.0);
 
-        SmartDashboard.putNumber("Limelight Hood Ang", Limelight.getHoodAngle());
-        SmartDashboard.putNumber("Limelight Shooter Val", Limelight.getFlywheelSpeed());
+        // SmartDashboard.putNumber("Limelight Hood Ang", Limelight.getHoodAngle());
+        // SmartDashboard.putNumber("Limelight Shooter Val", Limelight.getFlywheelSpeed());
 
         // SmartDashboard.putNumber("Battery Voltage", RobotController.getBatteryVoltage());
 

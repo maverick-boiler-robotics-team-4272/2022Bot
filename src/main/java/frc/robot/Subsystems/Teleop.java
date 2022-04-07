@@ -9,14 +9,6 @@ public class Teleop {
     //Xbox controllers
     private XboxController driveController = new XboxController(0);
     public XboxController opController = new XboxController(1);
-    
-    private double percentTop = .8;
-    private double percentBottom = .8;
-
-    private double flFF = 0.1;
-    private double frFF = 0.1;
-    private double brFF = 0.1;
-    private double blFF = 0.1;
 
     public boolean fieldRelative = true;
     private boolean intakeStopped = true;
@@ -84,8 +76,6 @@ public class Teleop {
             translating = true;
             //Limelight.setLEDMode(LEDMode.OFF);
         }
-
-        SmartDashboard.putNumber("Limelight distance", Limelight.getDistanceFeet());
 
         if(driveController.getLeftTriggerAxis() > Constants.TRIGGER_DEADZONE){
             Limelight.setLEDMode(LEDMode.ON);
@@ -196,9 +186,9 @@ public class Teleop {
         }
 
         if(opController.getXButtonPressed()){
-            intake.mechanicalProblemsBeingFixedInCode();
+            intake.setIntakeToStuckCurrentLimit();
         }else if(opController.getXButtonReleased()){
-            intake.mechanicalProblemsFixedInCode();
+            intake.setIntakeToUnStuckCurrentLimit();
         }
 
 

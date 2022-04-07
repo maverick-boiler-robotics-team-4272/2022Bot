@@ -5,8 +5,6 @@ import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DutyCycle;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Intake {
 
@@ -16,11 +14,6 @@ public class Intake {
     private DigitalInput midFeedBeamBreak = new DigitalInput(15); //mid feed
     private DigitalInput lowFeedBeamBreak = new DigitalInput(14); //close to intake
     private Lidar lidar = new Lidar(18);
-
-    private boolean ballInFeed = false;
-    private boolean ballInHopper = false;
-
-    private boolean ballCheckPoint1 = false;
     
     //runIntakeComplex
     private boolean b1 = false;
@@ -43,6 +36,8 @@ public class Intake {
      * Run the intake and feed, using beam breaks to figure out when to stop
      * @param triggerVal speed to run intake at
      * @param inverted whether the feed motor is inverted
+     * @param override intake override to not use hopperbeam
+     * @param intakeOnly to run just the intake and not the feed
      */
     public void runIntake(double triggerVal, boolean inverted, boolean override, boolean intakeOnly){
 
@@ -59,6 +54,7 @@ public class Intake {
         if(inverted){
             intakeMotor.set(-triggerVal);
             shooterFeedMotor.set(-feedVal);
+            resetBall();
             return;
         }
 
@@ -79,6 +75,8 @@ public class Intake {
         //run feed til ball hit shooter beam
         //only run intake
 
+        //////pre 4/5 code//////
+        /*
         if(midBeam && !b1Mid){
             b1Mid = true;
             b1 = true;
@@ -96,13 +94,44 @@ public class Intake {
         if(hopperBeam){
             triggerVal = 0.2;
         }
-        
+        */
+
+        if(shooterBeam && !b1Mid){
+            b1Mid = true;
+        }
+
+        if(b1Mid && !b1 && !midBeam){
+            feedVal = 0.3;
+        }else if(b1Mid && !b1 && midBeam){
+            b1 = true;
+            feedVal = 0;
+        }
+
+        if(b1){
+            feedVal = 0;
+        }
+
+        if(b1 && hopperBeam){
+            b2 = true;
+        }else if(hopperBeam){
+            triggerVal = 0.2;
+        }
+
+        if(b1 && b2){
+            feedVal = 0;
+            triggerVal = 0;
+        }
+
+
         intakeMotor.set(triggerVal);
 
         shooterFeedMotor.set(feedVal);
         
     }
     
+    /**
+     * 
+     */
     public void beamBreaksToSmart(){
 
         boolean botBeam = !lowFeedBeamBreak.get();
@@ -110,11 +139,13 @@ public class Intake {
         boolean shooterBeam = !shooterBeamBreak.get();
         boolean hopperBeam = lidar.getRawDutyCycle() < 0.08 && lidar.getRawDutyCycle() > 0.01;
 
-        SmartDashboard.putNumber("hopBeamVal", lidar.getRawDutyCycle());
-        // SmartDashboard.putBoolean("botBeam", botBeam);
-        // SmartDashboard.putBoolean("midBeam", midBeam);
-        // SmartDashboard.putBoolean("shooterBeam", shooterBeam);
-        SmartDashboard.putBoolean("hopperBeam", hopperBeam);
+        Constants.TUNING_TABLE.putNumber("hopBeamVal", lidar.getRawDutyCycle());
+        Constants.TUNING_TABLE.putBoolean("botBeam", botBeam);
+        Constants.TUNING_TABLE.putBoolean("midBeam", midBeam);
+        Constants.TUNING_TABLE.putBoolean("shooterBeam", shooterBeam);
+        Constants.TUNING_TABLE.putBoolean("hopperBeam", hopperBeam);
+        Constants.TUNING_TABLE.putBoolean("B1", b1);
+        Constants.TUNING_TABLE.putBoolean("B2", b2);
     }
     
 
@@ -257,12 +288,12 @@ public class Intake {
         this.intakeMotor.setSmartCurrentLimit(lim);
     }
 
-    public void mechanicalProblemsBeingFixedInCode(){
-        setIntakeCurrentLimit(80);
+    public void setIntakeToStuckCurrentLimit(){
+        setIntakeCurrentLimit(Constants.INTAKE_STUCK_CURRENT_LIMIT);
     }
 
-    public void mechanicalProblemsFixedInCode(){
-        setIntakeCurrentLimit(45);
+    public void setIntakeToUnStuckCurrentLimit(){
+        setIntakeCurrentLimit(Constants.INTAKE_UN_STUCK_CURRENT_LIMIT);
     }
 
     public boolean getB1(){

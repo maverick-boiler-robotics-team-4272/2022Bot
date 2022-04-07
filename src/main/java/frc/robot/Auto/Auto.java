@@ -12,6 +12,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Subsystems.*;
+import frc.robot.Subsystems.Limelight.LEDMode;
 import frc.robot.Subsystems.Shooter.ShooterPositions;
 
 public class Auto {
@@ -20,15 +21,7 @@ public class Auto {
     //the first parameter is an index. The index is what links to a few other things
     //the rest of the parameters are time based setpoints for shooting, intaking, and other things
     public enum Paths {
-        HANGAR_2_BALL(0,
-        new Setpoint(0.0, 0.1,
-            () -> Subsystems.getPneumatics().intakeOut(),
-            () -> Subsystems.getShooter().setShooter(ShooterPositions.TARMAC),
-            () -> Subsystems.getIntake().runIntake(0.7, false, false, false)),
-        new Setpoint(0.1, 2.0,
-            () -> Setpoint.noop(),
-            () -> Subsystems.getIntake().runIntake(0.7, false, false, false),
-            () -> Subsystems.getIntake().stopIntake())
+        HANGAR_2_BALL(0
         ),
         TERMINAL_3_BALL(1,
         new Setpoint(-2.0, 2.0,
@@ -98,7 +91,8 @@ public class Auto {
             () -> Setpoint.noop(), 
             () -> Subsystems.getShooter().shoot(), 
             () -> Subsystems.getShooter().stopShooterAndFeed())*/
-        );
+        ),
+        HANGAR_2_BALL_2(6);
 
         final int index;
         final Setpoint[] setpoints;
@@ -112,7 +106,6 @@ public class Auto {
     private Pose2d[] startPoints = new Pose2d[Paths.values().length];
     private boolean fiveBall = false;
     private static Timer timer = new Timer();
-    private double startTime;
 
     // PID Controllers
     public PIDController xPid = new PIDController(2.0, 0.01, 0);
@@ -161,7 +154,6 @@ public class Auto {
         }
         Subsystems.getDriveTrain().setOdometry(startPoints[path.index]);
         Subsystems.getDriveTrain().setHeading(paths[path.index].getInitialState().holonomicRotation);
-        startTime = Timer.getFPGATimestamp();
 
         Auto.timer.reset();
         Auto.timer.start();
@@ -185,7 +177,10 @@ public class Auto {
 
         if (currentTime > paths[path.index].getTotalTimeSeconds()) {
             Subsystems.getDriveTrain().drive(0, 0, 0, false);
+
+            //5 ball path transition
             if(fiveBall && path.equals(Paths.TERMINAL_2_BALL) && Subsystems.getIntake().ballPresent()){
+                Limelight.setLEDMode(LEDMode.ON);
                 Subsystems.getDriveTrain().drive(0, 0, Subsystems.getDriveTrain().aimAtHub(), false);
             }
             if(path.name().equals(Paths.TERMINAL_3_BALL.name()) && fiveBall){
@@ -196,6 +191,17 @@ public class Auto {
                 path = Paths.TERMINAL_2_BALL;
                 initPath();
                 System.out.println("auto path: " + path.name());
+                return;
+            }
+
+            //2 ball path transition
+            if(path.equals(Paths.HANGAR_2_BALL)){
+                if(Subsystems.getIntake().ballPresent()){
+                    System.out.println("ball count:  " + Subsystems.getIntake().getBallCount());
+                    return;
+                }
+                path = Paths.HANGAR_2_BALL_2;
+                initPath();
                 return;
             }
 
@@ -222,18 +228,29 @@ public class Auto {
         }
     }
 
+    /**
+     * Stops intake, shooter, and feed
+     */
     public void stopAuto(){
         Subsystems.getIntake().runIntake(0.0, false, false, false);
         Subsystems.getShooter().stopShooterAndFeed();
     }
 
+    /**
+     * Returns time
+     * @return
+     */
     public static Timer getTimer(){
         return Auto.timer;
     }
 
+    /**
+     * 3 ball auto commands
+     * Also first part of 5 ball
+     */
     public void terminal3Ball(){
         double currTime = Auto.timer.get();
-        //System.out.println("time: " + currTime);
+
         if(currTime < 0.25){
             Subsystems.getShooter().setShooter(ShooterPositions.FENDER_HIGH);
             Subsystems.getShooter().revShooter();
@@ -256,6 +273,9 @@ public class Auto {
         }
     }
 
+    /**
+     * Second part of 5 ball auto
+     */
     public void terminal2Ball(){
         double currTime = Auto.timer.get();
 
@@ -269,6 +289,37 @@ public class Auto {
             Subsystems.getIntake().runIntake(0.6, false, false, false);
             Subsystems.getShooter().revShooter();
         }else if(currTime > 5.5){
+            Subsystems.getShooter().shoot();
+        }
+    }
+
+    /**
+     * First part of left side 2 ball auto
+     */
+    public void hangar2Ball(){
+        double currTime = Auto.timer.get();
+
+        if(currTime < 0.1){
+            Subsystems.getPneumatics().intakeOut();
+            Subsystems.getShooter().setShooter(ShooterPositions.AUTO_TARMAC);
+            Subsystems.getIntake().runIntake(0.6, false, false, false);
+        }else if(currTime > 2.1){
+            Subsystems.getIntake().stopIntake();
+            Subsystems.getShooter().shoot();
+        }
+    }
+
+    /**
+     * Second part of left side 2 ball auto
+     */
+    public void hangar2Ball2(){
+        double currTime = Auto.timer.get();
+
+        if(currTime < 0.1){
+            Subsystems.getIntake().runIntake(0.6, false, false, false);
+            Subsystems.getShooter().setShooter(ShooterPositions.FENDER_LOW);
+        }else if(currTime > 2.0){
+            Subsystems.getIntake().stopIntake();
             Subsystems.getShooter().shoot();
         }
     }

@@ -8,7 +8,11 @@ public class Lidar {
     private DutyCycle input;
 
     public Lidar(int port){
-        input = new DutyCycle(new DigitalInput(port));
+        this(new DigitalInput(port));
+    }
+
+    public Lidar(DigitalInput digitalInput){
+        input = new DutyCycle(digitalInput);
     }
 
     public double getRawDutyCycle(){
