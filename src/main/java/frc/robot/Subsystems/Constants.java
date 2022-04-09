@@ -133,9 +133,9 @@ public class Constants {
     public static double THETA_C = -17.25;
 
     //tuned flywheel speeds
-    public static double OMEGA_A = 2100.0;
-    public static double OMEGA_B = 2325.0;
-    public static double OMEGA_C = 2495.0;
+    public static double OMEGA_A = 2000.0;
+    public static double OMEGA_B = 2150.0;
+    public static double OMEGA_C = 2350.0;
 
 
     //y = ax^2 + bx + c

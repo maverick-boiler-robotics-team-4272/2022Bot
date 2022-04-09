@@ -51,6 +51,7 @@ public class Teleop {
 
     private boolean intakeOverride = false;
     private boolean translating = true;
+    private boolean aimed = false;
     
     private Intake intake = Subsystems.getIntake();
     private DriveTrain drivetrain = Subsystems.getDriveTrain();
@@ -99,7 +100,8 @@ public class Teleop {
             Limelight.setLEDMode(LEDMode.ON);
             rotX = drivetrain.aimAtHub();
 
-            if(Limelight.getAimed()){
+            if(Limelight.getAimed() || aimed){
+                aimed = true;
                 drivetrain.setXConfig();
                 translating = false;
             }else{
@@ -245,6 +247,7 @@ public class Teleop {
         if(driveController.getYButtonPressed()){
             Subsystems.getDriveTrain().resetAimPID();
             Subsystems.getShooter().resetPID();
+            Subsystems.getShooter().updateShooter();
         }
 
         if(driveController.getBackButtonPressed()){

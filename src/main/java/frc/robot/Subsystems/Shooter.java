@@ -67,6 +67,11 @@ public class Shooter {
     
     private boolean shooterAtSpeed = false;
 
+    private double shooterP = 0.00004;
+    private double shooterI = 0.0;
+    private double shooterD = 0.0;
+    private double shooterFF = 0.0001963;
+
     public Shooter(){
 
         hoodMotor.restoreFactoryDefaults();
@@ -91,17 +96,17 @@ public class Shooter {
         this.shooterMotor.setInverted(true);
         //System.out.println(hoodMotor.getForwardLimitSwitch(Type.kNormallyClosed).toString());
         shooterFollowerMotor.follow(shooterMotor, true);
-        shooterPIDController.setP(0.0004);
-        shooterPIDController.setI(0.00000004);
-        shooterPIDController.setD(0.0);
-        shooterPIDController.setFF(0.00018);
+        shooterPIDController.setP(shooterP);
+        shooterPIDController.setI(shooterI);
+        shooterPIDController.setD(shooterD);
+        shooterPIDController.setFF(shooterFF);
 
         shooterPIDController.setSmartMotionMaxVelocity(3000.0, 0);
         shooterPIDController.setSmartMotionMaxAccel(4000.0, 0);
         shooterPIDController.setSmartMotionAllowedClosedLoopError(5.0, 0);
 
-        shooterMotor.enableVoltageCompensation(11.75);
-        shooterFollowerMotor.enableVoltageCompensation(11.75);
+        shooterMotor.enableVoltageCompensation(11.0);
+        shooterFollowerMotor.enableVoltageCompensation(11.0);
 
         hoodMotor.burnFlash();
         shooterMotor.burnFlash();
@@ -148,13 +153,11 @@ public class Shooter {
             shooterAmt > 500 &&
             getHoodAtPosition()){
             shooterAtSpeed = true;
-            System.out.println("Running Feed");
         }
 
         if(shooterMotor.getEncoder().getVelocity() < shooterAmt - (Constants.SHOOTER_FEED_DEADZONE) ||
         shooterMotor.getEncoder().getVelocity() > shooterAmt + (Constants.SHOOTER_FEED_DEADZONE)){
             shooterAtSpeed = false;
-            System.out.println("Stopping Feed!");
         }        
 
         if(shooterAtSpeed && ballOffWheel){
@@ -193,10 +196,8 @@ public class Shooter {
             hoodMotor.set(0.1);
             return true;
         }else{
-            System.out.println("Hood pos before: " + hoodMotor.getEncoder().getPosition());
             hoodMotor.getEncoder().setPosition(0);
             setShooter(ShooterPositions.EJECT);
-            System.out.println("Hood pos after: " + hoodMotor.getEncoder().getPosition());
             return false;//return false once done
         }
 
@@ -336,16 +337,16 @@ public class Shooter {
         shooterFollowerMotor.follow(shooterMotor, true);
         
         
-        Constants.TUNING_TABLE.putNumber("Shooter Velocity Set", 0.0);
-        Constants.TUNING_TABLE.putNumber("Hood Setpoint", 0.0);
-        Constants.TUNING_TABLE.putNumber("Shooter Motor P", 0.0001);
-        Constants.TUNING_TABLE.putNumber("Shooter Motor I", 0.000000002);
-        Constants.TUNING_TABLE.putNumber("Shooter Motor D", 0.0);
-        Constants.TUNING_TABLE.putNumber("Shooter Motor F", 0.00018);
-        shooterPIDController.setP(0.0001);
-        shooterPIDController.setI(0.000000002);
-        shooterPIDController.setD(0.0);
-        shooterPIDController.setFF(0.00018);
+        // Constants.TUNING_TABLE.putNumber("Shooter Velocity Set", 0.0);
+        // Constants.TUNING_TABLE.putNumber("Hood Setpoint", 0.0);
+        // Constants.TUNING_TABLE.putNumber("Shooter Motor P", 0.0001);
+        // Constants.TUNING_TABLE.putNumber("Shooter Motor I", 0.000000002);
+        // Constants.TUNING_TABLE.putNumber("Shooter Motor D", 0.0);
+        // Constants.TUNING_TABLE.putNumber("Shooter Motor F", 0.00018);
+        shooterPIDController.setP(shooterP);
+        shooterPIDController.setI(shooterI);
+        shooterPIDController.setD(shooterD);
+        shooterPIDController.setFF(shooterFF);
 
         shooterPIDController.setSmartMotionMaxVelocity(3000.0, 0);
         shooterPIDController.setSmartMotionMaxAccel(4000.0, 0);

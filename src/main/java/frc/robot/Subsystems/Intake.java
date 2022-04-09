@@ -13,7 +13,9 @@ public class Intake {
     private DigitalInput shooterBeamBreak = new DigitalInput(16); //top feed
     private DigitalInput midFeedBeamBreak = new DigitalInput(15); //mid feed
     private DigitalInput lowFeedBeamBreak = new DigitalInput(14); //close to intake
-    private Lidar lidar = new Lidar(18);
+    private Lidar lidar17 = new Lidar(17);
+    private Lidar lidar18 = new Lidar(18);
+    private Lidar lidar19 = new Lidar(19);
     
     //runIntakeComplex
     private boolean b1 = false;
@@ -43,7 +45,7 @@ public class Intake {
 
         boolean midBeam = !midFeedBeamBreak.get();
         boolean shooterBeam = !shooterBeamBreak.get();
-        boolean hopperBeam = lidar.getRawDutyCycle() < 0.1 && lidar.getRawDutyCycle() > 0.01;
+        boolean hopperBeam = false;
         double feedVal = -0.6;
 
         if(intakeOnly){
@@ -137,13 +139,23 @@ public class Intake {
         boolean botBeam = !lowFeedBeamBreak.get();
         boolean midBeam = !midFeedBeamBreak.get();
         boolean shooterBeam = !shooterBeamBreak.get();
-        boolean hopperBeam = lidar.getRawDutyCycle() < 0.08 && lidar.getRawDutyCycle() > 0.01;
 
-        Constants.TUNING_TABLE.putNumber("hopBeamVal", lidar.getRawDutyCycle());
+        boolean hopperBeam17 = lidar17.getRawDutyCycle() < 0.08 && lidar17.getRawDutyCycle() > 0.01;
+
+        Constants.TUNING_TABLE.putNumber("hopBeamVal17", lidar17.getRawDutyCycle());
+
+        boolean hopperBeam18 = lidar18.getRawDutyCycle() < 0.08 && lidar18.getRawDutyCycle() > 0.01;
+
+        Constants.TUNING_TABLE.putNumber("hopBeamVal18", lidar18.getRawDutyCycle());
+
+        boolean hopperBeam19 = lidar19.getRawDutyCycle() < 0.08 && lidar19.getRawDutyCycle() > 0.01;
+
+        Constants.TUNING_TABLE.putNumber("hopBeamVal19", lidar19.getRawDutyCycle());
+
         Constants.TUNING_TABLE.putBoolean("botBeam", botBeam);
         Constants.TUNING_TABLE.putBoolean("midBeam", midBeam);
         Constants.TUNING_TABLE.putBoolean("shooterBeam", shooterBeam);
-        Constants.TUNING_TABLE.putBoolean("hopperBeam", hopperBeam);
+        Constants.TUNING_TABLE.putBoolean("hopperBeam", hopperBeam17);
         Constants.TUNING_TABLE.putBoolean("B1", b1);
         Constants.TUNING_TABLE.putBoolean("B2", b2);
     }
@@ -226,8 +238,8 @@ public class Intake {
         boolean botBeam = !lowFeedBeamBreak.get();
         boolean midBeam = !midFeedBeamBreak.get();
         boolean shooterBeam = !shooterBeamBreak.get();
-        boolean hopperBeam = lidar.getRawDutyCycle() < 0.12 && lidar.getRawDutyCycle() > 0.01;
-
+        boolean hopperBeam = false;
+        
         return (botBeam || midBeam || shooterBeam || hopperBeam);
     }
 
