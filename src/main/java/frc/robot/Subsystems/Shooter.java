@@ -100,6 +100,9 @@ public class Shooter {
         shooterPIDController.setSmartMotionMaxAccel(4000.0, 0);
         shooterPIDController.setSmartMotionAllowedClosedLoopError(5.0, 0);
 
+        shooterMotor.enableVoltageCompensation(11.75);
+        shooterFollowerMotor.enableVoltageCompensation(11.75);
+
         hoodMotor.burnFlash();
         shooterMotor.burnFlash();
         shooterFollowerMotor.burnFlash();
@@ -335,7 +338,6 @@ public class Shooter {
         
         Constants.TUNING_TABLE.putNumber("Shooter Velocity Set", 0.0);
         Constants.TUNING_TABLE.putNumber("Hood Setpoint", 0.0);
-        // SmartDashboard.putNumber("Feed Setpoint", 0.0);
         Constants.TUNING_TABLE.putNumber("Shooter Motor P", 0.0001);
         Constants.TUNING_TABLE.putNumber("Shooter Motor I", 0.000000002);
         Constants.TUNING_TABLE.putNumber("Shooter Motor D", 0.0);

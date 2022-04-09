@@ -16,7 +16,7 @@ public class ShuffleboardTable {
         this.tab = Shuffleboard.getTab(tabName);
     }
 
-    private void addEntry(String key, Object value){
+    private void putEntry(String key, Object value){
         if(!hasKey(key)){
             keyEntryMap.put(key, tab.add(key, value).getEntry());        
         }else{
@@ -29,10 +29,14 @@ public class ShuffleboardTable {
     }
 
     public void putNumber(String key, double value){
-        addEntry(key, value);
+        putEntry(key, value);
     }
 
     public double getNumber(String key, double defaultValue){
+        if(!this.hasKey(key)){
+            putNumber(key, defaultValue);
+            return defaultValue;
+        }
         return keyEntryMap.get(key).getDouble(defaultValue);
     }
 
@@ -41,10 +45,14 @@ public class ShuffleboardTable {
     }
 
     public void putBoolean(String key, boolean value){
-        addEntry(key, value);
+        putEntry(key, value);
     }
 
     public boolean getBoolean(String key, boolean defaultValue){
+        if(!this.hasKey(key)){
+            putBoolean(key, defaultValue);
+            return defaultValue;
+        }
         return keyEntryMap.get(key).getBoolean(defaultValue);
     }
 
@@ -53,10 +61,14 @@ public class ShuffleboardTable {
     }
 
     public void putString(String key, String value){
-        addEntry(key, value);
+        putEntry(key, value);
     }
 
     public String getString(String key, String defaultValue){
+        if(!this.hasKey(key)){
+            putString(key, defaultValue);
+            return defaultValue;
+        }
         return keyEntryMap.get(key).getString(defaultValue);
     }
 

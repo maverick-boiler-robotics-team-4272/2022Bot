@@ -7,8 +7,41 @@ import frc.robot.Subsystems.Limelight.LEDMode;
 
 public class Teleop {
     //Xbox controllers
+
+    //Currently Used buttons
+    //Left Trigger
+    //Right Trigger
+    //Left Bumper
+    //Right Bumper
+    //Start Button
+    //Back Button
+    //A Button
+    //B Button
+    //X Button
+    //Y Button
+    //D-pad
+
+    //Currently Unused
+    //Right Stick Click
+    //Left Stick Click
     private XboxController driveController = new XboxController(0);
-    public XboxController opController = new XboxController(1);
+    
+    //Currently Used Buttons
+    //Left Trigger
+    //Right Trigger
+    //Left Bumber
+    //Right Bumper
+    //A Button
+    //B Button
+    //X Button
+    //Y Button
+
+    //Currently Unused Buttons
+    //Start Button
+    //Back Button
+    //Right Stick Click
+    //Left Stick Click
+    private XboxController opController = new XboxController(1);
 
     public boolean fieldRelative = true;
     private boolean intakeStopped = true;
@@ -138,8 +171,8 @@ public class Teleop {
 
         if(opController.getAButtonPressed()){
             intakeOverride = !intakeOverride;
+            SmartDashboard.putBoolean("intake override", intakeOverride);
         }
-        SmartDashboard.putBoolean("intake override", intakeOverride);
 
         if(opRTrigger > 0){
             intakeStopped = false;
@@ -173,7 +206,7 @@ public class Teleop {
         }
 
         if(opController.getRightBumperPressed()){
-            shooter.resetPID();
+            // shooter.resetPID();
         }
 
         //////////////////// Pneumatics //////////////////

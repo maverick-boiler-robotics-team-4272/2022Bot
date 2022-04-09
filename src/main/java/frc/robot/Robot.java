@@ -30,8 +30,6 @@ public class Robot extends TimedRobot {
     public Teleop teleop;
     public Auto auto;
 
-    public ShuffleboardTable tuningTable = new ShuffleboardTable("Tuning");
-
     //Deadzone constants
 
     /**
@@ -84,18 +82,6 @@ public class Robot extends TimedRobot {
 
         Subsystems.getShooter().putShooterDataToDashboard();
         // Subsystems.getIntake().beamBreaksToSmart();
-        // SmartDashboard.putNumber("Limelight X Error", Limelight.getTY());
-        // SmartDashboard.putNumber("Limelight Y Error", Limelight.getTX());
-        // SmartDashboard.putBoolean("Limelight aimed", Limelight.getAimed());
-        // SmartDashboard.putNumber("Limelight Distance", Limelight.getDistanceFeet() * 12.0 - 6.0);
-
-        // SmartDashboard.putNumber("Limelight Hood Ang", Limelight.getHoodAngle());
-        // SmartDashboard.putNumber("Limelight Shooter Val", Limelight.getFlywheelSpeed());
-
-        // SmartDashboard.putNumber("Battery Voltage", RobotController.getBatteryVoltage());
-
-        // SmartDashboard.putBoolean("B1", Subsystems.getIntake().getB1());
-        // SmartDashboard.putBoolean("B2", Subsystems.getIntake().getB2());
     }
 
     /**

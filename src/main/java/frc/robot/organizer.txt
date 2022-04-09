@@ -5,13 +5,14 @@ Swerve Code:
 
         Teleop:
 
-        Hardware:
-
         Paths:
+
 
 
     Shooter:
         Limelight:
+            Left-Right aiming
+            Distance Aiming
 
 
     Intake:
@@ -54,10 +55,23 @@ Swerve Code:
 
         Cameras:
 
-    Math:
-        Swerve Module Math:
+    Controller Inputs:
+        Driver Controller:
+            Right Side:
+                X Axis: rotation
+                Y Axis: none
+                Click: none
+                Bumper: 
+                Trigger:
+            Left Side:
+                X Axis: Left Right Translation
+                Y Axis: Forward backward Translation
+                Click: none
+                Bumper: Limelight Left Right Aiming
+                Trigger: []\
+            
 
-        Utilities:
+            
             
 
 
