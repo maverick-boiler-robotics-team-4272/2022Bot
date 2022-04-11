@@ -64,6 +64,7 @@ public class Teleop {
      * Loop that has all of our inputs to run the robot
      */
     public void run(){
+
         ////////////////////////// Drive ///////////////////////////
         double driveX = driveController.getLeftX();
         double driveY = driveController.getLeftY();
@@ -72,11 +73,10 @@ public class Teleop {
             shooter.shoot();
             if(driveX + driveY > 0 /*|| !intake.ballPresent()*/){
                 finishAuto = false;
-                shooter.stopShooterAndFeed();
+                shooter.stopShooter();
             }
             return;
         }
-
 
         if(Math.abs(driveX) <= 0.08){
             driveX = 0;
@@ -85,8 +85,6 @@ public class Teleop {
             driveY = 0;
         }
 
-        
-        
         double hyp = Math.sqrt(Math.pow(driveX, 2) + Math.pow(driveY, 2));
         double angle = Math.atan2(driveY, driveX);
         hyp = deadzoneEquations(Constants.JSTICK_DEADZONE, hyp);
@@ -95,6 +93,37 @@ public class Teleop {
         driveY = Math.sin(angle) * hyp;
 
         double rotX;
+
+        
+
+        if(driveController.getLeftTriggerAxis() > Constants.TRIGGER_DEADZONE){
+            Limelight.setLEDMode(LEDMode.ON);
+
+            // 3 point shooter calibration code.
+            shooter.setShooter(Limelight.getFlywheelSpeed(), Limelight.getHoodAngle(), -0.8);
+            
+            rotX = drivetrain.aimAtHub();
+
+            if(Limelight.getAimed() || aimed){
+                translating = false;
+                aimed = true;
+                drivetrain.setXConfig();
+                shooter.shoot();
+            }else{
+                translating = true;
+                shooter.revShooter();
+            }
+        }else if(!driveController.getLeftBumper()){
+            Limelight.setLEDMode(LEDMode.OFF);
+            aimed = false;
+            rotX = driveController.getRightX();
+            rotX = Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, rotX);
+            translating = true;
+        }else{
+            aimed = false;
+            rotX = driveController.getRightX();
+            rotX = Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, rotX);
+        }
 
         if(driveController.getLeftBumperPressed()){
             Limelight.setLEDMode(LEDMode.ON);
@@ -109,36 +138,10 @@ public class Teleop {
             }
         }else if(driveController.getLeftBumperReleased()){
             translating = true;
-            //Limelight.setLEDMode(LEDMode.OFF);
-        }
-
-        if(driveController.getLeftTriggerAxis() > Constants.TRIGGER_DEADZONE){
-            Limelight.setLEDMode(LEDMode.ON);
-
-            // 3 point shooter calibration code.
-            shooter.setShooter(Limelight.getFlywheelSpeed(), Limelight.getHoodAngle(), -0.8);
-            
-            rotX = drivetrain.aimAtHub();
-            //shooter.revShooter();
-            if(Limelight.getAimed()){
-                translating = false;
-                drivetrain.setXConfig();
-                shooter.shoot();
-            }else{
-                translating = true;
-                shooter.revShooter();
-            }
-        }else if(!driveController.getLeftBumper()){
             Limelight.setLEDMode(LEDMode.OFF);
-            rotX = driveController.getRightX();
-            rotX = Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, rotX);
-            translating = true;
-        }else{
-            rotX = driveController.getRightX();
-            rotX = Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, rotX);
         }
 
-        if(translating || driveController.getRightBumper()){
+        if(translating){
             drivetrain.drive(driveX * Constants.MAX_SPEED, driveY * Constants.MAX_SPEED, rotX * Constants.MAX_ANGULAR_SPEED, fieldRelative);
         }
 

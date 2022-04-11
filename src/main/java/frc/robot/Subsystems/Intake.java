@@ -17,7 +17,7 @@ public class Intake {
     private Lidar lidar18 = new Lidar(18);
     private Lidar lidar19 = new Lidar(19);
     
-    //runIntakeComplex
+    //run intake booleans
     private boolean b1 = false;
     private boolean b2 = false;
     private boolean b1Mid = false;
@@ -98,6 +98,7 @@ public class Intake {
         }
         */
 
+        /*
         if(shooterBeam && !b1Mid){
             b1Mid = true;
         }
@@ -122,6 +123,26 @@ public class Intake {
         if(b1 && b2){
             feedVal = 0;
             triggerVal = 0;
+        }
+
+        if(midBeam && !b1Mid){
+            b1Mid = true;
+        }
+        */
+
+        if(b1Mid && !b1 && midBeam){
+            feedVal = 0.3;
+        }else if(b1Mid && !b1 && !midBeam){
+            feedVal = 0;
+            b1 = true;
+        }
+
+        if(b1){
+            feedVal = 0;
+        }
+
+        if(b1 && !b2 && hopperBeam){
+            b2 = true;
         }
 
 
@@ -276,13 +297,7 @@ public class Intake {
         shooterFeedMotor.set(feedPercent);
     }
 
-    /**
-     * Gets the current value of the beam break underneath the shooter
-     * @return whether the beam break is tripped or not
-     */
-    public boolean getShooterBeam(){
-        return !(shooterBeamBreak.get());
-    }
+    
 
     /**
      * Stops shooter feed motor
@@ -314,5 +329,31 @@ public class Intake {
 
     public boolean getB2(){
         return b2;
+    }
+
+    /**
+     * Gets the current value of the beam break underneath the shooter
+     * @return whether the beam break is tripped or not
+     */
+    public boolean getShooterBeam(){
+        return !(shooterBeamBreak.get());
+    }
+
+    public boolean getMidBeam(){
+        return !(midFeedBeamBreak.get());
+    }
+
+    public boolean getLowBeam(){
+        return !(lowFeedBeamBreak.get());
+    }
+
+    public boolean getHopperBeam(){
+        return false;
+        
+        /*
+        //return (lidar.getRawDutyCycle() < 0.1 && lidar.getRawDutyCycle() > 0.01)||
+                (lidar.getRawDutyCycle() < 0.1 && lidar.getRawDutyCycle() > 0.01) ||
+                (lidar.getRawDutyCycle() < 0.1 && lidar.getRawDutyCycle() > 0.01);
+        */
     }
 }

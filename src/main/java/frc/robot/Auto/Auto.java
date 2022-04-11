@@ -58,7 +58,7 @@ public class Auto {
         new Setpoint(-1.75, 1.75,
             () -> Subsystems.getShooter().setShooter(ShooterPositions.FENDER_HIGH), 
             () -> Subsystems.getShooter().shoot(), 
-            () -> Subsystems.getShooter().stopShooterAndFeed()),
+            () -> Subsystems.getShooter().stopShooter()),
         new Setpoint(0.1, 0.1, 
             () -> Subsystems.getPneumatics().intakeOut(), 
             () -> Setpoint.noop(), 
@@ -78,7 +78,7 @@ public class Auto {
         new Setpoint(5.0, 4.0, 
             () -> Subsystems.getShooter().revShooter(), 
             () -> Subsystems.getShooter().shoot(), 
-            () -> Subsystems.getShooter().stopShooterAndFeed())/*,
+            () -> Subsystems.getShooter().stopShooter())/*,
         new Setpoint(8.5, 2.0, 
             () -> Subsystems.getShooter().setShooter(ShooterPositions.TARMAC), 
             () -> Subsystems.getIntake().runIntake(0.75), 
@@ -233,7 +233,7 @@ public class Auto {
      */
     public void stopAuto(){
         Subsystems.getIntake().runIntake(0.0, false, false, false);
-        Subsystems.getShooter().stopShooterAndFeed();
+        Subsystems.getShooter().stopShooter();
     }
 
     /**
@@ -257,7 +257,7 @@ public class Auto {
         }else if(currTime > 0.26 && currTime < 2.0){
             Subsystems.getShooter().shoot();
         }else if(currTime < 2.1){
-            Subsystems.getShooter().stopShooterAndFeed();
+            Subsystems.getShooter().stopShooter();
         }else if(currTime < 2.55 && currTime > 2.45){
             Subsystems.getShooter().setShooter(ShooterPositions.AUTO_TARMAC);
             Subsystems.getPneumatics().intakeOut();
@@ -280,7 +280,7 @@ public class Auto {
         double currTime = Auto.timer.get();
 
         if(currTime < 1.8 && currTime > 1.5){
-            Subsystems.getShooter().stopShooterAndFeed();
+            Subsystems.getShooter().stopShooter();
         }else if(currTime < 3.5){
             Subsystems.getIntake().runIntake(0.6, false, false, false);
             Subsystems.getShooter().setShooter(ShooterPositions.AUTO_TARMAC);

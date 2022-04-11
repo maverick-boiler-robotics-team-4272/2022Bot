@@ -3,6 +3,7 @@ package frc.robot.Subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxLimitSwitch.Type;
 import com.revrobotics.SparkMaxPIDController.AccelStrategy;
@@ -48,6 +49,7 @@ public class Shooter {
             this.hoodAmt = hoodAmt;
             this.feedAmt = feedAmt;
         }
+
     }
 
     private double hoodAmt;
@@ -72,6 +74,13 @@ public class Shooter {
     private double shooterD = 0.0;
     private double shooterFF = 0.0001963;
 
+    private double shooterVoltageCompensation = 11.0;
+
+    private double hoodP = 0.0000001;
+    private double hoodI = 0.0;
+    private double hoodD = 0.0;
+    private double hoodFF = 0.0001;
+
     public Shooter(){
 
         hoodMotor.restoreFactoryDefaults();
@@ -81,20 +90,25 @@ public class Shooter {
         this.hoodMotor.getEncoder().setPositionConversionFactor(1);
 
         hoodPIDController.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
-        hoodPIDController.setP(0.0000001);
-        hoodPIDController.setI(0.0);
-        hoodPIDController.setD(0.0);
-        hoodPIDController.setFF(0.0001);
+        
+        hoodPIDController.setP(hoodP);
+        hoodPIDController.setI(hoodI);
+        hoodPIDController.setD(hoodD);
+        hoodPIDController.setFF(hoodFF);
+
         hoodPIDController.setSmartMotionMaxAccel(40000.0, 0);
         hoodPIDController.setOutputRange(-1, 1);
         hoodPIDController.setSmartMotionMaxVelocity(40000.0, 0);
         hoodPIDController.setSmartMotionMinOutputVelocity(0.0, 0);
         hoodPIDController.setSmartMotionAllowedClosedLoopError(0.0, 0);
-        // System.out.println(hoodMotor.getForwardLimitSwitch(Type.kNormallyOpen));
+
+        hoodMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
+        hoodMotor.setSoftLimit(SoftLimitDirection.kReverse, 25.0f);
+
         this.hoodMotor.getEncoder().setPosition(0.0);
         hoodMotor.setSmartCurrentLimit(20);
         this.shooterMotor.setInverted(true);
-        //System.out.println(hoodMotor.getForwardLimitSwitch(Type.kNormallyClosed).toString());
+        
         shooterFollowerMotor.follow(shooterMotor, true);
         shooterPIDController.setP(shooterP);
         shooterPIDController.setI(shooterI);
@@ -105,35 +119,43 @@ public class Shooter {
         shooterPIDController.setSmartMotionMaxAccel(4000.0, 0);
         shooterPIDController.setSmartMotionAllowedClosedLoopError(5.0, 0);
 
-        shooterMotor.enableVoltageCompensation(11.0);
-        shooterFollowerMotor.enableVoltageCompensation(11.0);
+        shooterMotor.enableVoltageCompensation(shooterVoltageCompensation);
+        shooterFollowerMotor.enableVoltageCompensation(shooterVoltageCompensation);
 
         hoodMotor.burnFlash();
         shooterMotor.burnFlash();
         shooterFollowerMotor.burnFlash();
+
     }
 
     /**
      * Resets pid values
      */
     public void resetPID(){
+        
+        
         // hoodPIDController.setP(SmartDashboard.getNumber("Rotation Motor P", 0.0001));
         // hoodPIDController.setI(SmartDashboard.getNumber("Rotation Motor I", 0.0));
         // hoodPIDController.setD(SmartDashboard.getNumber("Rotation Motor D", 0.0));
         // hoodPIDController.setFF(SmartDashboard.getNumber("Rotation Motor F", 0.001));
-        // hoodPIDController.setSmartMotionMaxAccel(SmartDashboard.getNumber("Rotation Motor ACC", 100.0), 0);
-        // hoodPIDController.setSmartMotionMaxVelocity(SmartDashboard.getNumber("Rotation Motor MAX VEL", 300.0), 0);
 
-        shooterPIDController.setP(Constants.TUNING_TABLE.getNumber("Shooter Motor P", 1.0));
-        shooterPIDController.setI(Constants.TUNING_TABLE.getNumber("Shooter Motor I", 0.0));
-        shooterPIDController.setD(Constants.TUNING_TABLE.getNumber("Shooter Motor D", 0.0));
-        shooterPIDController.setFF(Constants.TUNING_TABLE.getNumber("Shooter Motor F", 0.0));
+        shooterP = Constants.TUNING_TABLE.getNumber("Shooter Motor P", shooterP);
+        shooterI = Constants.TUNING_TABLE.getNumber("Shooter Motor P", shooterI);
+        shooterD = Constants.TUNING_TABLE.getNumber("Shooter Motor P", shooterD);
+        shooterFF = Constants.TUNING_TABLE.getNumber("Shooter Motor P", shooterFF);
+
+        shooterPIDController.setP(shooterP);
+        shooterPIDController.setI(shooterI);
+        shooterPIDController.setD(shooterD);
+        shooterPIDController.setFF(shooterFF);
+
     }
 
     /**
      * Starts the shooter wheel based on the shooter amount variable that is determined by the dpad
      */
     public void shoot(){
+        
         if(!Subsystems.getIntake().getShooterBeam()){
             ballOffWheel = true;
         }
@@ -141,7 +163,7 @@ public class Shooter {
             ballShooting = true;
         }
 
-        if(ballShooting && !Subsystems.getIntake().getShooterBeam() && getHoodAtPosition()){
+        if(ballShooting && !Subsystems.getIntake().getShooterBeam()){
             Subsystems.getIntake().shotBall();
             ballShooting = false;
         }
@@ -166,6 +188,7 @@ public class Shooter {
             Subsystems.getIntake().stopIntake();
             Subsystems.getIntake().stopFeedShooter();
         }
+
     }
 
     /**
@@ -180,18 +203,11 @@ public class Shooter {
         ballOffWheel = false;
     }
 
-    /**
-     * Stops both the shooter and feed motor
-     */
-    public void stopShooterAndFeed(){
-        stopShooter();
-        Subsystems.getIntake().stopFeedShooter();
-    }
-
      /**
      * Pushes the hood down until it hits the limit switch to 0 it
      */
     public boolean fixHood(){
+
         if(!hoodMotor.getForwardLimitSwitch(Type.kNormallyOpen).isPressed()){
             hoodMotor.set(0.1);
             return true;
@@ -228,9 +244,11 @@ public class Shooter {
      */
     public void setShooter(int pov){
         int index = pov / 90;
-        //putShooterDataToDashboard();
+
         ShooterPositions[] shooterSetpoints = ShooterPositions.values();
+
         setShooter(shooterSetpoints[index].shootAmt, shooterSetpoints[index].hoodAmt, shooterSetpoints[index].feedAmt);
+
     }
 
     /**
@@ -240,10 +258,12 @@ public class Shooter {
      * @param feedAmount speed to run the feed motor at
      */
     public void setShooter(double shooterAmount, double hoodAmount, double feedAmount){
+
         shooterAmt = shooterAmount;
         hoodAmt = hoodAmount;
         feedAmt = feedAmount;
         setHood();
+
     }
 
     /**
@@ -251,7 +271,9 @@ public class Shooter {
      * @param shooterPosition the enum
      */
     public void setShooter(ShooterPositions shooterPosition){
+
         setShooter(shooterPosition.shootAmt, shooterPosition.hoodAmt, shooterPosition.feedAmt);
+
     }
 
     /**
@@ -267,6 +289,7 @@ public class Shooter {
      * Updates the shooter and hood from smart dashboard
      */
     public void updateShooter() {
+
         shooterAmt = SmartDashboard.getNumber("Shooter Velocity Set", 0.0);
         hoodAmt = SmartDashboard.getNumber("Hood Setpoint", 0.0);
         feedAmt = -0.6;
@@ -288,12 +311,6 @@ public class Shooter {
         hoodMotor.getPIDController().setReference(hoodAmt, ControlType.kSmartMotion);
     }
 
-    /**
-     * Sets the hood to 0
-     */
-    public void zeroHood(){
-        setShooter(ShooterPositions.EJECT);
-    }
 
     /**
      * Set shooterMotor from smart dashboard
@@ -308,41 +325,40 @@ public class Shooter {
      */
     public boolean getHoodAtPosition(){
         double hoodPos = hoodMotor.getEncoder().getPosition();
-        // System.out.println("HoodPos: " + hoodPos);
-        // System.out.println("HoodAmt: " + hoodAmt);
+
+        return (hoodPos < (hoodAmt - (hoodAmt * Constants.HOOD_DEADZONE)) && hoodPos > (hoodAmt + hoodAmt * (Constants.HOOD_DEADZONE)));
+
+        /*
         if(hoodPos < (hoodAmt - (hoodAmt * Constants.HOOD_DEADZONE))
         && hoodPos > (hoodAmt + (hoodAmt * Constants.HOOD_DEADZONE))){
             return true;
         }else{
             return false;
         }
+        */
+
     }
 
     public void reBurnFlash(){
 
         hoodPIDController.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
-        hoodPIDController.setP(0.0000001);
-        hoodPIDController.setI(0.0);
-        hoodPIDController.setD(0.0);
-        hoodPIDController.setFF(0.0001);
+
+        hoodPIDController.setP(hoodP);
+        hoodPIDController.setI(hoodI);
+        hoodPIDController.setD(hoodD);
+        hoodPIDController.setFF(hoodFF);
+
         hoodPIDController.setSmartMotionMaxAccel(40000.0, 0);
         hoodPIDController.setSmartMotionMaxVelocity(40000.0, 0);
         hoodPIDController.setSmartMotionMinOutputVelocity(0.0, 0);
         hoodPIDController.setSmartMotionAllowedClosedLoopError(0.0, 0);
-        // System.out.println(hoodMotor.getForwardLimitSwitch(Type.kNormallyOpen));
+
         this.hoodMotor.getEncoder().setPosition(0.0);
         hoodMotor.setSmartCurrentLimit(20);
         this.shooterMotor.setInverted(true);
-        //System.out.println(hoodMotor.getForwardLimitSwitch(Type.kNormallyClosed).toString());
+
         shooterFollowerMotor.follow(shooterMotor, true);
         
-        
-        // Constants.TUNING_TABLE.putNumber("Shooter Velocity Set", 0.0);
-        // Constants.TUNING_TABLE.putNumber("Hood Setpoint", 0.0);
-        // Constants.TUNING_TABLE.putNumber("Shooter Motor P", 0.0001);
-        // Constants.TUNING_TABLE.putNumber("Shooter Motor I", 0.000000002);
-        // Constants.TUNING_TABLE.putNumber("Shooter Motor D", 0.0);
-        // Constants.TUNING_TABLE.putNumber("Shooter Motor F", 0.00018);
         shooterPIDController.setP(shooterP);
         shooterPIDController.setI(shooterI);
         shooterPIDController.setD(shooterD);

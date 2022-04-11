@@ -81,7 +81,8 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
 
         Subsystems.getShooter().putShooterDataToDashboard();
-        // Subsystems.getIntake().beamBreaksToSmart();
+        Subsystems.getIntake().beamBreaksToSmart();
+
     }
 
     /**
@@ -107,6 +108,7 @@ public class Robot extends TimedRobot {
         auto.setPath(AUTO_CHOOSER.getSelected());
         auto.initPath();
         teleop.autod();
+
     }
 
     /** This function is called periodically during autonomous. */
@@ -114,7 +116,7 @@ public class Robot extends TimedRobot {
     public void autonomousPeriodic() {
         
         auto.run();
-        Subsystems.getIntake().beamBreaksToSmart();
+        
     }
 
     /** This function is called once when teleop is enabled. */
