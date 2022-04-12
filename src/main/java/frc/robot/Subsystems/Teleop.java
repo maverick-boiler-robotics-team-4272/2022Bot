@@ -4,26 +4,10 @@ package frc.robot.Subsystems;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Subsystems.Limelight.LEDMode;
+import frc.robot.Subsystems.Shooter.ShooterPositions;
 
 public class Teleop {
     //Xbox controllers
-
-    //Currently Used buttons
-    //Left Trigger
-    //Right Trigger
-    //Left Bumper
-    //Right Bumper
-    //Start Button
-    //Back Button
-    //A Button
-    //B Button
-    //X Button
-    //Y Button
-    //D-pad
-
-    //Currently Unused
-    //Right Stick Click
-    //Left Stick Click
     private XboxController driveController = new XboxController(0);
     
     //Currently Used Buttons
@@ -36,11 +20,6 @@ public class Teleop {
     //X Button
     //Y Button
 
-    //Currently Unused Buttons
-    //Start Button
-    //Back Button
-    //Right Stick Click
-    //Left Stick Click
     private XboxController opController = new XboxController(1);
 
     public boolean fieldRelative = true;
@@ -51,7 +30,6 @@ public class Teleop {
 
     private boolean intakeOverride = false;
     private boolean translating = true;
-    private boolean aimed = false;
     
     private Intake intake = Subsystems.getIntake();
     private DriveTrain drivetrain = Subsystems.getDriveTrain();
@@ -114,12 +92,10 @@ public class Teleop {
             }
         }else if(!driveController.getLeftBumper()){
             Limelight.setLEDMode(LEDMode.OFF);
-            aimed = false;
             rotX = driveController.getRightX();
             rotX = Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, rotX);
             translating = true;
         }else{
-            aimed = false;
             rotX = driveController.getRightX();
             rotX = Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, rotX);
         }
@@ -203,6 +179,10 @@ public class Teleop {
             Subsystems.getShooter().setHood();
         }
         
+        if(driveController.getRightStickButton()){
+            shooter.setShooter(ShooterPositions.TARMAC);
+            shooter.revShooter();
+        }
 
         ////////////////////// Climber //////////////////
         double lClimbSpeed = Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, opController.getLeftY());
@@ -237,7 +217,7 @@ public class Teleop {
 
 
         if(driveController.getRightBumper()){
-            Subsystems.getIntake().runIntake(0.8, false, false, false);
+            Subsystems.getIntake().runIntake(0.5, false, false, false);
         }else if(driveController.getRightBumperReleased()){
             intake.stopIntake();
         }

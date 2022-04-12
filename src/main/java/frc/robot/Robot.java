@@ -43,8 +43,11 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotInit() {
-        Constants.TUNING_TABLE = new ShuffleboardTable("tuning");
-
+        try {
+            Constants.TUNING_TABLE = ShuffleboardTable.fromJSON("tuning_layout.json");
+        } catch (IOException | ParseException e1) {
+            
+        }
         Subsystems.initSubsystems();
         auto = new Auto();
         teleop = new Teleop();
@@ -68,11 +71,6 @@ public class Robot extends TimedRobot {
         Constants.TUNING_TABLE.putNumber("Omega C", Constants.OMEGA_C);
 
         Subsystems.getIntake().beamBreaksToSmart();
-        try {
-            ShuffleboardTable.fromJSON("tuning_config.json");
-        } catch (IOException | ParseException e) {
-
-        }
     }
 
     /**

@@ -95,7 +95,6 @@ public class ShuffleboardTable {
     
     public static ShuffleboardTable fromJSON(JSONObject json){
         ShuffleboardTable table = new ShuffleboardTable((String) json.get("name"));
-
         JSONArray tabs = (JSONArray) json.get("tabs");
 
         for(int i = 0; i < tabs.size(); i++){

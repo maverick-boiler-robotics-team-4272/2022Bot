@@ -3,7 +3,6 @@ package frc.robot.Subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
-import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxLimitSwitch.Type;
 import com.revrobotics.SparkMaxPIDController.AccelStrategy;
@@ -22,7 +21,7 @@ public class Shooter {
             2200.0, -3.5, -0.7 //2250
         ),
         TARMAC(
-            2325.0, -16.0, -0.9 //2300, -12.5
+            2175.0, -16.0, -0.9 //2300, -12.5
         ),
         LAUNCHPAD(
             2615.0, -20, -0.5

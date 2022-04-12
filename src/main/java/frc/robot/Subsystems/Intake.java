@@ -1,10 +1,10 @@
 package frc.robot.Subsystems;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Intake {
 
@@ -111,10 +111,10 @@ public class Intake {
         }
 
         if(hopperBeam){
-            // triggerVal = 0.15;
-            // setIntakeCurrentLimit(55);
+            triggerVal = 0.15;
+            setIntakeCurrentLimit(55);
         }else{
-            // setIntakeCurrentLimit(45);
+            setIntakeCurrentLimit(45);
         }
 
         if(getIntakeLidar() && currIntakeLim < 60){
@@ -136,7 +136,6 @@ public class Intake {
         boolean midBeam = !midFeedBeamBreak.get();
         boolean shooterBeam = !shooterBeamBreak.get();
 
-        boolean hopperBeam = getHopperBeam();
 
         Constants.TUNING_TABLE.putBoolean("botBeam", botBeam);
         Constants.TUNING_TABLE.putBoolean("midBeam", midBeam);
@@ -153,6 +152,8 @@ public class Intake {
         Constants.TUNING_TABLE.putBoolean("B1", b1);
         Constants.TUNING_TABLE.putBoolean("B2", b2);
 
+        SmartDashboard.putBoolean("B1", b1);
+        SmartDashboard.putBoolean("B2", b2);
 
     }
     

@@ -128,13 +128,13 @@ public class Constants {
 
     //tuned hood angles
 
-    public static double THETA_A = -12.75;
+    public static double THETA_A = -12.0;
     public static double THETA_B = -16.0;
     public static double THETA_C = -17.25;
 
     //tuned flywheel speeds
     public static double OMEGA_A = 1925.0;
-    public static double OMEGA_B = 2150.0;
+    public static double OMEGA_B = 2175.0;
     public static double OMEGA_C = 2350.0;
 
 

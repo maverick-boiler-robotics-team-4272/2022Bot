@@ -172,6 +172,10 @@ public class Auto {
             terminal3Ball();
         }else if(path.equals(Paths.TERMINAL_2_BALL)){
             terminal2Ball();
+        }else if(path.equals(Paths.HANGAR_2_BALL)){
+            hangar2Ball();
+        }else if(path.equals(Paths.HANGAR_2_BALL_2)){
+            hangar2Ball2();
         }
 
         if (currentTime > paths[path.index].getTotalTimeSeconds()) {
