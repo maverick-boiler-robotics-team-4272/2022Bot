@@ -24,6 +24,8 @@ public class Intake {
 
     private double hopperUpperBound = 0.1;
     private double hopperLowerBound = 0.03;
+
+    private double currIntakeLim = Constants.INTAKE_NORM_CURR_LIM;
     
 
     private CANSparkMax intakeMotor = new CANSparkMax(8, MotorType.kBrushless);
@@ -48,7 +50,7 @@ public class Intake {
 
         boolean midBeam = !midFeedBeamBreak.get();
         boolean shooterBeam = !shooterBeamBreak.get();
-        boolean hopperBeam = getHopperBeam();
+        boolean hopperBeam = getMidHopperLidar() || getBackHopperLidar();
         double feedVal = -0.6;
 
         if(intakeOnly){
@@ -71,6 +73,7 @@ public class Intake {
                 shooterFeedMotor.set(feedVal);
             }
             return;
+
         }
 
         //if no ball then just run norms
@@ -83,12 +86,24 @@ public class Intake {
         //////pre 4/5 code//////
         
         if(midBeam && !b1Mid){
+
             b1Mid = true;
-            b1 = true;
+
+            System.out.println("B1: " + b1);
+            System.out.println("B2: " + b2);
+
         }else if(b1Mid && midBeam){
+
             feedVal = -0.3;
+
         }else if(b1Mid && !midBeam){
+
             feedVal = 0;
+            b1 = true;
+
+            System.out.println("B1: " + b1);
+            System.out.println("B2: " + b2);
+
         }
 
         if(b1 && hopperBeam){
@@ -100,6 +115,10 @@ public class Intake {
             // setIntakeCurrentLimit(55);
         }else{
             // setIntakeCurrentLimit(45);
+        }
+
+        if(getIntakeLidar() && currIntakeLim < 60){
+            setIntakeCurrentLimit(60);
         }
 
         intakeMotor.set(triggerVal);
@@ -144,6 +163,7 @@ public class Intake {
         if(b1){
             count++;
         }
+
         if(b2){
             count++;
         }
@@ -152,40 +172,13 @@ public class Intake {
     }
 
     public void shotBall(){
+
+        System.out.println("Ball shot\nB1: " + b1 + "\nB2: "  + b2);
+
         if(b1 && b2){
             b1 = false;
         }else if(!b1 && b2){
             b2 = false;
-        }
-    }
-
-    /**
-     * Reverses the feed motor until the middle beam break is not triggered
-     * @return whether the mid beam is triggered or not
-     */
-    public boolean reverseToMid(){
-        boolean midBeam = midFeedBeamBreak.get();
-        if(midBeam){
-            reverseFeed(0.5);
-            return false;
-        }else{
-            stopFeedShooter();
-            return true;
-        }
-    }
-
-    /**
-     * Reverses the feed until the low beam break is not hit
-     * @return whether the low beam is triggered or not
-     */
-    public boolean reverseToLow(){
-        boolean lowBeam = lowFeedBeamBreak.get();
-        if(lowBeam){
-            reverseFeed(0.2);
-            return false;
-        }else{
-            stopFeedShooter();
-            return true;
         }
     }
 
@@ -198,15 +191,6 @@ public class Intake {
     }
 
     /**
-     * Reverses the feed motor a little bit, to make sure we can rev the shooter
-     */
-    public void reverseABit(){
-        double initEnc = shooterFeedMotor.getEncoder().getPosition();
-        double difference = 2;
-        shooterFeedMotor.getPIDController().setReference(initEnc + difference, ControlType.kPosition);
-    }
-
-    /**
      * 
      * @return true if a ball is in the robot anywhere there's a sensor, false otherwise
      */
@@ -215,9 +199,15 @@ public class Intake {
         boolean botBeam = !lowFeedBeamBreak.get();
         boolean midBeam = !midFeedBeamBreak.get();
         boolean shooterBeam = !shooterBeamBreak.get();
-        boolean hopperBeam = false;
+        boolean hopper = getBallInHopper();
         
-        return (botBeam || midBeam || shooterBeam || hopperBeam);
+        return (botBeam || midBeam || shooterBeam || hopper || b1 || b2);
+
+    }
+
+    public boolean getBallInHopper(){
+        return 
+            getIntakeLidar() || getMidHopperLidar() || getBackHopperLidar();
     }
 
     /**
@@ -253,8 +243,6 @@ public class Intake {
         shooterFeedMotor.set(feedPercent);
     }
 
-    
-
     /**
      * Stops shooter feed motor
      */
@@ -262,21 +250,21 @@ public class Intake {
         shooterFeedMotor.set(0.0);
     }
 
-
     /**
      * Sets the intake motor's current limit
      * @param lim the current limit
      */
     public void setIntakeCurrentLimit(int lim){
         this.intakeMotor.setSmartCurrentLimit(lim);
+        currIntakeLim = lim;
     }
 
     public void setIntakeToStuckCurrentLimit(){
-        setIntakeCurrentLimit(Constants.INTAKE_STUCK_CURRENT_LIMIT);
+        setIntakeCurrentLimit(Constants.INTAKE_ERROR_CURR_LIM);
     }
 
     public void setIntakeToUnStuckCurrentLimit(){
-        setIntakeCurrentLimit(Constants.INTAKE_UN_STUCK_CURRENT_LIMIT);
+        setIntakeCurrentLimit(Constants.INTAKE_NORM_CURR_LIM);
     }
 
     public boolean getB1(){

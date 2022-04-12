@@ -72,7 +72,6 @@ public class Auto {
             () ->Subsystems.getShooter().revShooter(), 
             () ->Subsystems.getIntake().stopIntake()),
         new Setpoint(5.5, 0.5, 
-            () -> Subsystems.getIntake().reverseToMid(), 
             () -> Subsystems.getIntake().runIntake(0.75, false, false, true), 
             () -> Subsystems.getShooter().shoot()),
         new Setpoint(5.0, 4.0, 
@@ -207,9 +206,6 @@ public class Auto {
 
             System.out.println("auto path: " + path.name());
             stopped = true;
-            //Subsystems.getIntake().stopFeedShooter();
-            //Subsystems.getShooter().stopShooter();
-            // return;
         }
         for (int i = 0; i < path.setpoints.length; i++){
             Setpoint setpoint = path.setpoints[i];
@@ -261,10 +257,15 @@ public class Auto {
         }else if(currTime < 2.55 && currTime > 2.45){
             Subsystems.getShooter().setShooter(ShooterPositions.AUTO_TARMAC);
             Subsystems.getPneumatics().intakeOut();
-        }else if(currTime < 6.75 && currTime > 3.0){
+        }else if(currTime < 5.0 && currTime > 3.0){
+            Subsystems.getIntake().runIntake(0.75, false, false, false);
+            Subsystems.getShooter().revShooter();
+        }else if(currTime < 6.75){
+            Subsystems.getIntake().setIntakeCurrentLimit(Constants.INTAKE_ERROR_CURR_LIM);
             Subsystems.getIntake().runIntake(0.75, false, false, false);
             Subsystems.getShooter().revShooter();
         }else if(currTime < 6.8){
+            Subsystems.getIntake().setIntakeCurrentLimit(Constants.INTAKE_NORM_CURR_LIM);
             Subsystems.getIntake().stopIntake();
             Subsystems.getShooter().shoot();
         }else if(currTime > 6.9){

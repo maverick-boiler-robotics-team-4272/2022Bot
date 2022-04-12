@@ -100,8 +100,8 @@ public class Constants {
     public static final double SHOOTER_DEADZONE = 50.0;
     public static final double SHOOTER_FEED_DEADZONE = 100.0;
 
-    public static final int INTAKE_STUCK_CURRENT_LIMIT = 80;
-    public static final int INTAKE_UN_STUCK_CURRENT_LIMIT = 45;
+    public static final int INTAKE_ERROR_CURR_LIM = 80;
+    public static final int INTAKE_NORM_CURR_LIM = 55;
 
     public static final double RAMP_UP_DEADZONE = 1.0;
     public static final double FIRE_DEADZONE = 5.0;
