@@ -104,9 +104,8 @@ public class Teleop {
             
             rotX = drivetrain.aimAtHub();
 
-            if(Limelight.getAimed() || aimed){
+            if(Limelight.getAimed()){
                 translating = false;
-                aimed = true;
                 drivetrain.setXConfig();
                 shooter.shoot();
             }else{
@@ -125,11 +124,12 @@ public class Teleop {
             rotX = Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, rotX);
         }
 
+        /*  
         if(driveController.getLeftBumperPressed()){
             Limelight.setLEDMode(LEDMode.ON);
             rotX = drivetrain.aimAtHub();
 
-            if(Limelight.getAimed() || aimed){
+            if(Limelight.getAimed()){
                 aimed = true;
                 drivetrain.setXConfig();
                 translating = false;
@@ -140,6 +140,7 @@ public class Teleop {
             translating = true;
             Limelight.setLEDMode(LEDMode.OFF);
         }
+        */
 
         if(translating){
             drivetrain.drive(driveX * Constants.MAX_SPEED, driveY * Constants.MAX_SPEED, rotX * Constants.MAX_ANGULAR_SPEED, fieldRelative);
@@ -173,6 +174,11 @@ public class Teleop {
         ///////////////////////// Intake ////////////////////
         double opRTrigger = Teleop.deadzoneEquations(Constants.TRIGGER_DEADZONE, opController.getRightTriggerAxis());
         double opLTrigger = Teleop.deadzoneEquations(Constants.TRIGGER_DEADZONE, opController.getLeftTriggerAxis());
+
+        if(opController.getRightStickButton()){
+            opRTrigger = 0.2;
+            System.out.println("Intake = 0.2");
+        }
 
         if(opController.getAButtonPressed()){
             intakeOverride = !intakeOverride;
@@ -231,7 +237,7 @@ public class Teleop {
 
 
         if(driveController.getRightBumper()){
-            Subsystems.getIntake().runIntake(0.6, false, false, false);
+            Subsystems.getIntake().runIntake(0.8, false, false, false);
         }else if(driveController.getRightBumperReleased()){
             intake.stopIntake();
         }

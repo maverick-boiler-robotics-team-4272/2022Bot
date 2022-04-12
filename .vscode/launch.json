@@ -6,6 +6,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Launch FileTester",
+      "request": "launch",
+      "mainClass": "frc.robot.Utilities.FileTester",
+      "projectName": "2022Bot"
+    },
+    {
+      "type": "java",
       "name": "Launch FileTesting",
       "request": "launch",
       "mainClass": "frc.robot.FileTesting",

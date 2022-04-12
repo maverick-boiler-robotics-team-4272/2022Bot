@@ -1,27 +1,42 @@
 package frc.robot.Utilities;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 
 public class ShuffleboardTable {
     
     private final ShuffleboardTab tab;
-    private final Map<String, NetworkTableEntry> keyEntryMap = new HashMap<>();
+    private final Map<String, SimpleWidget> keyEntryMap = new HashMap<>();
 
     public ShuffleboardTable(String tabName){
         this.tab = Shuffleboard.getTab(tabName);
-        // tab.add("Test", "Hello There").[\]
+    }
+
+    private NetworkTableEntry getEntry(String key){
+        return keyEntryMap.get(key).getEntry();
     }
 
     private void putEntry(String key, Object value){
         if(!hasKey(key)){
-            keyEntryMap.put(key, tab.add(key, value).getEntry());        
+            keyEntryMap.put(key, tab.add(key, value));      
         }else{
-            keyEntryMap.get(key).setValue(value);
+            getEntry(key).setValue(value);
         }
     }
 
@@ -38,7 +53,7 @@ public class ShuffleboardTable {
             putNumber(key, defaultValue);
             return defaultValue;
         }
-        return keyEntryMap.get(key).getDouble(defaultValue);
+        return getEntry(key).getDouble(defaultValue);
     }
 
     public double getNumber(String key){
@@ -54,7 +69,7 @@ public class ShuffleboardTable {
             putBoolean(key, defaultValue);
             return defaultValue;
         }
-        return keyEntryMap.get(key).getBoolean(defaultValue);
+        return getEntry(key).getBoolean(defaultValue);
     }
 
     public boolean getBoolean(String key){
@@ -70,10 +85,49 @@ public class ShuffleboardTable {
             putString(key, defaultValue);
             return defaultValue;
         }
-        return keyEntryMap.get(key).getString(defaultValue);
+        return getEntry(key).getString(defaultValue);
     }
 
     public String getString(String key){
         return getString(key, "");
+    }
+
+    
+    public static ShuffleboardTable fromJSON(JSONObject json){
+        ShuffleboardTable table = new ShuffleboardTable((String) json.get("name"));
+
+        JSONArray tabs = (JSONArray) json.get("tabs");
+
+        for(int i = 0; i < tabs.size(); i++){
+            JSONObject tab = (JSONObject) tabs.get(i);
+            String name = (String) tab.get("name");
+            Object startValue = tab.get("startValue");
+            table.putEntry(name, startValue);
+
+            int x = Math.toIntExact((long) tab.get("x"));
+            int y = Math.toIntExact((long) tab.get("y"));
+
+            table.keyEntryMap.get(name).withPosition(x, y);
+        }
+        
+        return table;
+    }
+
+    public static ShuffleboardTable fromJSON(String url) throws IOException, ParseException{
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(new File(Filesystem.getDeployDirectory() + "/tabs/" + url)));
+
+            StringBuilder builder = new StringBuilder();
+            String line;
+            while((line = reader.readLine()) != null){
+                builder.append(line);
+            }
+            reader.close();
+
+            return ShuffleboardTable.fromJSON((JSONObject) new JSONParser().parse(builder.toString()));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return new ShuffleboardTable("undef");
+        }
     }
 }

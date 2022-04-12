@@ -13,21 +13,24 @@ public class Intake {
     private DigitalInput shooterBeamBreak = new DigitalInput(16); //top feed
     private DigitalInput midFeedBeamBreak = new DigitalInput(15); //mid feed
     private DigitalInput lowFeedBeamBreak = new DigitalInput(14); //close to intake
-    private Lidar lidar17 = new Lidar(17);
-    private Lidar lidar18 = new Lidar(18);
-    private Lidar lidar19 = new Lidar(19);
+    private Lidar hopperLidar1 = new Lidar(20);
+    private Lidar hopperLidar2 = new Lidar(18);
+    private Lidar hopperLidar3 = new Lidar(19);
     
     //run intake booleans
     private boolean b1 = false;
     private boolean b2 = false;
     private boolean b1Mid = false;
+
+    private double hopperUpperBound = 0.1;
+    private double hopperLowerBound = 0.03;
     
 
     private CANSparkMax intakeMotor = new CANSparkMax(8, MotorType.kBrushless);
     private CANSparkMax shooterFeedMotor = new CANSparkMax(9, MotorType.kBrushless);
 
     public Intake(){
-        intakeMotor.setSmartCurrentLimit(45);
+        intakeMotor.setSmartCurrentLimit(55);
         shooterFeedMotor.setSmartCurrentLimit(45);
         shooterFeedMotor.setOpenLoopRampRate(0.5);
         intakeMotor.burnFlash();
@@ -45,7 +48,7 @@ public class Intake {
 
         boolean midBeam = !midFeedBeamBreak.get();
         boolean shooterBeam = !shooterBeamBreak.get();
-        boolean hopperBeam = false;
+        boolean hopperBeam = getHopperBeam();
         double feedVal = -0.6;
 
         if(intakeOnly){
@@ -62,7 +65,7 @@ public class Intake {
 
         if(override){
             intakeMotor.set(triggerVal);
-            if(midBeam){
+            if(midBeam || shooterBeam){
                 shooterFeedMotor.set(0.0);
             }else{
                 shooterFeedMotor.set(feedVal);
@@ -78,14 +81,13 @@ public class Intake {
         //only run intake
 
         //////pre 4/5 code//////
-        /*
+        
         if(midBeam && !b1Mid){
             b1Mid = true;
             b1 = true;
         }else if(b1Mid && midBeam){
             feedVal = -0.3;
         }else if(b1Mid && !midBeam){
-            
             feedVal = 0;
         }
 
@@ -94,57 +96,11 @@ public class Intake {
         }
 
         if(hopperBeam){
-            triggerVal = 0.2;
+            // triggerVal = 0.15;
+            // setIntakeCurrentLimit(55);
+        }else{
+            // setIntakeCurrentLimit(45);
         }
-        */
-
-        /*
-        if(shooterBeam && !b1Mid){
-            b1Mid = true;
-        }
-
-        if(b1Mid && !b1 && !midBeam){
-            feedVal = 0.3;
-        }else if(b1Mid && !b1 && midBeam){
-            b1 = true;
-            feedVal = 0;
-        }
-
-        if(b1){
-            feedVal = 0;
-        }
-
-        if(b1 && hopperBeam){
-            b2 = true;
-        }else if(hopperBeam){
-            triggerVal = 0.2;
-        }
-
-        if(b1 && b2){
-            feedVal = 0;
-            triggerVal = 0;
-        }
-
-        if(midBeam && !b1Mid){
-            b1Mid = true;
-        }
-        */
-
-        if(b1Mid && !b1 && midBeam){
-            feedVal = 0.3;
-        }else if(b1Mid && !b1 && !midBeam){
-            feedVal = 0;
-            b1 = true;
-        }
-
-        if(b1){
-            feedVal = 0;
-        }
-
-        if(b1 && !b2 && hopperBeam){
-            b2 = true;
-        }
-
 
         intakeMotor.set(triggerVal);
 
@@ -161,24 +117,24 @@ public class Intake {
         boolean midBeam = !midFeedBeamBreak.get();
         boolean shooterBeam = !shooterBeamBreak.get();
 
-        boolean hopperBeam17 = lidar17.getRawDutyCycle() < 0.08 && lidar17.getRawDutyCycle() > 0.01;
-
-        Constants.TUNING_TABLE.putNumber("hopBeamVal17", lidar17.getRawDutyCycle());
-
-        boolean hopperBeam18 = lidar18.getRawDutyCycle() < 0.08 && lidar18.getRawDutyCycle() > 0.01;
-
-        Constants.TUNING_TABLE.putNumber("hopBeamVal18", lidar18.getRawDutyCycle());
-
-        boolean hopperBeam19 = lidar19.getRawDutyCycle() < 0.08 && lidar19.getRawDutyCycle() > 0.01;
-
-        Constants.TUNING_TABLE.putNumber("hopBeamVal19", lidar19.getRawDutyCycle());
+        boolean hopperBeam = getHopperBeam();
 
         Constants.TUNING_TABLE.putBoolean("botBeam", botBeam);
         Constants.TUNING_TABLE.putBoolean("midBeam", midBeam);
         Constants.TUNING_TABLE.putBoolean("shooterBeam", shooterBeam);
-        Constants.TUNING_TABLE.putBoolean("hopperBeam", hopperBeam17);
+        Constants.TUNING_TABLE.putBoolean("hopBeam", getHopperBeam());
+
+        Constants.TUNING_TABLE.putNumber("lidar1", hopperLidar1.getRawDutyCycle());
+        Constants.TUNING_TABLE.putNumber("lidar2", hopperLidar2.getRawDutyCycle());
+        Constants.TUNING_TABLE.putNumber("lidar3", hopperLidar3.getRawDutyCycle());
+
+        Constants.TUNING_TABLE.putBoolean("intakeLidar", getIntakeLidar());
+        Constants.TUNING_TABLE.putBoolean("midHopperLidar", getMidHopperLidar());
+        Constants.TUNING_TABLE.putBoolean("backHopperLidar", getBackHopperLidar());
         Constants.TUNING_TABLE.putBoolean("B1", b1);
         Constants.TUNING_TABLE.putBoolean("B2", b2);
+
+
     }
     
 
@@ -348,12 +304,26 @@ public class Intake {
     }
 
     public boolean getHopperBeam(){
-        return false;
         
-        /*
-        //return (lidar.getRawDutyCycle() < 0.1 && lidar.getRawDutyCycle() > 0.01)||
-                (lidar.getRawDutyCycle() < 0.1 && lidar.getRawDutyCycle() > 0.01) ||
-                (lidar.getRawDutyCycle() < 0.1 && lidar.getRawDutyCycle() > 0.01);
-        */
+        return
+                //(hopperLidar1.getRawDutyCycle() < hopperUpperBound && hopperLidar1.getRawDutyCycle() > hopperLowerBound)||
+                (hopperLidar2.getRawDutyCycle() < hopperUpperBound && hopperLidar2.getRawDutyCycle() > hopperLowerBound);
+                //(hopperLidar3.getRawDutyCycle() < hopperUpperBound && hopperLidar3.getRawDutyCycle() > 0.01);
+        
+    }
+
+    public boolean getIntakeLidar(){
+        return (hopperLidar1.getRawDutyCycle() > hopperLowerBound) &&
+                (hopperLidar1.getRawDutyCycle() < hopperUpperBound);
+    }
+    
+    public boolean getMidHopperLidar(){
+        return (hopperLidar2.getRawDutyCycle() > hopperLowerBound) &&
+                (hopperLidar2.getRawDutyCycle() < hopperUpperBound);
+    }
+    
+    public boolean getBackHopperLidar(){
+        return (hopperLidar3.getRawDutyCycle() > hopperLowerBound) &&
+                (hopperLidar3.getRawDutyCycle() < hopperUpperBound);
     }
 }

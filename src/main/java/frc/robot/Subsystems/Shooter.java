@@ -97,13 +97,10 @@ public class Shooter {
         hoodPIDController.setFF(hoodFF);
 
         hoodPIDController.setSmartMotionMaxAccel(40000.0, 0);
-        hoodPIDController.setOutputRange(-1, 1);
+        hoodPIDController.setOutputRange(-1.25, 1.25);
         hoodPIDController.setSmartMotionMaxVelocity(40000.0, 0);
         hoodPIDController.setSmartMotionMinOutputVelocity(0.0, 0);
         hoodPIDController.setSmartMotionAllowedClosedLoopError(0.0, 0);
-
-        hoodMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
-        hoodMotor.setSoftLimit(SoftLimitDirection.kReverse, 25.0f);
 
         this.hoodMotor.getEncoder().setPosition(0.0);
         hoodMotor.setSmartCurrentLimit(20);
@@ -155,10 +152,9 @@ public class Shooter {
      * Starts the shooter wheel based on the shooter amount variable that is determined by the dpad
      */
     public void shoot(){
-        
-        if(!Subsystems.getIntake().getShooterBeam()){
-            ballOffWheel = true;
-        }
+
+        ballOffWheel = true;
+
         if(Subsystems.getIntake().getShooterBeam()){
             ballShooting = true;
         }
