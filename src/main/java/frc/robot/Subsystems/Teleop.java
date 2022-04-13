@@ -49,9 +49,9 @@ public class Teleop {
 
         if(finishAuto){
             shooter.shoot();
-            if(driveX + driveY > 0 /*|| !intake.ballPresent()*/){
+            if(driveController.getLeftStickButton() /*|| !intake.ballPresent()*/){
                 finishAuto = false;
-                shooter.stopShooter();
+                // shooter.stopShooter();
             }
             return;
         }
@@ -142,19 +142,22 @@ public class Teleop {
         if(driveController.getAButtonPressed()){
             pneumatics.toggleIntake();
         }
-
-        if(driveController.getXButtonPressed()){
-            shooter.reBurnFlash();
-        }
         
         ///////////////////////// Intake ////////////////////
+
+        if(driveController.getRightBumper()){
+            Subsystems.getIntake().runIntake(0.5, false, false, false);
+        }else if(driveController.getRightBumperReleased()){
+            intake.stopIntake();
+        }
+
         double opRTrigger = Teleop.deadzoneEquations(Constants.TRIGGER_DEADZONE, opController.getRightTriggerAxis());
         double opLTrigger = Teleop.deadzoneEquations(Constants.TRIGGER_DEADZONE, opController.getLeftTriggerAxis());
 
-        if(opController.getRightStickButton()){
-            opRTrigger = 0.2;
-            System.out.println("Intake = 0.2");
-        }
+        // if(opController.getRightStickButton()){
+        //     opRTrigger = 0.2;
+        //     System.out.println("Intake = 0.2");
+        // }
 
         if(opController.getAButtonPressed()){
             intakeOverride = !intakeOverride;
@@ -184,6 +187,17 @@ public class Teleop {
             shooter.revShooter();
         }
 
+        if(driveController.getXButtonPressed()){
+            shooter.resetFactoryDefaults();
+        }else if(driveController.getXButtonReleased()){
+            shooter.reBurnFlash();
+        }
+
+        if(driveController.getLeftStickButton()){
+            intake.feedShooter();
+        }else if(driveController.getLeftStickButtonReleased()){
+            intake.stopIntake();
+        }
         ////////////////////// Climber //////////////////
         double lClimbSpeed = Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, opController.getLeftY());
         double rClimbSpeed = Teleop.deadzoneEquations(Constants.JSTICK_DEADZONE, opController.getRightY());
@@ -194,10 +208,6 @@ public class Teleop {
             climber.disableSoftLimits();            
         }else if(opController.getLeftBumperReleased()){
             climber.zeroClimbers();
-        }
-
-        if(opController.getRightBumperPressed()){
-            // shooter.resetPID();
         }
 
         //////////////////// Pneumatics //////////////////
@@ -213,13 +223,6 @@ public class Teleop {
             intake.setIntakeToStuckCurrentLimit();
         }else if(opController.getXButtonReleased()){
             intake.setIntakeToUnStuckCurrentLimit();
-        }
-
-
-        if(driveController.getRightBumper()){
-            Subsystems.getIntake().runIntake(0.5, false, false, false);
-        }else if(driveController.getRightBumperReleased()){
-            intake.stopIntake();
         }
 
         if(driveController.getRightTriggerAxis() > Constants.TRIGGER_DEADZONE){

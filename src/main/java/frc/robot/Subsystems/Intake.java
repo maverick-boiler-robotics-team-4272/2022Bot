@@ -20,6 +20,8 @@ public class Intake {
     //run intake booleans
     private boolean b1 = false;
     private boolean b2 = false;
+    private boolean b1InFeed = false;
+    private boolean b1Prepped = false;
     private boolean b1Mid = false;
 
     private double hopperUpperBound = 0.1;
@@ -50,7 +52,7 @@ public class Intake {
 
         boolean midBeam = !midFeedBeamBreak.get();
         boolean shooterBeam = !shooterBeamBreak.get();
-        boolean hopperBeam = getMidHopperLidar() || getBackHopperLidar();
+        boolean hopperBeam = getHopperBeam();
         double feedVal = -0.6;
 
         if(intakeOnly){
@@ -66,12 +68,19 @@ public class Intake {
         }
 
         if(override){
+
             intakeMotor.set(triggerVal);
-            if(midBeam || shooterBeam){
+
+            if(midBeam || shooterBeam || b1Prepped){
                 shooterFeedMotor.set(0.0);
             }else{
                 shooterFeedMotor.set(feedVal);
             }
+
+            if(getIntakeLidar() && b1){
+                b2 = true;
+            }
+
             return;
 
         }
@@ -99,18 +108,22 @@ public class Intake {
         }else if(b1Mid && !midBeam){
 
             feedVal = 0;
-            b1 = true;
+            b1InFeed = true;
 
             System.out.println("B1: " + b1);
             System.out.println("B2: " + b2);
+            System.out.println("B1InFeed: " + b1InFeed);
 
         }
 
-        if(b1 && hopperBeam){
+        if(b1InFeed && hopperBeam){
             b2 = true;
         }
 
         if(hopperBeam){
+            if(!b1){
+                b1 = true;
+            }
             triggerVal = 0.15;
             setIntakeCurrentLimit(55);
         }else{
@@ -176,11 +189,12 @@ public class Intake {
 
         System.out.println("Ball shot\nB1: " + b1 + "\nB2: "  + b2);
 
-        if(b1 && b2){
+        if(b1){
             b1 = false;
-        }else if(!b1 && b2){
+        }else if(b2){
             b2 = false;
         }
+
     }
 
     /**
@@ -233,6 +247,7 @@ public class Intake {
      */
     public void feedShooter(){
         feedShooter(-0.6);
+        intakeMotor.set(0.15);
     }
 
     /**
@@ -315,4 +330,5 @@ public class Intake {
         return (hopperLidar3.getRawDutyCycle() > hopperLowerBound) &&
                 (hopperLidar3.getRawDutyCycle() < hopperUpperBound);
     }
+
 }

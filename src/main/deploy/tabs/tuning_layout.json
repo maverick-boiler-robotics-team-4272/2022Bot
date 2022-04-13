@@ -59,7 +59,7 @@
             "name":"hopBeam",
             "startValue":false,
             "x":8,
-            "y":1
+            "y":3
         },
         {
             "name":"Omega A",
@@ -101,7 +101,7 @@
             "name":"midBeam",
             "startValue":false,
             "x":8,
-            "y":2
+            "y":1
         },
         {
             "name":"backHopperLidar",
@@ -155,7 +155,7 @@
             "name":"botBeam",
             "startValue":false,
             "x":8,
-            "y":3
+            "y":2
         }
     ]
 }

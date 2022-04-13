@@ -18,7 +18,7 @@ public class Shooter {
             1500.0, -15.0, -0.75
         ),
         FENDER_HIGH(
-            2200.0, -3.5, -0.7 //2250
+            2075.0, -3.5, -0.7 //2250
         ),
         TARMAC(
             2175.0, -16.0, -0.9 //2300, -12.5
@@ -36,7 +36,7 @@ public class Shooter {
             2450.0, -16.0, -0.8
         ),
         AUTO_TARMAC(
-            2425.0, -15.25, -0.9
+            2300.0, -15.25, -0.9
         );
 
         public final double shootAmt;
@@ -82,9 +82,9 @@ public class Shooter {
 
     public Shooter(){
 
-        hoodMotor.restoreFactoryDefaults();
-        shooterMotor.restoreFactoryDefaults();
-        shooterFollowerMotor.restoreFactoryDefaults();
+        hoodMotor.restoreFactoryDefaults(true);
+        shooterMotor.restoreFactoryDefaults(true);
+        shooterFollowerMotor.restoreFactoryDefaults(true);
 
         this.hoodMotor.getEncoder().setPositionConversionFactor(1);
 
@@ -167,9 +167,15 @@ public class Shooter {
 
         if(shooterMotor.getEncoder().getVelocity() >= shooterAmt - (Constants.SHOOTER_DEADZONE) &&
             shooterMotor.getEncoder().getVelocity() <= shooterAmt + (Constants.SHOOTER_DEADZONE) &&
-            shooterAmt > 500 &&
             getHoodAtPosition()){
             shooterAtSpeed = true;
+
+            System.out.println("speed" + shooterAtSpeed);
+            
+        }else{
+
+            System.out.println("hood" + getHoodAtPosition());
+            
         }
 
         if(shooterMotor.getEncoder().getVelocity() < shooterAmt - (Constants.SHOOTER_FEED_DEADZONE) ||
@@ -177,7 +183,10 @@ public class Shooter {
             shooterAtSpeed = false;
         }        
 
-        if(shooterAtSpeed && ballOffWheel){
+        if(shooterAtSpeed){
+
+            System.out.println("Feed Amt: " + feedAmt);
+
             Subsystems.getIntake().feedShooter(feedAmt);
         }else{
             Subsystems.getIntake().stopIntake();
@@ -323,15 +332,6 @@ public class Shooter {
 
         return (hoodPos < (hoodAmt - (hoodAmt * Constants.HOOD_DEADZONE)) && hoodPos > (hoodAmt + hoodAmt * (Constants.HOOD_DEADZONE)));
 
-        /*
-        if(hoodPos < (hoodAmt - (hoodAmt * Constants.HOOD_DEADZONE))
-        && hoodPos > (hoodAmt + (hoodAmt * Constants.HOOD_DEADZONE))){
-            return true;
-        }else{
-            return false;
-        }
-        */
-
     }
 
     public void reBurnFlash(){
@@ -366,6 +366,13 @@ public class Shooter {
         hoodMotor.burnFlash();
         shooterMotor.burnFlash();
         shooterFollowerMotor.burnFlash();
+
+    }
+
+    public void resetFactoryDefaults(){
+
+        shooterMotor.restoreFactoryDefaults(true);
+        shooterFollowerMotor.restoreFactoryDefaults(true);
 
     }
 }

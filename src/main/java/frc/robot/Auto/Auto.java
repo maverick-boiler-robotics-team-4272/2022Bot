@@ -21,7 +21,9 @@ public class Auto {
     //the first parameter is an index. The index is what links to a few other things
     //the rest of the parameters are time based setpoints for shooting, intaking, and other things
     public enum Paths {
-        HANGAR_2_BALL(0
+        HANGAR_2_BALL(0,
+            new Setpoint(-1.0, 1.0,
+                () -> Subsystems.getPneumatics().intakeOut())
         ),
         TERMINAL_3_BALL(1,
         new Setpoint(-2.0, 2.0,
@@ -37,7 +39,7 @@ public class Auto {
         // )),
         ),
         TERMINAL_2_BALL(2,
-        new Setpoint(-0.5, 0.5,
+        new Setpoint(-0.0, 0.0,
             () -> Setpoint.noop())
         // new Setpoint(0.0, 0.1,
         //     () -> Subsystems.getShooter().stopShooterAndFeed()),
@@ -185,22 +187,21 @@ public class Auto {
             if(fiveBall && path.equals(Paths.TERMINAL_2_BALL) && Subsystems.getIntake().ballPresent()){
                 Limelight.setLEDMode(LEDMode.ON);
                 Subsystems.getDriveTrain().drive(0, 0, Subsystems.getDriveTrain().aimAtHub(), false);
-            }
-            if(path.name().equals(Paths.TERMINAL_3_BALL.name()) && fiveBall){
+            }else if(path.name().equals(Paths.TERMINAL_3_BALL.name()) && fiveBall){
                 if(Subsystems.getIntake().ballPresent()){
-                    System.out.println("ball count:  " + Subsystems.getIntake().getBallCount());
+                    //System.out.println("ball count:  " + Subsystems.getIntake().getBallCount());
                     return;
                 }
                 path = Paths.TERMINAL_2_BALL;
                 initPath();
-                System.out.println("auto path: " + path.name());
+                //System.out.println("auto path: " + path.name());
                 return;
             }
 
             //2 ball path transition
             if(path.equals(Paths.HANGAR_2_BALL)){
                 if(Subsystems.getIntake().ballPresent()){
-                    System.out.println("ball count:  " + Subsystems.getIntake().getBallCount());
+                    //System.out.println("ball count:  " + Subsystems.getIntake().getBallCount());
                     return;
                 }
                 path = Paths.HANGAR_2_BALL_2;
@@ -208,7 +209,7 @@ public class Auto {
                 return;
             }
 
-            System.out.println("auto path: " + path.name());
+            //System.out.println("auto path: " + path.name());
             stopped = true;
         }
         for (int i = 0; i < path.setpoints.length; i++){
@@ -232,7 +233,7 @@ public class Auto {
      * Stops intake, shooter, and feed
      */
     public void stopAuto(){
-        Subsystems.getIntake().runIntake(0.0, false, false, false);
+        Subsystems.getIntake().stopIntake();
         Subsystems.getShooter().stopShooter();
     }
 
@@ -251,28 +252,27 @@ public class Auto {
     public void terminal3Ball(){
         double currTime = Auto.timer.get();
 
-        if(currTime < 0.25){
+        if(currTime < 0.25){//Shoot first ball
             Subsystems.getShooter().setShooter(ShooterPositions.FENDER_HIGH);
             Subsystems.getShooter().revShooter();
         }else if(currTime > 0.26 && currTime < 2.0){
             Subsystems.getShooter().shoot();
-        }else if(currTime < 2.1){
+        }else if(currTime < 2.1){//Shot first ball
             Subsystems.getShooter().stopShooter();
         }else if(currTime < 2.55 && currTime > 2.45){
             Subsystems.getShooter().setShooter(ShooterPositions.AUTO_TARMAC);
             Subsystems.getPneumatics().intakeOut();
-        }else if(currTime < 5.0 && currTime > 3.0){
-            Subsystems.getIntake().runIntake(0.75, false, false, false);
+        }else if(currTime < 5.0 && currTime > 3.0){//Intake ball 2
+            Subsystems.getIntake().runIntake(0.85, false, false, false);
             Subsystems.getShooter().revShooter();
-        }else if(currTime < 6.75){
+        }else if(currTime < 6.75){//Intake ball 3
             Subsystems.getIntake().setIntakeCurrentLimit(Constants.INTAKE_ERROR_CURR_LIM);
-            Subsystems.getIntake().runIntake(0.75, false, false, false);
+            Subsystems.getIntake().runIntake(0.95, false, false, false);
             Subsystems.getShooter().revShooter();
-        }else if(currTime < 6.8){
+        }else if(currTime < 6.8){//Shoot 2/3
             Subsystems.getIntake().setIntakeCurrentLimit(Constants.INTAKE_NORM_CURR_LIM);
-            Subsystems.getIntake().stopIntake();
             Subsystems.getShooter().shoot();
-        }else if(currTime > 6.9){
+        }else if(currTime > 6.9){//Continue to shoot 2/3
             Subsystems.getIntake().runIntake(0.25, false, false, true);
             Subsystems.getShooter().shoot();
         }
@@ -284,16 +284,18 @@ public class Auto {
     public void terminal2Ball(){
         double currTime = Auto.timer.get();
 
-        if(currTime < 1.8 && currTime > 1.5){
+        if(currTime < 1.8 && currTime > 1.5){//stop shooting
             Subsystems.getShooter().stopShooter();
-        }else if(currTime < 3.5){
+        }else if(currTime < 3.5){//run intake for balls 4/5 as well as rev up the shooter
             Subsystems.getIntake().runIntake(0.6, false, false, false);
+            Subsystems.getIntake().setIntakeCurrentLimit(Constants.INTAKE_ERROR_CURR_LIM);
             Subsystems.getShooter().setShooter(ShooterPositions.AUTO_TARMAC);
             Subsystems.getShooter().revShooter();
-        }else if(currTime < 5.75){
+        }else if(currTime < 5.75){//continue running intake for balls 4/5
             Subsystems.getIntake().runIntake(0.6, false, false, false);
             Subsystems.getShooter().revShooter();
-        }else if(currTime > 5.5){
+        }else if(currTime > 5.5){//shoot balls 4/5
+            Subsystems.getIntake().setIntakeCurrentLimit(Constants.INTAKE_ERROR_CURR_LIM);
             Subsystems.getShooter().shoot();
         }
     }
