@@ -14,7 +14,7 @@
             "y":0
         },
         {
-            "name":"Mid Hopper Lidar",
+            "name":"midHopperLidar",
             "startValue":false,
             "x":6,
             "y":2

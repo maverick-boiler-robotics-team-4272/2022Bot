@@ -153,6 +153,11 @@ public class Auto {
             fiveBall = true;
             path = Paths.TERMINAL_3_BALL;
         }
+
+        if(path.equals(Paths.HANGAR_2_BALL)){
+            Subsystems.getIntake().setB1(true);
+        }
+
         Subsystems.getDriveTrain().setOdometry(startPoints[path.index]);
         Subsystems.getDriveTrain().setHeading(paths[path.index].getInitialState().holonomicRotation);
 
@@ -185,21 +190,25 @@ public class Auto {
 
             //5 ball path transition
             if(fiveBall && path.equals(Paths.TERMINAL_2_BALL) && Subsystems.getIntake().ballPresent()){
+
                 Limelight.setLEDMode(LEDMode.ON);
                 Subsystems.getDriveTrain().drive(0, 0, Subsystems.getDriveTrain().aimAtHub(), false);
+
             }else if(path.name().equals(Paths.TERMINAL_3_BALL.name()) && fiveBall){
 
-                //if(Subsystems.getIntake().ballPresent()){
-                //   return;
-                //}
+                if(Subsystems.getIntake().ballPresent()){
+
+                  return;
+
+                }
 
                 path = Paths.TERMINAL_2_BALL;
                 initPath();
-                
+
                 return;
             }
 
-            if(path.equals(Paths.HANGAR_2_BALL)){
+            if(path.equals(Paths.HANGAR_2_BALL) && Subsystems.getIntake().ballPresent()){
 
                 System.out.println("Limelight Aiming");
                 Limelight.setLEDMode(LEDMode.ON);
@@ -213,6 +222,13 @@ public class Auto {
                     Subsystems.getShooter().shoot();
 
                 }
+
+                return;
+
+            }else if(!Subsystems.getIntake().ballPresent() && path.equals(Paths.HANGAR_2_BALL)){
+
+                System.out.println("Done Shooting!");
+                Subsystems.getShooter().stopShooter();
 
             }
 
@@ -269,17 +285,17 @@ public class Auto {
             Subsystems.getShooter().setShooter(ShooterPositions.AUTO_TARMAC);
             Subsystems.getPneumatics().intakeOut();
         }else if(currTime < 5.0 && currTime > 3.0){//Intake ball 2
-            Subsystems.getIntake().runIntake(0.85, false, false, false);
+            Subsystems.getIntake().runIntake(0.50, false, false, false);
             Subsystems.getShooter().revShooter();
         }else if(currTime < 6.75){//Intake ball 3
-            Subsystems.getIntake().setIntakeCurrentLimit(Constants.INTAKE_ERROR_CURR_LIM);
-            Subsystems.getIntake().runIntake(0.95, false, false, false);
+            // Subsystems.getIntake().setIntakeCurrentLimit(Constants.INTAKE_ERROR_CURR_LIM);
+            Subsystems.getIntake().runIntake(0.8, false, true, false);
             Subsystems.getShooter().revShooter();
         }else if(currTime < 6.8){//Shoot 2/3
-            Subsystems.getIntake().setIntakeCurrentLimit(Constants.INTAKE_NORM_CURR_LIM);
+            // Subsystems.getIntake().setIntakeCurrentLimit(Constants.INTAKE_NORM_CURR_LIM);
             Subsystems.getShooter().shoot();
         }else if(currTime > 6.9){//Continue to shoot 2/3
-            Subsystems.getIntake().runIntake(0.25, false, false, true);
+            Subsystems.getIntake().runIntake(0.25, false, false, false);
             Subsystems.getShooter().shoot();
         }
     }
@@ -294,16 +310,17 @@ public class Auto {
             Subsystems.getShooter().stopShooter();
         }else if(currTime < 3.5){//run intake for balls 4/5 as well as rev up the shooter
             Subsystems.getIntake().runIntake(0.6, false, false, false);
-            Subsystems.getIntake().setIntakeCurrentLimit(Constants.INTAKE_ERROR_CURR_LIM);
+            // Subsystems.getIntake().setIntakeCurrentLimit(Constants.INTAKE_ERROR_CURR_LIM);
             Subsystems.getShooter().setShooter(ShooterPositions.AUTO_TARMAC);
             Subsystems.getShooter().revShooter();
         }else if(currTime < 5.75){//continue running intake for balls 4/5
             Subsystems.getIntake().runIntake(0.6, false, false, false);
             Subsystems.getShooter().revShooter();
         }else if(currTime > 5.5){//shoot balls 4/5
-            Subsystems.getIntake().setIntakeCurrentLimit(Constants.INTAKE_ERROR_CURR_LIM);
+            // Subsystems.getIntake().setIntakeCurrentLimit(Constants.INTAKE_ERROR_CURR_LIM);
             Subsystems.getShooter().shoot();
         }
+
     }
 
     /**
@@ -315,7 +332,7 @@ public class Auto {
         if(currTime < 0.1){
             Subsystems.getPneumatics().intakeOut();
             Subsystems.getShooter().setShooter(ShooterPositions.AUTO_TARMAC);
-            Subsystems.getIntake().runIntake(0.6, false, false, false);
+            Subsystems.getIntake().runIntake(0.6, false, false, true);
         }else if(currTime > 4.0){
             Subsystems.getIntake().stopIntake();
             // Subsystems.getShooter().shoot();

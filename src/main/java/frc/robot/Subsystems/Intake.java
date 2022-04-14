@@ -52,7 +52,7 @@ public class Intake {
 
         boolean midBeam = !midFeedBeamBreak.get();
         boolean shooterBeam = !shooterBeamBreak.get();
-        boolean hopperBeam = false;//getHopperBeam();
+        boolean hopperBeam = getHopperBeam();
         double feedVal = -0.6;
 
         if(intakeOnly){
@@ -140,6 +140,9 @@ public class Intake {
         
     }
     
+    public boolean hopperFull(){
+        return (b1 && b2);
+    }
     /**
      * 
      */
@@ -216,7 +219,7 @@ public class Intake {
         boolean shooterBeam = !shooterBeamBreak.get();
         boolean hopper = getBallInHopper();
         
-        return (botBeam || midBeam || shooterBeam || hopper || b1 || b2);
+        return (botBeam || midBeam || shooterBeam || hopper || b1);
 
     }
 
@@ -289,6 +292,10 @@ public class Intake {
 
     public boolean getB2(){
         return b2;
+    }
+
+    public void setB1(boolean val){
+        b1 = val;
     }
 
     /**

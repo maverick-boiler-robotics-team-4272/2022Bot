@@ -170,12 +170,6 @@ public class Shooter {
             getHoodAtPosition()){
             shooterAtSpeed = true;
 
-            System.out.println("speed" + shooterAtSpeed);
-            
-        }else{
-
-            System.out.println("hood" + getHoodAtPosition());
-            
         }
 
         if(shooterMotor.getEncoder().getVelocity() < shooterAmt - (Constants.SHOOTER_FEED_DEADZONE) ||
@@ -184,8 +178,6 @@ public class Shooter {
         }        
 
         if(shooterAtSpeed){
-
-            System.out.println("Feed Amt: " + feedAmt);
 
             Subsystems.getIntake().feedShooter(feedAmt);
         }else{
