@@ -98,9 +98,6 @@ public class Intake {
 
             b1Mid = true;
 
-            System.out.println("B1: " + b1);
-            System.out.println("B2: " + b2);
-
         }else if(b1Mid && midBeam){
 
             feedVal = -0.3;
@@ -109,10 +106,6 @@ public class Intake {
 
             feedVal = 0;
             b1InFeed = true;
-
-            System.out.println("B1: " + b1);
-            System.out.println("B2: " + b2);
-            System.out.println("B1InFeed: " + b1InFeed);
 
         }
 
@@ -192,9 +185,11 @@ public class Intake {
 
         System.out.println("Ball shot\nB1: " + b1 + "\nB2: "  + b2);
 
-        if(b1){
+        if(b1 && b2){
+            b2 = false;
+        }else if(b1 && !b2){
             b1 = false;
-        }else if(b2){
+        }else if(!b1 && b2){
             b2 = false;
         }
 
@@ -235,6 +230,8 @@ public class Intake {
         b1 = false;
         b2 = false;
         b1Mid = false;
+        b1Prepped = false;
+        b1InFeed = false;
     }
 
     /**

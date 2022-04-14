@@ -23,7 +23,7 @@ public class Teleop {
     private XboxController opController = new XboxController(1);
 
     public boolean fieldRelative = true;
-    private boolean intakeStopped = true;
+    private boolean intakeStopped = false;
     private boolean shooterStopped = true;
     private boolean fixingHood = false;
     private boolean finishAuto = false;
@@ -48,7 +48,28 @@ public class Teleop {
         double driveY = driveController.getLeftY();
 
         if(finishAuto){
-            shooter.shoot();
+            
+            if(!intakeStopped){
+                Subsystems.getIntake().stopIntake();
+                intakeStopped = true;
+            }
+
+            System.out.println("Limelight Aiming");
+            Limelight.setLEDMode(LEDMode.ON);
+
+            Subsystems.getShooter().setShooter(Limelight.getFlywheelSpeed(), Limelight.getHoodAngle(), -0.8);
+            Subsystems.getShooter().revShooter();
+            
+            Subsystems.getDriveTrain().drive(0.0, 0.0, Subsystems.getDriveTrain().aimAtHub(), false);
+
+            if(Limelight.getAimed()){
+
+                System.out.println("Shooting");
+
+                Subsystems.getShooter().shoot();
+
+            }
+            
             if(driveController.getLeftStickButton() /*|| !intake.ballPresent()*/){
                 finishAuto = false;
                 shooter.setShooter(ShooterPositions.TARMAC);

@@ -39,8 +39,8 @@ public class Auto {
         // )),
         ),
         TERMINAL_2_BALL(2,
-        new Setpoint(-0.0, 0.0,
-            () -> Setpoint.noop())
+        new Setpoint(-0.25, 0.25,
+            () -> Subsystems.getShooter().shoot())
         // new Setpoint(0.0, 0.1,
         //     () -> Subsystems.getShooter().stopShooterAndFeed()),
         // new Setpoint(1.0, 3.75, 
@@ -191,14 +191,45 @@ public class Auto {
             //5 ball path transition
             if(fiveBall && path.equals(Paths.TERMINAL_2_BALL) && Subsystems.getIntake().ballPresent()){
 
+                System.out.println("Limelight Aiming");
                 Limelight.setLEDMode(LEDMode.ON);
-                Subsystems.getDriveTrain().drive(0, 0, Subsystems.getDriveTrain().aimAtHub(), false);
+                Subsystems.getShooter().setShooter(Limelight.getFlywheelSpeed(), Limelight.getHoodAngle(), -0.8);
+                Subsystems.getShooter().revShooter();
+                Subsystems.getDriveTrain().drive(0.0, 0.0, Subsystems.getDriveTrain().aimAtHub(), false);
 
+                if(Limelight.getAimed()){
+
+                    System.out.println("Shooting");
+
+                    Subsystems.getShooter().shoot();
+
+                }
+
+                return;
+                
             }else if(path.name().equals(Paths.TERMINAL_3_BALL.name()) && fiveBall){
+
+                Subsystems.getIntake().stopIntake();
 
                 if(Subsystems.getIntake().ballPresent()){
 
-                  return;
+                    Limelight.setLEDMode(LEDMode.ON);
+
+                    Subsystems.getIntake().stopIntake();
+
+                    System.out.println("shooting");
+
+                    Subsystems.getShooter().shoot();
+
+                    return;
+
+                }else{
+
+                    Limelight.setLEDMode(LEDMode.OFF);
+
+                    System.out.println("Done Shooting");
+
+                    // Subsystems.getShooter().stopShooter();
 
                 }
 
@@ -293,10 +324,12 @@ public class Auto {
             Subsystems.getShooter().revShooter();
         }else if(currTime < 6.8){//Shoot 2/3
             // Subsystems.getIntake().setIntakeCurrentLimit(Constants.INTAKE_NORM_CURR_LIM);
-            Subsystems.getShooter().shoot();
+            // Subsystems.getShooter().shoot();
         }else if(currTime > 6.9){//Continue to shoot 2/3
-            Subsystems.getIntake().runIntake(0.25, false, false, false);
-            Subsystems.getShooter().shoot();
+            //Subsystems.getIntake().runIntake(0.25, false, true, false);
+            System.out.println("----------------\n---------------\n-------------");
+            Subsystems.getIntake().stopIntake();
+            // Subsystems.getShooter().shoot();
         }
     }
 
@@ -307,19 +340,21 @@ public class Auto {
         double currTime = Auto.timer.get();
 
         if(currTime < 1.8 && currTime > 1.5){//stop shooting
-            Subsystems.getShooter().stopShooter();
+            // Subsystems.getShooter().stopShooter();
         }else if(currTime < 3.5){//run intake for balls 4/5 as well as rev up the shooter
+            Subsystems.getShooter().stopShooter();
             Subsystems.getIntake().runIntake(0.6, false, false, false);
             // Subsystems.getIntake().setIntakeCurrentLimit(Constants.INTAKE_ERROR_CURR_LIM);
             Subsystems.getShooter().setShooter(ShooterPositions.AUTO_TARMAC);
             Subsystems.getShooter().revShooter();
         }else if(currTime < 5.75){//continue running intake for balls 4/5
-            Subsystems.getIntake().runIntake(0.6, false, false, false);
+            Subsystems.getIntake().runIntake(0.6, false, true, false);
             Subsystems.getShooter().revShooter();
-        }else if(currTime > 5.5){//shoot balls 4/5
-            // Subsystems.getIntake().setIntakeCurrentLimit(Constants.INTAKE_ERROR_CURR_LIM);
-            Subsystems.getShooter().shoot();
         }
+        // else if(currTime > 5.5){//shoot balls 4/5
+        //     // Subsystems.getIntake().setIntakeCurrentLimit(Constants.INTAKE_ERROR_CURR_LIM);
+        //     Subsystems.getShooter().shoot();
+        // }
 
     }
 

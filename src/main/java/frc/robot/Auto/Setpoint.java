@@ -104,8 +104,8 @@ public class Setpoint {
      * @return whether or not we are in the time for our setpoint to run
      */
     public boolean isInTime(double currentTime){
-        System.out.println("isInTime: " + scheduleBased);
-        System.out.println("startTime: " + startTime);
+        // System.out.println("isInTime: " + scheduleBased);
+        // System.out.println("startTime: " + startTime);
         double referenceTime = currentTime - startTime;
         if(scheduleBased){
             return referenceTime < duration && referenceTime > 0.0;

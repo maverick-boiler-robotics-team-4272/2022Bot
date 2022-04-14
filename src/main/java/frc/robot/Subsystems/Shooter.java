@@ -71,7 +71,7 @@ public class Shooter {
     private double shooterP = 0.00004;
     private double shooterI = 0.0;
     private double shooterD = 0.0;
-    private double shooterFF = 0.0001963;
+    private double shooterFF = 0.000199;//0.0001963
 
     private double shooterVoltageCompensation = 11.0;
 
