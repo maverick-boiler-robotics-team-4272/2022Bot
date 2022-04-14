@@ -176,9 +176,9 @@ public class Auto {
             terminal2Ball();
         }else if(path.equals(Paths.HANGAR_2_BALL)){
             hangar2Ball();
-        }else if(path.equals(Paths.HANGAR_2_BALL_2)){
+        }/*else if(path.equals(Paths.HANGAR_2_BALL_2)){
             hangar2Ball2();
-        }
+        }*/
 
         if (currentTime > paths[path.index].getTotalTimeSeconds()) {
             Subsystems.getDriveTrain().drive(0, 0, 0, false);
@@ -188,28 +188,34 @@ public class Auto {
                 Limelight.setLEDMode(LEDMode.ON);
                 Subsystems.getDriveTrain().drive(0, 0, Subsystems.getDriveTrain().aimAtHub(), false);
             }else if(path.name().equals(Paths.TERMINAL_3_BALL.name()) && fiveBall){
-                if(Subsystems.getIntake().ballPresent()){
-                    //System.out.println("ball count:  " + Subsystems.getIntake().getBallCount());
-                    return;
-                }
+
+                //if(Subsystems.getIntake().ballPresent()){
+                //   return;
+                //}
+
                 path = Paths.TERMINAL_2_BALL;
                 initPath();
-                //System.out.println("auto path: " + path.name());
+                
                 return;
             }
 
-            //2 ball path transition
             if(path.equals(Paths.HANGAR_2_BALL)){
-                if(Subsystems.getIntake().ballPresent()){
-                    //System.out.println("ball count:  " + Subsystems.getIntake().getBallCount());
-                    return;
+
+                System.out.println("Limelight Aiming");
+                Limelight.setLEDMode(LEDMode.ON);
+                Subsystems.getShooter().setShooter(Limelight.getFlywheelSpeed(), Limelight.getHoodAngle(), -0.8);
+                Subsystems.getShooter().revShooter();
+                Subsystems.getDriveTrain().drive(0.0, 0.0, Subsystems.getDriveTrain().aimAtHub(), false);
+
+                if(Limelight.getAimed()){
+
+                    System.out.println("Shooting");
+                    Subsystems.getShooter().shoot();
+
                 }
-                path = Paths.HANGAR_2_BALL_2;
-                initPath();
-                return;
+
             }
 
-            //System.out.println("auto path: " + path.name());
             stopped = true;
         }
         for (int i = 0; i < path.setpoints.length; i++){
@@ -310,10 +316,11 @@ public class Auto {
             Subsystems.getPneumatics().intakeOut();
             Subsystems.getShooter().setShooter(ShooterPositions.AUTO_TARMAC);
             Subsystems.getIntake().runIntake(0.6, false, false, false);
-        }else if(currTime > 2.1){
+        }else if(currTime > 4.0){
             Subsystems.getIntake().stopIntake();
-            Subsystems.getShooter().shoot();
+            // Subsystems.getShooter().shoot();
         }
+
     }
 
     /**

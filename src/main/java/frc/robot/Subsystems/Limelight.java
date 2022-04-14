@@ -52,4 +52,5 @@ public class Limelight {
         double x = getTX();
         return Constants.FLYWHEEL_SPEED_A * Math.pow(x, 2.0) + Constants.FLYWHEEL_SPEED_B * x + Constants.FLYWHEEL_SPEED_C;
     }
+
 }

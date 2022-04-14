@@ -78,13 +78,13 @@ Swerve Code:
             Right Side:
                 X Axis: rotation
                 Y Axis: none
-                Click: none
+                Click: Rev Shooter
                 Bumper: Constant speed intake
                 Trigger: Pretuned setpoint shooting
             Left Side:
                 X Axis: Left Right Translation
                 Y Axis: Forward backward Translation
-                Click: none
+                Click: Manual feed
                 Bumper: Limelight Left Right Aiming
                 Trigger: Limelight 3 point calibration aiming
             Start Button: Toggle field relative

@@ -52,7 +52,7 @@ public class Intake {
 
         boolean midBeam = !midFeedBeamBreak.get();
         boolean shooterBeam = !shooterBeamBreak.get();
-        boolean hopperBeam = getHopperBeam();
+        boolean hopperBeam = false;//getHopperBeam();
         double feedVal = -0.6;
 
         if(intakeOnly){

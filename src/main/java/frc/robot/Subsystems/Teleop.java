@@ -51,7 +51,8 @@ public class Teleop {
             shooter.shoot();
             if(driveController.getLeftStickButton() /*|| !intake.ballPresent()*/){
                 finishAuto = false;
-                // shooter.stopShooter();
+                shooter.setShooter(ShooterPositions.TARMAC);
+                shooter.stopShooter();
             }
             return;
         }
@@ -154,10 +155,10 @@ public class Teleop {
         double opRTrigger = Teleop.deadzoneEquations(Constants.TRIGGER_DEADZONE, opController.getRightTriggerAxis());
         double opLTrigger = Teleop.deadzoneEquations(Constants.TRIGGER_DEADZONE, opController.getLeftTriggerAxis());
 
-        // if(opController.getRightStickButton()){
-        //     opRTrigger = 0.2;
-        //     System.out.println("Intake = 0.2");
-        // }
+        if(opController.getRightStickButton()){
+            opRTrigger = 0.15;
+            System.out.println("Intake = 0.2");
+        }
 
         if(opController.getAButtonPressed()){
             intakeOverride = !intakeOverride;
