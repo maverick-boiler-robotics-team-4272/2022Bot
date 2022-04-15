@@ -10,10 +10,18 @@ public class Climber {
     private CANSparkMax climberLeft = new CANSparkMax(17, MotorType.kBrushless);
     private CANSparkMax climberRight = new CANSparkMax(7, MotorType.kBrushless);
 
+    private int currLimit = 40;
+
     public Climber(){
+
+        climberRight.setSmartCurrentLimit(currLimit);
+        climberLeft.setSmartCurrentLimit(currLimit);
+        
         zeroClimbers();
+
         climberRight.burnFlash();
         climberLeft.burnFlash();
+
     }
 
     /**

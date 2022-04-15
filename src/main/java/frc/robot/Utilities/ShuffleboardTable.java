@@ -23,7 +23,7 @@ public class ShuffleboardTable {
     
     private final ShuffleboardTab tab;
     private final Map<String, SimpleWidget> keyEntryMap = new HashMap<>();
-
+    
     public ShuffleboardTable(String tabName){
         this.tab = Shuffleboard.getTab(tabName);
     }

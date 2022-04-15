@@ -3,6 +3,7 @@ package frc.robot.Subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxLimitSwitch.Type;
 import com.revrobotics.SparkMaxPIDController.AccelStrategy;
@@ -82,9 +83,11 @@ public class Shooter {
 
     public Shooter(){
 
+        /*
         hoodMotor.restoreFactoryDefaults(true);
         shooterMotor.restoreFactoryDefaults(true);
         shooterFollowerMotor.restoreFactoryDefaults(true);
+        */
 
         this.hoodMotor.getEncoder().setPositionConversionFactor(1);
 
@@ -112,11 +115,15 @@ public class Shooter {
         shooterPIDController.setFF(shooterFF);
 
         shooterPIDController.setSmartMotionMaxVelocity(3000.0, 0);
+        shooterPIDController.setSmartMotionMinOutputVelocity(0.0, 0);
         shooterPIDController.setSmartMotionMaxAccel(4000.0, 0);
         shooterPIDController.setSmartMotionAllowedClosedLoopError(5.0, 0);
 
         shooterMotor.enableVoltageCompensation(shooterVoltageCompensation);
         shooterFollowerMotor.enableVoltageCompensation(shooterVoltageCompensation);
+
+        shooterMotor.setIdleMode(IdleMode.kCoast);
+        shooterFollowerMotor.setIdleMode(IdleMode.kCoast);
 
         hoodMotor.burnFlash();
         shooterMotor.burnFlash();
@@ -286,17 +293,17 @@ public class Shooter {
      */
     public void updateShooter() {
 
-        shooterAmt = SmartDashboard.getNumber("Shooter Velocity Set", 0.0);
-        hoodAmt = SmartDashboard.getNumber("Hood Setpoint", 0.0);
+        shooterAmt = Constants.TUNING_TABLE.getNumber("Shooter Velocity Set", 0.0);
+        hoodAmt = Constants.TUNING_TABLE.getNumber("Hood Setpoint", 0.0);
         feedAmt = -0.6;
 
-        Constants.THETA_A = SmartDashboard.getNumber("Theta A", Constants.THETA_A);
-        Constants.THETA_B = SmartDashboard.getNumber("Theta B", Constants.THETA_B);
-        Constants.THETA_C = SmartDashboard.getNumber("Theta C", Constants.THETA_C);
+        Constants.THETA_A = Constants.TUNING_TABLE.getNumber("Theta A", Constants.THETA_A);
+        Constants.THETA_B = Constants.TUNING_TABLE.getNumber("Theta B", Constants.THETA_B);
+        Constants.THETA_C = Constants.TUNING_TABLE.getNumber("Theta C", Constants.THETA_C);
 
-        Constants.OMEGA_A = SmartDashboard.getNumber("Omega A", Constants.OMEGA_A);
-        Constants.OMEGA_B = SmartDashboard.getNumber("Omega B", Constants.OMEGA_B);
-        Constants.OMEGA_C = SmartDashboard.getNumber("Omega C", Constants.OMEGA_C);
+        Constants.OMEGA_A = Constants.TUNING_TABLE.getNumber("Omega A", Constants.OMEGA_A);
+        Constants.OMEGA_B = Constants.TUNING_TABLE.getNumber("Omega B", Constants.OMEGA_B);
+        Constants.OMEGA_C = Constants.TUNING_TABLE.getNumber("Omega C", Constants.OMEGA_C);
 
     }
 
@@ -328,14 +335,21 @@ public class Shooter {
 
     public void reBurnFlash(){
 
-        hoodPIDController.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
+        hoodMotor.restoreFactoryDefaults(true);
+        shooterMotor.restoreFactoryDefaults(true);
+        shooterFollowerMotor.restoreFactoryDefaults(true);
 
+        this.hoodMotor.getEncoder().setPositionConversionFactor(1);
+
+        hoodPIDController.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
+        
         hoodPIDController.setP(hoodP);
         hoodPIDController.setI(hoodI);
         hoodPIDController.setD(hoodD);
         hoodPIDController.setFF(hoodFF);
 
         hoodPIDController.setSmartMotionMaxAccel(40000.0, 0);
+        hoodPIDController.setOutputRange(-1.25, 1.25);
         hoodPIDController.setSmartMotionMaxVelocity(40000.0, 0);
         hoodPIDController.setSmartMotionMinOutputVelocity(0.0, 0);
         hoodPIDController.setSmartMotionAllowedClosedLoopError(0.0, 0);
@@ -343,17 +357,23 @@ public class Shooter {
         this.hoodMotor.getEncoder().setPosition(0.0);
         hoodMotor.setSmartCurrentLimit(20);
         this.shooterMotor.setInverted(true);
-
-        shooterFollowerMotor.follow(shooterMotor, true);
         
+        shooterFollowerMotor.follow(shooterMotor, true);
         shooterPIDController.setP(shooterP);
         shooterPIDController.setI(shooterI);
         shooterPIDController.setD(shooterD);
         shooterPIDController.setFF(shooterFF);
 
         shooterPIDController.setSmartMotionMaxVelocity(3000.0, 0);
+        shooterPIDController.setSmartMotionMinOutputVelocity(0.0, 0);
         shooterPIDController.setSmartMotionMaxAccel(4000.0, 0);
         shooterPIDController.setSmartMotionAllowedClosedLoopError(5.0, 0);
+
+        shooterMotor.enableVoltageCompensation(shooterVoltageCompensation);
+        shooterFollowerMotor.enableVoltageCompensation(shooterVoltageCompensation);
+
+        shooterMotor.setIdleMode(IdleMode.kCoast);
+        shooterFollowerMotor.setIdleMode(IdleMode.kCoast);
 
         hoodMotor.burnFlash();
         shooterMotor.burnFlash();

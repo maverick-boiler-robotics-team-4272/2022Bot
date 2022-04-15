@@ -59,7 +59,7 @@ public class Teleop {
 
             Subsystems.getShooter().setShooter(Limelight.getFlywheelSpeed(), Limelight.getHoodAngle(), -0.8);
             Subsystems.getShooter().revShooter();
-            
+
             Subsystems.getDriveTrain().drive(0.0, 0.0, Subsystems.getDriveTrain().aimAtHub(), false);
 
             if(Limelight.getAimed()){
@@ -258,11 +258,11 @@ public class Teleop {
             Subsystems.getShooter().stopShooter();
         }
 
-        if(driveController.getYButtonPressed()){
-            Subsystems.getDriveTrain().resetAimPID();
-            Subsystems.getShooter().resetPID();
-            Subsystems.getShooter().updateShooter();
-        }
+        // if(driveController.getYButtonPressed()){
+        //     Subsystems.getDriveTrain().resetAimPID();
+        //     Subsystems.getShooter().resetPID();
+        //     Subsystems.getShooter().updateShooter();
+        // }
 
         if(driveController.getBackButtonPressed()){
             // Subsystems.getShooter().updateShooter();
