@@ -181,6 +181,8 @@ public class Auto {
             terminal2Ball();
         }else if(path.equals(Paths.HANGAR_2_BALL)){
             hangar2Ball();
+        }else if(path.equals(Paths.OFF_TARMAC)){
+            offTarmac();
         }/*else if(path.equals(Paths.HANGAR_2_BALL_2)){
             hangar2Ball2();
         }*/
@@ -263,7 +265,16 @@ public class Auto {
 
             }
 
+            if(path.equals(Paths.OFF_TARMAC)){
+
+                Subsystems.getShooter().shoot();
+
+                Subsystems.getIntake().feedShooter();
+
+            }
+
             stopped = true;
+
         }
         for (int i = 0; i < path.setpoints.length; i++){
             Setpoint setpoint = path.setpoints[i];
@@ -316,7 +327,7 @@ public class Auto {
             Subsystems.getShooter().setShooter(ShooterPositions.AUTO_TARMAC);
             Subsystems.getPneumatics().intakeOut();
         }else if(currTime < 5.0 && currTime > 3.0){//Intake ball 2
-            Subsystems.getIntake().runIntake(0.50, false, false, false);
+            Subsystems.getIntake().runIntake(0.40, false, false, false);
             Subsystems.getShooter().revShooter();
         }else if(currTime < 6.75){//Intake ball 3
             // Subsystems.getIntake().setIntakeCurrentLimit(Constants.INTAKE_ERROR_CURR_LIM);
@@ -388,5 +399,18 @@ public class Auto {
             Subsystems.getIntake().stopIntake();
             Subsystems.getShooter().shoot();
         }
+    }
+
+    public void offTarmac(){
+
+        double currTime = Auto.timer.get();
+
+        if(currTime > 0){
+
+            Subsystems.getShooter().setShooter(ShooterPositions.TARMAC);
+            Subsystems.getShooter().revShooter();
+
+        }
+
     }
 }

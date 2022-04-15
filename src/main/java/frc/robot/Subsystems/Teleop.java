@@ -94,8 +94,6 @@ public class Teleop {
 
         double rotX;
 
-        
-
         if(driveController.getLeftTriggerAxis() > Constants.TRIGGER_DEADZONE){
             Limelight.setLEDMode(LEDMode.ON);
 
@@ -108,9 +106,12 @@ public class Teleop {
                 translating = false;
                 drivetrain.setXConfig();
                 shooter.shoot();
+                SmartDashboard.putBoolean("Limelight aimed", true);
             }else{
                 translating = true;
                 shooter.revShooter();
+                SmartDashboard.putBoolean("Limelight aimed", false);
+
             }
         }else if(!driveController.getLeftBumper()){
             Limelight.setLEDMode(LEDMode.OFF);
@@ -242,9 +243,9 @@ public class Teleop {
         }
 
         if(opController.getXButtonPressed()){
-            intake.setIntakeToStuckCurrentLimit();
+            intake.setIntakeCurrentLimit(80);
         }else if(opController.getXButtonReleased()){
-            intake.setIntakeToUnStuckCurrentLimit();
+            intake.setIntakeCurrentLimit(45);
         }
 
         if(driveController.getRightTriggerAxis() > Constants.TRIGGER_DEADZONE){
