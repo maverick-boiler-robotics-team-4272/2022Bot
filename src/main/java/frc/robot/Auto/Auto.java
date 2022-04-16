@@ -241,20 +241,9 @@ public class Auto {
                 return;
             }
 
-            if(path.equals(Paths.HANGAR_2_BALL) && Subsystems.getIntake().ballPresent()){
+            if(path.equals(Paths.HANGAR_2_BALL)){
 
-                System.out.println("Limelight Aiming");
-                Limelight.setLEDMode(LEDMode.ON);
-                Subsystems.getShooter().setShooter(Limelight.getFlywheelSpeed(), Limelight.getHoodAngle(), -0.8);
-                Subsystems.getShooter().revShooter();
-                Subsystems.getDriveTrain().drive(0.0, 0.0, Subsystems.getDriveTrain().aimAtHub(), false);
-
-                if(Limelight.getAimed()){
-
-                    System.out.println("Shooting");
-                    Subsystems.getShooter().shoot();
-
-                }
+                Subsystems.getShooter().shoot();
 
                 return;
 
@@ -377,7 +366,7 @@ public class Auto {
 
         if(currTime < 0.1){
             Subsystems.getPneumatics().intakeOut();
-            Subsystems.getShooter().setShooter(ShooterPositions.AUTO_TARMAC);
+            Subsystems.getShooter().setShooter(ShooterPositions.TARMAC);
             Subsystems.getIntake().runIntake(0.6, false, false, true);
         }else if(currTime > 4.0){
             Subsystems.getIntake().stopIntake();
