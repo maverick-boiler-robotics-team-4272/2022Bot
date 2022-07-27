@@ -11,6 +11,8 @@ import org.json.simple.parser.ParseException;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Auto.Auto;
 import frc.robot.Auto.Auto.Paths;
 import frc.robot.Subsystems.*;
@@ -43,6 +45,23 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotInit() {
+
+        InstantCommand lowerSpeed = new InstantCommand(() -> {
+            Constants.MAX_SPEED = 0.0;
+            Constants.MAX_ANGULAR_SPEED = 1.0;
+        });
+        lowerSpeed.setName("Lower Speed");
+
+        SmartDashboard.putData(lowerSpeed);
+
+        InstantCommand heightenSpeed = new InstantCommand(() -> {
+            Constants.MAX_SPEED = 4.75;
+            Constants.MAX_ANGULAR_SPEED = 8.0 * Math.PI;
+        });
+        heightenSpeed.setName("Heighten Speed");
+
+        SmartDashboard.putData(heightenSpeed);
+
         try {
             Constants.TUNING_TABLE = ShuffleboardTable.fromJSON("tuning_layout.json");
         } catch (IOException | ParseException e1) {
@@ -86,6 +105,8 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotPeriodic() {
+
+        CommandScheduler.getInstance().run();
 
         Subsystems.getShooter().putShooterDataToDashboard();
         Subsystems.getIntake().beamBreaksToSmart();
