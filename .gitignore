@@ -162,6 +162,5 @@ bin/
 *-window.json
 
 #Gradle
-gradlew
-build.gradle
-gradlew.bat
+./build.gradle
+./gradlew

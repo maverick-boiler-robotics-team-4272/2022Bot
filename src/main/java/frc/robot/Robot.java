@@ -11,7 +11,6 @@ import org.json.simple.parser.ParseException;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Auto.Auto;
 import frc.robot.Auto.Auto.Paths;
@@ -36,6 +35,9 @@ public class Robot extends TimedRobot {
     public Teleop teleop;
     public Auto auto;
 
+    private InstantCommand lowerSpeed;
+    private InstantCommand heightenSpeed;
+
     //Deadzone constants
 
     /**
@@ -46,7 +48,7 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
 
-        InstantCommand lowerSpeed = new InstantCommand(() -> {
+        lowerSpeed = new InstantCommand(() -> {
             Constants.MAX_SPEED = 0.0;
             Constants.MAX_ANGULAR_SPEED = 1.0;
         });
@@ -54,7 +56,7 @@ public class Robot extends TimedRobot {
 
         SmartDashboard.putData(lowerSpeed);
 
-        InstantCommand heightenSpeed = new InstantCommand(() -> {
+        heightenSpeed = new InstantCommand(() -> {
             Constants.MAX_SPEED = 4.75;
             Constants.MAX_ANGULAR_SPEED = 8.0 * Math.PI;
         });
@@ -106,7 +108,15 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
 
-        CommandScheduler.getInstance().run();
+        if(lowerSpeed.isScheduled()){
+            lowerSpeed.execute();
+            lowerSpeed.cancel();
+        }
+
+        if(heightenSpeed.isScheduled()){
+            heightenSpeed.execute();
+            heightenSpeed.cancel();
+        }
 
         Subsystems.getShooter().putShooterDataToDashboard();
         Subsystems.getIntake().beamBreaksToSmart();
